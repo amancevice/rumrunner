@@ -1,5 +1,8 @@
 # Cargofile
 
+[![Build Status](https://travis-ci.com/amancevice/cargofile.svg?branch=master)](https://travis-ci.com/amancevice/cargofile)
+[![codecov](https://codecov.io/gh/amancevice/cargofile/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/cargofile)
+
 Experiment in building projects with multi-stage Dockerfiles
 
 ## Example
