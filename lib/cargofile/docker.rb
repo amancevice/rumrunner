@@ -1,21 +1,20 @@
 module Cargofile
   module Docker
-    class Build
+    class Base
       include Enumerable
 
-      attr_accessor :path, :options
+      attr_accessor :options
 
-      def initialize(path:nil, options:nil)
-        @path    = path    || "."
+      def initialize(options:nil, &block)
         @options = options || {}
+        yield self if block_given?
       end
 
       def each
-        yield "docker"
-        yield "build"
         @options.each do |name, values|
+          option = name.length == 1 ? "-#{name}" : "--#{name.to_s.gsub(/_/, "-")}"
+          yield option if values.empty?
           values.each do |value|
-            option = "--#{name.to_s.gsub(/_/, "-")}"
             if value.is_a?(Hash)
               value.map{|kv| kv.join("=") }.each do |val|
                 yield option
@@ -27,13 +26,37 @@ module Cargofile
             end
           end
         end
-        yield @path
       end
 
       def method_missing(m, *args, &block)
+        @options ||= {}
         @options[m] ||= []
         @options[m]  += args
         self
+      end
+
+      def to_h
+        {options: options.clone}
+      end
+
+      def to_s
+        to_a.join(" ")
+      end
+    end
+
+    class Build < Base
+      attr_accessor :path
+
+      def initialize(path:nil, options:nil)
+        @path = path
+        super options: options
+      end
+
+      def each
+        yield "docker"
+        yield "build"
+        super{|x| yield x }
+        yield @path || "."
       end
 
       def clone
@@ -41,14 +64,7 @@ module Cargofile
       end
 
       def to_h
-        {
-          path:    @path.clone,
-          options: @options.clone,
-        }
-      end
-
-      def to_s
-        to_a.join(" ")
+        super.update path: @path.clone
       end
     end
 
@@ -64,6 +80,10 @@ module Cargofile
 
       def clone
         Image.new to_h
+      end
+
+      def tag(value = nil)
+        @tag = value || @tag
       end
 
       def to_h
@@ -99,18 +119,48 @@ module Cargofile
             username, name_tag = string.split(/\//)
             name, tag          = name_tag.split(/:/)
             options = {username: username, name: name, tag: tag}
-          elsif string.count("/") == 2 && string.count(":").zero?
-            # registry/username/image
-            registry, username, name = string.split(/\//)
-            options = {registry: registry, username: username, name: name}
           else
-            # registry/username/image:tag
+            # registry/username/image[:tag]
             registry, username, name_tag = string.split(/\//)
             name, tag                    = name_tag.split(/:/)
             options = {registry: registry, username: username, name: name, tag: tag}
           end
           new options
         end
+      end
+    end
+
+    class Run < Base
+      attr_accessor :image, :cmd, :options
+
+      def initialize(image:nil, cmd:nil, options:nil)
+        @image = image
+        @cmd   = cmd
+        super options: options
+      end
+
+      def each
+        yield "docker"
+        yield "run"
+        super{|x| yield x }
+        yield @image
+        cmd.is_a?(Array) ? cmd.each{|x| yield x } : yield(cmd) unless cmd.nil?
+      end
+
+      def clone
+        Run.new to_h
+      end
+
+      def cmd(*values)
+        @cmd = values.any? ? values : @cmd
+      end
+
+      def image(value = nil)
+        @image = value || @image
+      end
+
+      def to_h
+        super.update image: @image.clone, cmd: @cmd.clone
       end
     end
   end

@@ -1,0 +1,4 @@
+*
+!*.gemspec
+!Gemfile
+!lib/

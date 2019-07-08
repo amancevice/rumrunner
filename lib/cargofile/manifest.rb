@@ -86,20 +86,15 @@ module Cargofile
         task a => b
       end
 
-=begin
-      desc 'Remove Docker images and iidfiles'
-      task :clean do
-        Dir[File.join @dir.to_s, "**"].each do |iidfile|
-          digest = File.read iidfile
-          sh "docker", "image", "rm", "-f", digest
-          File.delete iidfile
+      namespace :clean do
+        desc "Remove any temporary images"
+        task :images do
+          Dir[File.join @dir.to_s, "**"].each do |iidfile|
+            sh "docker", "image", "rm", "-f", File.read(iidfile)
+          end
         end
-        stages.map(&:artifacts).flatten.each do |artifact|
-          File.delete artifact.name if File.exists?(artifact.name)
-        end
-        Dir.delete(@dir.to_s) if Dir.exists?(@dir.to_s)
       end
-=end
+      task :clean => :"clean:images"
     end
   end
 
@@ -112,8 +107,10 @@ module Cargofile
 
       iidfile = @build.options[:iidfile].last
 
-      directory @dir.to_s
-      CLEAN.include(@dir)
+      unless CLEAN.include? @dir
+        directory @dir.to_s
+        CLEAN.include(@dir)
+      end
 
       file iidfile => @dir do
         sh *@build.to_a
@@ -128,8 +125,13 @@ module Cargofile
       namespace @name do
         desc "Shell into #{@name} stage"
         task :shell => @name do
-          digest = File.read(iidfile)
-          sh "docker", "run", "--rm", "-it", digest, @shell
+          digest  = File.read(iidfile)
+          command = Docker::Run.new(image: digest, cmd: @shell) do |run|
+            run.rm
+            run.interactive
+            run.tty
+          end
+          sh *command.to_a
         end
       end
     end
@@ -140,25 +142,24 @@ module Cargofile
 
     attr_accessor :name, :cmd
 
-    def initialize(name:, cmd:nil, &block)
+    def initialize(name:, &block)
       @name = name
-      @cmd  = cmd || ["cat", @name]
-      yield self if block_given?
-    end
-
-    def cmd(*values)
-      @cmd = values.empty? ? @cmd : values
+      @run  = Docker::Run.new(cmd: ["cat", @name]).rm
+      yield @run if block_given?
     end
 
     def install(stage, iidfile)
       path, name = File.split(@name)
 
-      directory path
-      CLOBBER.include(path)
+      unless path == "."
+        directory path
+        CLOBBER.include(path)
+      end
 
       file @name => [iidfile, path] do
-        digest = File.read(iidfile)
-        sh "docker run --rm #{digest} #{@cmd.join " "} > #{@name}"
+        @run.image = File.read(iidfile)
+        @run.cmd  += [">", @name]
+        sh @run.to_s
       end
       CLOBBER.include(@name)
       task stage => @name

@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["smallweirdnum@gmail.com"]
   spec.summary       = %q{Experiment in building projects with multi-stage Dockerfiles}
   spec.description   = %q{Experiment in building projects with multi-stage Dockerfiles}
-  spec.homepage      = "https://.github.com/amancevice/cargofile"
+  spec.homepage      = "https://github.com/amancevice/cargofile.git"
   spec.license       = "MIT"
   spec.require_paths = ["lib"]
   spec.files         = Dir["README*", "LICENSE*", "lib/**/*"]

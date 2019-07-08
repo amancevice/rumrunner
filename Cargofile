@@ -4,14 +4,14 @@ require "cargofile"
 
 cargo :cargofile do |c|
 
-  c.build_arg RUNTIME: "ruby2.5"
+  c.build_arg :RUNTIME => "ruby2.5"
   c.tag       %x(git describe --tags --always).strip
 
   c.stage :build do |s|
     s.artifact "Gemfile.lock"
-
-    s.artifact "tmp/vendor.zip" do |a|
-      a.cmd "zip", "-r", "-", "vendor"
+    s.artifact "pkg/vendor.zip" do |a|
+      a.workdir "/var/task/vendor"
+      a.cmd     %w{zip -r - .}
     end
   end
 
