@@ -23,11 +23,19 @@ module Cargofile
     attr_accessor :stages
 
     def stage(name, &block)
-      build = @build.clone
-      image = @image.clone
-      build.target name
-      image.tag "#{image.tag}-#{name}"
-      stages << Stage.new(name: name, build: build, image: image, &block)
+      @image.tag SecureRandom.hex(6) if @image.tag.nil?
+      bld = @build.clone
+      img = @image.clone
+      bld.target name
+      img.tag "#{img.tag}-#{name}"
+      stages << Stage.new(
+        name:  name,
+        build: bld,
+        image: img,
+        dir:   dir,
+        shell: shell,
+        &block
+      )
     end
 
     def stages
@@ -105,12 +113,12 @@ module Cargofile
       @build.options[:tag]     ||= [@image.to_s]
       @build.options[:iidfile] ||= [File.join(@dir.to_s, @image.tag)]
 
-      iidfile = @build.options[:iidfile].last
-
-      unless CLEAN.include? @dir
+      unless CLEAN.include? @dir.to_s
         directory @dir.to_s
-        CLEAN.include(@dir)
+        CLEAN.include(@dir.to_s)
       end
+
+      iidfile = @build.options[:iidfile].last
 
       file iidfile => @dir do
         sh *@build.to_a
@@ -140,7 +148,7 @@ module Cargofile
   class Artifact
     include Rake::DSL if defined? Rake::DSL
 
-    attr_accessor :name, :cmd
+    attr_accessor :name, :run
 
     def initialize(name:, &block)
       @name = name
@@ -149,7 +157,7 @@ module Cargofile
     end
 
     def install(stage, iidfile)
-      path, name = File.split(@name)
+      path = File.split(name).first
 
       unless path == "."
         directory path

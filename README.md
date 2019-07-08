@@ -18,12 +18,9 @@ cargo :cargofile do |c|
   c.tag       %x(git describe --tags --always).strip
 
   c.stage :build do |s|
+    s.artifact "Gemfile.lock" # Default artifact extraction using `cat`
 
-    # Default artifact extraction
-    s.artifact "Gemfile.lock"
-
-    # Custom artifact extraction
-    s.artifact "pkg/vendor.zip" do |a|
+    s.artifact "pkg/vendor.zip" do |a| # Custom artifact extraction
       a.workdir "/var/task/vendor"
       a.cmd     %w{zip -r - .}
     end
