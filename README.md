@@ -5,6 +5,8 @@
 
 Experiment in building projects with multi-stage Dockerfiles.
 
+*THIS IS ALL HIGHLY EXPERIMENTAL AT THE MOMENT*
+
 ## Example
 
 Imagine a simple two-stage Dockerfile:
