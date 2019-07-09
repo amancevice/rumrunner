@@ -7,8 +7,6 @@ require "cargofile/docker"
 require "cargofile/manifest"
 require "cargofile/version"
 
-require "pry"
-
 module Cargofile
   class Error < StandardError
   end
