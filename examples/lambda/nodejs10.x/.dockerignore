@@ -1,0 +1,4 @@
+*
+!package*.json
+!lambda.js
+!terraform.tf

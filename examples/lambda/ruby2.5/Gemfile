@@ -1,0 +1,12 @@
+source "https://rubygems.org"
+
+gem "activesupport", "~> 5.2", require: "active_support/all"
+
+group :test do
+  gem "rake", "~> 10.0"
+end
+
+group :development do
+  gem "cargofile", "~> 0.1", git: "https://github.com/amancevice/cargofile"
+  gem "pry",       "~> 0.12"
+end

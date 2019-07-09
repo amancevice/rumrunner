@@ -1,0 +1,6 @@
+load "lambda.rb"
+
+task :default do
+  event = {hello: "world"}
+  handler(event: event, context:nil)
+end

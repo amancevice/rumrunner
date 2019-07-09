@@ -1,0 +1,5 @@
+*
+!*.tf
+!Gemfile
+!Rakefile
+!lambda.rb

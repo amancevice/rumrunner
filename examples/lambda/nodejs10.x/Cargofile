@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+require "cargofile"
+
+cargo :"cargofile/example" do |c|
+  c.tag Time.now.utc.strftime("%Y.%-m.%-d")
+
+  c.stage :build do |s|
+    s.artifact "package-lock.json"
+    s.artifact "lambda.zip"
+  end
+
+  c.stage :test
+
+  c.stage :plan do |s|
+    s.build_arg :AWS_ACCESS_KEY_ID
+    s.build_arg :AWS_SECRET_ACCESS_KEY
+    s.build_arg :AWS_DEFAULT_REGION => "us-east-1"
+  end
+end

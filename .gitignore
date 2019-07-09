@@ -16,3 +16,5 @@ Gemfile.lock
 *.gem
 *.ruby-version
 *.zip
+
+!example/**
