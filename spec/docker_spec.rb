@@ -158,7 +158,7 @@ RSpec.describe Cargofile::Docker::Image do
   it "#clone" do
     a = Cargofile::Docker::Image.new name: "fizz"
     b = a.clone
-    b.name = "buzz"
+    b.name "buzz"
     expect(a.to_h).not_to eq(b.to_h)
   end
 end

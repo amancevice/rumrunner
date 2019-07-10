@@ -1,5 +1,19 @@
 module Cargofile
   module Docker
+    module AttrCallable
+      def attr_method_accessor(*args)
+        args.each do |var|
+          define_method var do |value = nil|
+            if value.nil?
+              instance_variable_get :"@#{var}"
+            else
+              instance_variable_set :"@#{var}", value
+            end
+          end
+        end
+      end
+    end
+
     class OptionCollection
       extend Forwardable
       include Enumerable
@@ -49,6 +63,7 @@ module Cargofile
     end
 
     class Base
+      extend AttrCallable
       include Enumerable
 
       attr_accessor :options
@@ -77,6 +92,8 @@ module Cargofile
     end
 
     class Build < Base
+      attr_method_accessor :path
+
       def initialize(path:nil, options:nil)
         @path = path
         super options: options
@@ -87,16 +104,14 @@ module Cargofile
         yield @path || "."
       end
 
-      def path(value = nil)
-        @path = value || @path
-      end
-
       def to_h
         super.update path: @path.clone
       end
     end
 
     class Run < Base
+      attr_method_accessor :image
+
       def initialize(image:nil, cmd:nil, options:nil)
         @image = image
         @cmd   = cmd
@@ -113,10 +128,6 @@ module Cargofile
         @cmd = values.any? ? values : @cmd
       end
 
-      def image(value = nil)
-        @image = value || @image
-      end
-
       def to_h
         super.update image: @image.clone,
                      cmd:   @cmd.clone
@@ -124,7 +135,9 @@ module Cargofile
     end
 
     class Image
-      attr_accessor :registry, :username, :name, :tag
+      extend AttrCallable
+
+      attr_method_accessor :registry, :username, :name, :tag
 
       def initialize(name:, registry:nil, username:nil, tag:nil)
         @registry = registry
