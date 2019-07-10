@@ -8,6 +8,7 @@ module Cargofile
               instance_variable_get :"@#{var}"
             else
               instance_variable_set :"@#{var}", value
+              self
             end
           end
         end
@@ -22,7 +23,7 @@ module Cargofile
 
       def initialize(options = {}, &block)
         @options = options
-        yield self if block_given?
+        instance_eval(&block) if block_given?
       end
 
       def each
@@ -35,6 +36,8 @@ module Cargofile
                 yield option
                 yield val
               end
+            elsif [true, false].include? value
+              yield option
             else
               yield option
               yield value.to_s
@@ -44,13 +47,15 @@ module Cargofile
       end
 
       def method_missing(m, *args, &block)
-        @options ||= {}
-        @options[m] ||= []
-        @options[m]  += args
+        unless args.empty?
+          @options[m] ||= []
+          @options[m]  += args
+        end
+        @options[m]
       end
 
-      def clone
-        OptionCollection.new @options.clone
+      def clone(&block)
+        OptionCollection.new @options.clone, &block
       end
 
       def to_h
@@ -69,8 +74,8 @@ module Cargofile
       attr_accessor :options
 
       def initialize(options:nil, &block)
-        @options = options || OptionCollection.new
-        yield self if block_given?
+        @options = OptionCollection.new(options || {})
+        instance_eval(&block) if block_given?
       end
 
       def each
@@ -78,8 +83,8 @@ module Cargofile
         @options.each{|x| yield x }
       end
 
-      def clone
-        self.class.new to_h
+      def clone(&block)
+        self.class.new to_h, &block
       end
 
       def to_h
@@ -94,9 +99,9 @@ module Cargofile
     class Build < Base
       attr_method_accessor :path
 
-      def initialize(path:nil, options:nil)
+      def initialize(path:nil, options:nil, &block)
         @path = path
-        super options: options
+        super options: options, &block
       end
 
       def each
@@ -139,26 +144,21 @@ module Cargofile
 
       attr_method_accessor :registry, :username, :name, :tag
 
-      def initialize(name:, registry:nil, username:nil, tag:nil)
+      def initialize(name:, registry:nil, username:nil, tag:nil, &block)
         @registry = registry
         @username = username
         @name     = name
         @tag      = tag
+        instance_eval(&block) if block_given?
       end
 
-      def build(path:nil, &block)
-        build = Build.new path: path
-        build.options.tag to_s
-        yield build if block_given?
-        build
-      end
-
-      def clone
-        Image.new to_h
+      def clone(&block)
+        Image.new to_h, &block
       end
 
       def family
-        File.join *[@registry, @username, @name].compact.map(&:to_s)
+        dirs = [@registry, @username, @name].compact.map(&:to_s)
+        File.join *dirs
       end
 
       def to_h
@@ -171,7 +171,7 @@ module Cargofile
       end
 
       def to_s
-        @tag.nil? ? family : "#{family}:#{@tag}"
+        "#{family}:#{@tag || :latest}"
       end
 
       class << self

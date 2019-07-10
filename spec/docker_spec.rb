@@ -19,7 +19,7 @@ RSpec.describe Cargofile::Docker::OptionCollection do
 
   it "#method_missing" do
     ret = Cargofile::Docker::OptionCollection.new
-    ret.fizz
+    ret.fizz true
     expect(ret.instance_variable_get(:@options).keys).to eq([:fizz])
   end
 
@@ -72,10 +72,11 @@ RSpec.describe Cargofile::Docker::Build do
 
   it "#to_h" do
     build = Cargofile::Docker::Build.new do |b|
-      b.options.rm
+      b.options.rm true
       b.options.label :FIZZ
     end
-    expect(build.to_h).to eq({path: nil, options: {rm: [], label: [:FIZZ]}})
+    exp = {path: nil, options: {rm: [true], label: [:FIZZ]}}
+    expect(build.to_h).to eq(exp)
   end
 
   it "#to_s" do
@@ -107,16 +108,17 @@ RSpec.describe Cargofile::Docker::Run do
 
   it "#to_h" do
     ret = Cargofile::Docker::Run.new do |r|
-      r.options.rm
+      r.options.rm true
       r.image "fizz"
       r.cmd *%w{echo hello, world}
     end
-    expect(ret.to_h).to eq({cmd: %w{echo hello, world}, image: "fizz", options: {rm: []}})
+    exp = {cmd: %w{echo hello, world}, image: "fizz", options: {rm: [true]}}
+    expect(ret.to_h).to eq(exp)
   end
 
   it "#to_s" do
     ret = Cargofile::Docker::Run.new(image: "fizz") do |r|
-      r.options.rm
+      r.options.rm true
       r.cmd *%w{echo hello, world}
     end
     exp = "docker run --rm fizz echo hello, world"
