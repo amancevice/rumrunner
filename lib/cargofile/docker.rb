@@ -1,12 +1,13 @@
 module Cargofile
   module Docker
-    class Base
+    class OptionCollection
+      extend Forwardable
       include Enumerable
 
-      attr_accessor :options
+      def_delegators :@options, :[], :[]=
 
-      def initialize(options:nil, &block)
-        @options = options || {}
+      def initialize(options = {}, &block)
+        @options = options
         yield self if block_given?
       end
 
@@ -32,11 +33,42 @@ module Cargofile
         @options ||= {}
         @options[m] ||= []
         @options[m]  += args
-        self
+      end
+
+      def clone
+        OptionCollection.new @options.clone
       end
 
       def to_h
-        {options: options.clone}
+        @options.clone
+      end
+
+      def to_s
+        to_a.join(" ")
+      end
+    end
+
+    class Base
+      include Enumerable
+
+      attr_accessor :options
+
+      def initialize(options:nil, &block)
+        @options = options || OptionCollection.new
+        yield self if block_given?
+      end
+
+      def each
+        self.class.name.split(/::/)[1..-1].each{|x| yield x.downcase }
+        @options.each{|x| yield x }
+      end
+
+      def clone
+        self.class.new to_h
+      end
+
+      def to_h
+        {options: @options.to_h}
       end
 
       def to_s
@@ -45,26 +77,49 @@ module Cargofile
     end
 
     class Build < Base
-      attr_accessor :path
-
       def initialize(path:nil, options:nil)
         @path = path
         super options: options
       end
 
       def each
-        yield "docker"
-        yield "build"
         super{|x| yield x }
         yield @path || "."
       end
 
-      def clone
-        Build.new to_h
+      def path(value = nil)
+        @path = value || @path
       end
 
       def to_h
         super.update path: @path.clone
+      end
+    end
+
+    class Run < Base
+      def initialize(image:nil, cmd:nil, options:nil)
+        @image = image
+        @cmd   = cmd
+        super options: options
+      end
+
+      def each
+        super{|x| yield x }
+        yield @image
+        cmd.is_a?(Array) ? cmd.each{|x| yield x } : yield(cmd) unless cmd.nil?
+      end
+
+      def cmd(*values)
+        @cmd = values.any? ? values : @cmd
+      end
+
+      def image(value = nil)
+        @image = value || @image
+      end
+
+      def to_h
+        super.update image: @image.clone,
+                     cmd:   @cmd.clone
       end
     end
 
@@ -78,12 +133,15 @@ module Cargofile
         @tag      = tag
       end
 
-      def clone
-        Image.new to_h
+      def build(path:nil, &block)
+        build = Build.new path: path
+        build.options.tag to_s
+        yield build if block_given?
+        build
       end
 
-      def tag(value = nil)
-        @tag = value || @tag
+      def clone
+        Image.new to_h
       end
 
       def to_h
@@ -127,40 +185,6 @@ module Cargofile
           end
           new options
         end
-      end
-    end
-
-    class Run < Base
-      attr_accessor :image, :cmd, :options
-
-      def initialize(image:nil, cmd:nil, options:nil)
-        @image = image
-        @cmd   = cmd
-        super options: options
-      end
-
-      def each
-        yield "docker"
-        yield "run"
-        super{|x| yield x }
-        yield @image
-        cmd.is_a?(Array) ? cmd.each{|x| yield x } : yield(cmd) unless cmd.nil?
-      end
-
-      def clone
-        Run.new to_h
-      end
-
-      def cmd(*values)
-        @cmd = values.any? ? values : @cmd
-      end
-
-      def image(value = nil)
-        @image = value || @image
-      end
-
-      def to_h
-        super.update image: @image.clone, cmd: @cmd.clone
       end
     end
   end

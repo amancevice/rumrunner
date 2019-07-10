@@ -1,3 +1,59 @@
+RSpec.describe Cargofile::Docker::OptionCollection do
+  it "#new" do
+    ret = Cargofile::Docker::OptionCollection.new do |o|
+      o.flag :value
+      o.flag :key => :value
+    end.instance_variable_get(:@options)
+    exp = {:flag => [:value, {:key => :value}]}
+    expect(ret).to eq(exp)
+  end
+
+  it "#each" do
+    ret = Cargofile::Docker::OptionCollection.new do |o|
+      o.flag :value
+      o.flag :key => :value
+    end.to_a
+    exp = %w{--flag value --flag key=value}
+    expect(ret).to eq(exp)
+  end
+
+  it "#method_missing" do
+    ret = Cargofile::Docker::OptionCollection.new
+    ret.fizz
+    expect(ret.instance_variable_get(:@options).keys).to eq([:fizz])
+  end
+
+  it "#clone" do
+    opt1 = Cargofile::Docker::OptionCollection.new
+    opt2 = opt1.clone
+    opt2.flag :value
+    expect(opt1.to_h).not_to eq(opt2.to_h)
+  end
+
+  it "#to_h" do
+    ret = Cargofile::Docker::OptionCollection.new do |o|
+      o.flag :value
+      o.flag :key => :value
+    end.to_h
+    exp = {
+      :flag => [
+        :value,
+        {:key => :value},
+      ],
+    }
+    expect(ret).to eq(exp)
+  end
+
+  it "#to_s" do
+    ret = Cargofile::Docker::OptionCollection.new do |o|
+      o.flag :value
+      o.flag :key => :value
+    end.to_s
+    exp = "--flag value --flag key=value"
+    expect(ret).to eq(exp)
+  end
+end
+
 RSpec.describe Cargofile::Docker::Build do
   it "#initialize" do
     expect(Cargofile::Docker::Build.new).not_to be nil
@@ -10,20 +66,60 @@ RSpec.describe Cargofile::Docker::Build do
   it "#clone" do
     a = Cargofile::Docker::Build.new
     b = a.clone
-    a.path = "../."
+    a.path "../."
     expect(a.to_a).not_to eq(b.to_a)
   end
 
   it "#to_h" do
-    build = Cargofile::Docker::Build.new.rm.label(:FIZZ)
+    build = Cargofile::Docker::Build.new do |b|
+      b.options.rm
+      b.options.label :FIZZ
+    end
     expect(build.to_h).to eq({path: nil, options: {rm: [], label: [:FIZZ]}})
   end
 
   it "#to_s" do
-    ret = Cargofile::Docker::Build.new
-    ret.build_arg :FIZZ => "buzz"
-    ret.build_arg :BUZZ
+    ret = Cargofile::Docker::Build.new do |b|
+      b.options.build_arg :FIZZ => "buzz"
+      b.options.build_arg :BUZZ
+    end
     exp = "docker build --build-arg FIZZ=buzz --build-arg BUZZ ."
+    expect(ret.to_s).to eq(exp)
+  end
+end
+
+RSpec.describe Cargofile::Docker::Run do
+  it "#initialize" do
+    expect(Cargofile::Docker::Run.new).not_to be nil
+  end
+
+  it "#each" do
+    ret = Cargofile::Docker::Run.new image: "fizz"
+    expect(ret.to_a).to eq(%w{docker run fizz})
+  end
+
+  it "#clone" do
+    a = Cargofile::Docker::Run.new image: "fizz"
+    b = a.clone
+    a.image "buzz"
+    expect(a.to_a).not_to eq(b.to_a)
+  end
+
+  it "#to_h" do
+    ret = Cargofile::Docker::Run.new do |r|
+      r.options.rm
+      r.image "fizz"
+      r.cmd *%w{echo hello, world}
+    end
+    expect(ret.to_h).to eq({cmd: %w{echo hello, world}, image: "fizz", options: {rm: []}})
+  end
+
+  it "#to_s" do
+    ret = Cargofile::Docker::Run.new(image: "fizz") do |r|
+      r.options.rm
+      r.cmd *%w{echo hello, world}
+    end
+    exp = "docker run --rm fizz echo hello, world"
     expect(ret.to_s).to eq(exp)
   end
 end
@@ -64,45 +160,5 @@ RSpec.describe Cargofile::Docker::Image do
     b = a.clone
     b.name = "buzz"
     expect(a.to_h).not_to eq(b.to_h)
-  end
-
-  it "#tag" do
-    ret = Cargofile::Docker::Image.new name: "fizz"
-    ret.tag "buzz"
-    expect(ret.to_s).to eq("fizz:buzz")
-  end
-end
-
-RSpec.describe Cargofile::Docker::Run do
-  it "#initialize" do
-    expect(Cargofile::Docker::Run.new).not_to be nil
-  end
-
-  it "#each" do
-    ret = Cargofile::Docker::Run.new image: "fizz"
-    expect(ret.to_a).to eq(%w{docker run fizz})
-  end
-
-  it "#clone" do
-    a = Cargofile::Docker::Run.new image: "fizz"
-    b = a.clone
-    a.image = "buzz"
-    expect(a.to_a).not_to eq(b.to_a)
-  end
-
-  it "#to_h" do
-    ret = Cargofile::Docker::Run.new
-    ret.cmd *%w{echo hello, world}
-    ret.rm
-    ret.image "fizz"
-    expect(ret.to_h).to eq({cmd: %w{echo hello, world}, image: "fizz", options: {rm: []}})
-  end
-
-  it "#to_s" do
-    ret = Cargofile::Docker::Run.new image: "fizz"
-    ret.rm
-    ret.cmd %w{echo hello, world}
-    exp = "docker run --rm fizz echo hello, world"
-    expect(ret.to_s).to eq(exp)
   end
 end
