@@ -23,5 +23,3 @@ cargo :cargofile do |c|
     s.build_arg :AWS_SECRET_ACCESS_KEY
   end
 end
-
-task :default => :build
