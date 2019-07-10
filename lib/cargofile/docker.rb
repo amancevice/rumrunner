@@ -144,6 +144,10 @@ module Cargofile
         Image.new to_h
       end
 
+      def family
+        File.join *[@registry, @username, @name].compact.map(&:to_s)
+      end
+
       def to_h
         {
           registry: @registry.clone,
@@ -154,9 +158,7 @@ module Cargofile
       end
 
       def to_s
-        parts  = [@registry, @username, @name].compact.map(&:to_s)
-        prefix = File.join(parts)
-        @tag.nil? ? prefix : "#{prefix}:#{@tag}"
+        @tag.nil? ? family : "#{family}:#{@tag}"
       end
 
       class << self
