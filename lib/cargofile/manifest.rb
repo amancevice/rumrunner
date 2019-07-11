@@ -1,7 +1,7 @@
 module Cargofile
   module Buildable
     extend Forwardable
-    include Rake::DSL
+    include Rake::DSL if defined? Rake::DSL
 
     attr_reader :name
 
@@ -44,7 +44,9 @@ module Cargofile
 
   module Runnable
     extend Forwardable
-    include Rake::DSL
+    include Rake::DSL if defined? Rake::DSL
+
+    attr_accessor :image, :cmd
 
     def_delegators :@run, :options, :cmd
     def_delegator :options, :method_missing
@@ -72,13 +74,14 @@ module Cargofile
     end
 
     def artifact(*args, &block)
-      target, name = args.first.first
+      name, target = args.first.first
       Artifact.new(name: name, target: target, &block).install
     end
 
     def shell(*args, &block)
       name_target  = args.first
       name, target = name_target.is_a?(Hash) ? name_target.first : [name_target, nil]
+      target = "/bin/bash" unless block_given?
       Shell.new(name: name, target: target, &block).install
     end
 
@@ -87,8 +90,12 @@ module Cargofile
       name, target = name_target.is_a?(Hash) ? name_target.first : [name_target, nil]
       image = Docker::Image.parse("#{@image}-#{name}")
       build = @build.clone
-      task name => target unless target.nil?
+      unless target.nil?
+        task name => target
+        task :"clean:#{target}" => :"clean:#{name}"
+      end
       Target.new(root: @root, name: name, image: image, build: build, &block).install
+      Shell.new(name: name, target: "/bin/bash").install
     end
 
     def install
@@ -100,6 +107,8 @@ module Cargofile
         end
         rm_rf root if Dir.exists?(root)
       end
+
+      self
     end
   end
 
@@ -159,15 +168,17 @@ module Cargofile
     include Runnable
 
     def install
+      shell = :"shell:#{@name}"
+      Rake::Task[shell].clear if Rake::Task.task_defined?(shell)
       desc "Shell into container at `#{@name}` stage"
-      task :"shell:#{@name}" => @name do |f|
+      task shell => @name do |f|
         iidfile = f.prerequisite_tasks.first.prereqs.last
         digest  = File.read(iidfile)
         @run.options[:rm]          ||= [true]
         @run.options[:interactive] ||= [true]
         @run.options[:tty]         ||= [true]
-        @run.image digest
-        @run.cmd @target unless @run.cmd
+        @run.image                 ||= digest
+        @run.cmd                   ||= @target
         sh *@run
       end
 
