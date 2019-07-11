@@ -1,176 +1,131 @@
 module Cargofile
-  module Buildable
+  class Base
     extend Forwardable
+    include Rake::DSL
 
-    def_delegators :build, :method_missing, :path
+    attr_reader :root, :name, :build
 
-    def build
-      @build ||= Docker::Build.new
+    def_delegator :@build, :options
+    def_delegator :options, :method_missing
+
+    def initialize(root:, name:, build:nil, image:nil, &block)
+      @root  = root.to_s
+      @name  = name.to_s
+      @build = build || Docker::Build.new
+      @image = image || Docker::Image.parse(name.to_s)
+      instance_eval(&block) if block_given?
+    end
+
+    def image(options = {}, &block)
+      if options.empty?
+        @image
+      elsif options.is_a?(Hash)
+        @image = Docker::Image.new @image.to_h.update(options)
+      else
+        @image = Docker::Image.parse options.to_s
+      end
+    end
+
+    def path
+      File.join @root, @image.family
+    end
+
+    def iidfile
+      File.join path, @image.tag
     end
   end
 
-  module Taggable
-    extend Forwardable
+  class Manifest < Base
+    attr_reader :artifacts, :targets
 
-    def_delegator :image, :tag
-
-    def image
-      @image ||= Docker::Image.new
-    end
-  end
-
-  module Stageable
-    attr_accessor :stages
-
-    def stage(name, &block)
-      @image.tag SecureRandom.hex(6) if @image.tag.nil?
-      bld = @build.clone
-      img = @image.clone
-      bld.target name
-      img.tag "#{img.tag}-#{name}"
-      stages << Stage.new(
-        name:  name,
-        build: bld,
-        image: img,
-        dir:   dir,
-        shell: shell,
-        &block
-      )
-    end
-
-    def stages
-      @stages ||= []
-    end
-  end
-
-  module Artifactable
-    attr_accessor :artifacts
-
-    def artifact(name, &block)
-      artifacts << Artifact.new(name: name, &block)
+    def artifact(options = {}, &block)
+      artifacts << nil
     end
 
     def artifacts
       @artifacts ||= []
     end
-  end
-
-  class Base
-    include Buildable
-    include Taggable
-    include Rake::DSL if defined? Rake::DSL
-
-    attr_accessor :name, :dir
-
-    def initialize(name:nil, build:nil, image:nil, dir:nil, shell:nil, &block)
-      @name  = name  || SecureRandom.hex(6)
-      @build = build || Docker::Build.new
-      @image = image || Docker::Image.parse(@name.to_s)
-      @dir   = dir   || ".docker"
-      @shell = shell || "/bin/bash"
-      yield self if block_given?
-    end
-
-    def dir(value = nil)
-      @dir = value || @dir
-    end
-
-    def name(value = nil)
-      @name = value || @name
-    end
-
-    def shell(value = nil)
-      @shell = value || @shell
-    end
-  end
-
-  class Manifest < Base
-    include Stageable
 
     def install
-      stages.map(&:install)
+      # Install targets
+      stages = targets.map(&:install)
 
-      stages.map(&:name).zip([@dir] + stages.map(&:name)[0..-2]).each do |a,b|
+      # Set up stage depdencencies
+      stages.zip([path] + stages[0..-2]).each do |a,b|
         task a => b
+        task :"clean:#{b}" => :"clean:#{a}"
       end
 
-      namespace :clean do
-        desc "Remove any temporary images"
-        task :images do
-          Dir[File.join @dir.to_s, "**"].each do |iidfile|
-            sh "docker", "image", "rm", "-f", File.read(iidfile)
-          end
+      # Clean up everything under @root
+      desc "Remove any temporary images and products"
+      task :clean do
+        Dir[File.join root, "*", "**"].each do |iidfile|
+          sh "docker", "image", "rm", "--force", File.read(iidfile)
+          File.delete iidfile
         end
+        rm_rf @root if Dir.exists?(@root)
       end
-      task :clean => :"clean:images"
+    end
+
+    def target(name, &block)
+      image   = @image.clone.tag "#{@image.tag}-#{name}"
+      iidfile = File.join @root, image.family, image.tag
+      build   = @build.clone do |t|
+        t.options[:iidfile] = [iidfile]
+        t.options[:tag]     = [image.to_s]
+        t.options[:target]  = [name]
+      end
+      targets << Target.new(root: @root, name: name, build: build, image: image, &block)
+    end
+
+    def targets
+      @targets ||= []
     end
   end
 
-  class Stage < Base
-    include Artifactable
-
+  class Target < Base
     def install
-      @build.options[:tag]     ||= [@image.to_s]
-      @build.options[:iidfile] ||= [File.join(@dir.to_s, @image.tag)]
+      # Create path for iidfiles
+      directory path
 
-      unless CLEAN.include? @dir.to_s
-        directory @dir.to_s
-        CLEAN.include(@dir.to_s)
+      # Build Docker image and save digest to `@path`
+      file iidfile => path do
+        sh *@build
       end
 
-      iidfile = @build.options[:iidfile].last
-
-      file iidfile => @dir do
-        sh *@build.to_a
-      end
-      CLEAN.include(iidfile)
-
-      artifacts.map{|x| x.install(@name, iidfile) }
-
-      desc "Build through #{@name} stage"
+      # Declare shortcut for building image
+      desc "Build through `#{@name}` stage"
       task @name => iidfile
 
-      namespace @name do
-        desc "Shell into #{@name} stage"
-        task :shell => @name do
-          digest  = File.read(iidfile)
-          command = Docker::Run.new(image: digest, cmd: @shell) do |run|
-            run.rm
-            run.interactive
-            run.tty
-          end
-          sh *command.to_a
+      # Helper to remove single stage
+      desc "Remove through `#{@name}` stage"
+      task :"clean:#{@name}" do
+        if File.exists? iidfile
+          sh "docker", "image", "rm", "--force", File.read(iidfile)
+          File.delete iidfile
         end
       end
-    end
-  end
+      task :clean => :"clean:#{@name}"
 
-  class Artifact
-    include Rake::DSL if defined? Rake::DSL
+      # Helper to shell into stage
+      # desc "Shell into `#{@name}` stage"
+      # task :"shell:#{@name}" => @name do
+      #   sh *@shell
+      # end
 
-    attr_accessor :name, :run
-
-    def initialize(name:, &block)
-      @name = name
-      @run  = Docker::Run.new(cmd: ["cat", @name]).rm
-      yield @run if block_given?
+      @name
     end
 
-    def install(stage, iidfile)
-      path = File.split(name).first
-
-      unless path == "."
-        directory path
-        CLOBBER.include(path)
-      end
-
-      file @name => [iidfile, path] do
-        @run.image = File.read(iidfile)
-        @run.cmd  += [">", @name]
-        sh @run.to_s
-      end
-      CLOBBER.include(@name)
-      task stage => @name
+    def shell(*args, &block)
+      p self
+      args    = ["/bin/bash"] if args.empty?
+      image   = @image.to_s
+      options = {
+        rm:          [true],
+        interactive: [true],
+        tty:         [true],
+      }
+      @shell = Docker::Run.new(image: image, cmd: args, options: options, &block)
     end
   end
 end

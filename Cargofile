@@ -1,25 +1,29 @@
 #!/usr/bin/env ruby
 
 require "cargofile"
+require "pry"
 
-cargo :cargofile do |c|
+cargo :cargofile do
 
-  c.build_arg :RUNTIME => "ruby2.5"
-  c.tag       %x(git describe --tags --always).strip
+  image tag: %x(git describe --tags --always).strip
 
-  c.stage :build do |s|
-    s.artifact "Gemfile.lock"
-    s.artifact "pkg/vendor.zip" do |a|
-      a.workdir "/var/task/vendor"
-      a.cmd     %w{zip -r - .}
-    end
+  build_arg RUNTIME: "ruby2.5"
+
+  target :build
+
+  target :test
+
+  target :plan do
+    build_arg :AWS_ACCESS_KEY_ID
+    build_arg :AWS_DEFAULT_REGION
+    build_arg :AWS_SECRET_ACCESS_KEY
+    # shell "/bin/sh"
   end
 
-  c.stage :test
-
-  c.stage :plan do |s|
-    s.build_arg :AWS_ACCESS_KEY_ID
-    s.build_arg :AWS_DEFAULT_REGION
-    s.build_arg :AWS_SECRET_ACCESS_KEY
+  artifact "pkg/vendor.zip" => :build do
+    workdir "/var/task"
+    cmd     %w{cat vendor.zip}
   end
+
+  artifact "Gemfile.lock" => :build
 end
