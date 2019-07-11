@@ -1,3 +1,17 @@
+RSpec.describe Cargofile::Docker::AttrCallable do
+  class Test
+    extend Cargofile::Docker::AttrCallable
+
+    attr_method_accessor :fizz
+  end
+
+  it "::attr_method_accessor" do
+    ret = Test.new
+    ret.fizz :buzz
+    expect(ret.fizz).to eq(:buzz)
+  end
+end
+
 RSpec.describe Cargofile::Docker::OptionCollection do
   it "#new" do
     ret = Cargofile::Docker::OptionCollection.new do |o|
@@ -162,5 +176,25 @@ RSpec.describe Cargofile::Docker::Image do
     b = a.clone
     b.name "buzz"
     expect(a.to_h).not_to eq(b.to_h)
+  end
+
+  it "#family" do
+    ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
+    exp = "registry/user/fizz"
+    expect(ret.family).to eq(exp)
+  end
+
+
+  it "#to_s" do
+    ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
+    exp = "registry/user/fizz:latest"
+    expect(ret.to_s).to eq(exp)
+  end
+
+  it "#update" do
+    ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
+    ret.update tag: "1.2.3"
+    exp = "registry/user/fizz:1.2.3"
+    expect(ret.to_s).to eq(exp)
   end
 end

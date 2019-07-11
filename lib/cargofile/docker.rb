@@ -97,6 +97,8 @@ module Cargofile
     end
 
     class Build < Base
+      attr_writer :path
+
       attr_method_accessor :path
 
       def initialize(path:nil, options:nil, &block)
@@ -115,6 +117,8 @@ module Cargofile
     end
 
     class Run < Base
+      attr_writer :image, :cmd
+
       attr_method_accessor :image
 
       def initialize(image:nil, cmd:nil, options:nil)
