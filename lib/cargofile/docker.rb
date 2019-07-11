@@ -19,7 +19,7 @@ module Cargofile
       extend Forwardable
       include Enumerable
 
-      def_delegators :@options, :[], :[]=
+      def_delegators :@options, :[], :[]=, :update
 
       def initialize(options = {}, &block)
         @options = options
@@ -174,8 +174,14 @@ module Cargofile
         "#{family}:#{@tag || :latest}"
       end
 
+      def update(options = {})
+        options.each{|k,v| instance_variable_set(:"@#{k}", v) }
+        self
+      end
+
       class << self
-        def parse(string)
+        def parse(string_or_symbol)
+          string = string_or_symbol.to_s
           if string.count("/").zero? && string.count(":").zero?
             # image
             options = {name: string}

@@ -1,33 +1,40 @@
 module Cargofile
-  class Base
+  module Buildable
     extend Forwardable
     include Rake::DSL
 
-    attr_reader :root, :name, :build
+    attr_reader :name
 
     def_delegator :@build, :options
     def_delegator :options, :method_missing
+    def_delegator :@root, :to_s, :root
 
-    def initialize(root:, name:, build:nil, image:nil, &block)
-      @root  = root.to_s
-      @name  = name.to_s
+    def initialize(root:, name:, image:nil, build:nil, &block)
+      @root  = root
+      @name  = name
+      @image = image || Docker::Image.parse(name)
       @build = build || Docker::Build.new
-      @image = image || Docker::Image.parse(name.to_s)
       instance_eval(&block) if block_given?
+    end
+
+    def build(options = {}, &block)
+      @build.options.update(options)
+      block_given? ? yield(@build) : @build
     end
 
     def image(options = {}, &block)
       if options.empty?
         @image
       elsif options.is_a?(Hash)
-        @image = Docker::Image.new @image.to_h.update(options)
+        @image.update(options)
       else
-        @image = Docker::Image.parse options.to_s
+        @image = Docker::Image.parse(options.to_s)
       end
+      block_given? ? yield(@image) : @image
     end
 
     def path
-      File.join @root, @image.family
+      File.join root, @image.family
     end
 
     def iidfile
@@ -35,97 +42,136 @@ module Cargofile
     end
   end
 
-  class Manifest < Base
+  module Runnable
+    extend Forwardable
+    include Rake::DSL
+
+    def_delegators :@run, :options, :cmd
+    def_delegator :options, :method_missing
+    def_delegator :@name, :to_s, :name
+
+    def initialize(name:, target:, &block)
+      @name   = name
+      @target = target
+      @run    = Docker::Run.new
+      instance_eval(&block) if block_given?
+    end
+  end
+
+  class Manifest
+    include Buildable
+
     attr_reader :artifacts, :targets
 
-    def artifact(options = {}, &block)
-      artifacts << nil
+    def initialize(root:, name:, &block)
+      @root  = root
+      @name  = name
+      @image = Docker::Image.parse(name)
+      @build = Docker::Build.new
+      instance_eval(&block) if block_given?
     end
 
-    def artifacts
-      @artifacts ||= []
+    def artifact(*args, &block)
+      target, name = args.first.first
+      Artifact.new(name: name, target: target, &block).install
+    end
+
+    def shell(*args, &block)
+      name_target  = args.first
+      name, target = name_target.is_a?(Hash) ? name_target.first : [name_target, nil]
+      Shell.new(name: name, target: target, &block).install
+    end
+
+    def target(*args, &block)
+      name_target  = args.first
+      name, target = name_target.is_a?(Hash) ? name_target.first : [name_target, nil]
+      image = Docker::Image.parse("#{@image}-#{name}")
+      build = @build.clone
+      task name => target unless target.nil?
+      Target.new(root: @root, name: name, image: image, build: build, &block).install
     end
 
     def install
-      # Install targets
-      stages = targets.map(&:install)
-
-      # Set up stage depdencencies
-      stages.zip([path] + stages[0..-2]).each do |a,b|
-        task a => b
-        task :"clean:#{b}" => :"clean:#{a}"
-      end
-
-      # Clean up everything under @root
       desc "Remove any temporary images and products"
       task :clean do
         Dir[File.join root, "*", "**"].each do |iidfile|
           sh "docker", "image", "rm", "--force", File.read(iidfile)
           File.delete iidfile
         end
-        rm_rf @root if Dir.exists?(@root)
+        rm_rf root if Dir.exists?(root)
       end
-    end
-
-    def target(name, &block)
-      image   = @image.clone.tag "#{@image.tag}-#{name}"
-      iidfile = File.join @root, image.family, image.tag
-      build   = @build.clone do |t|
-        t.options[:iidfile] = [iidfile]
-        t.options[:tag]     = [image.to_s]
-        t.options[:target]  = [name]
-      end
-      targets << Target.new(root: @root, name: name, build: build, image: image, &block)
-    end
-
-    def targets
-      @targets ||= []
     end
   end
 
-  class Target < Base
+  class Target
+    include Buildable
+
     def install
+      @iidfile = iidfile
+
       # Create path for iidfiles
       directory path
 
       # Build Docker image and save digest to `@path`
-      file iidfile => path do
+      file @iidfile => path do
+        @build.options[:iidfile] ||= [@iidfile]
+        @build.options[:tag]     ||= [@image.to_s]
+        @build.options[:target]  ||= [@name]
         sh *@build
       end
 
       # Declare shortcut for building image
-      desc "Build through `#{@name}` stage"
-      task @name => iidfile
+      desc "Build `#{@name}` stage"
+      task @name => @iidfile
 
       # Helper to remove single stage
-      desc "Remove through `#{@name}` stage"
+      desc "Remove any temporary images and products from `#{@name}` stage"
       task :"clean:#{@name}" do
-        if File.exists? iidfile
-          sh "docker", "image", "rm", "--force", File.read(iidfile)
-          File.delete iidfile
+        if File.exists? @iidfile
+          sh "docker", "image", "rm", "--force", File.read(@iidfile)
+          File.delete @iidfile
         end
       end
       task :clean => :"clean:#{@name}"
 
-      # Helper to shell into stage
-      # desc "Shell into `#{@name}` stage"
-      # task :"shell:#{@name}" => @name do
-      #   sh *@shell
-      # end
-
-      @name
+      self
     end
+  end
 
-    def shell(*args, &block)
-      p self
-      args    = ["/bin/bash"] if args.empty?
-      image   = @image.to_s
-      options = {
-        rm:          [true],
-        interactive: [true],
-        tty:         [true],
-      }
-      @shell = Docker::Run.new(image: image, cmd: args, options: options, &block)
+  class Artifact
+    include Runnable
+
+    def install
+      desc "Build #{name}"
+      file name => @target do |f|
+        iidfile = f.prerequisite_tasks.first.prereqs.first
+        digest  = File.read(iidfile)
+        @run.image digest
+        @run.cmd   "cat", name unless @run.cmd
+        sh "#{@run} > #{name}"
+      end
+
+      self
+    end
+  end
+
+  class Shell
+    include Runnable
+
+    def install
+      desc "Shell into container at `#{@name}` stage"
+      task :"shell:#{@name}" => @name do |f|
+        iidfile = f.prerequisite_tasks.first.prereqs.last
+        digest  = File.read(iidfile)
+        @run.options[:rm]          ||= [true]
+        @run.options[:interactive] ||= [true]
+        @run.options[:tty]         ||= [true]
+        @run.image digest
+        @run.cmd @target unless @run.cmd
+        sh *@run
+      end
+
+      self
     end
   end
 end
