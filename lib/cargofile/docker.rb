@@ -15,6 +15,34 @@ module Cargofile
       end
     end
 
+    module Executable
+      include Enumerable
+
+      attr_accessor :options
+
+      def initialize(options:nil, &block)
+        @options = OptionCollection.new(options || {})
+        instance_eval(&block) if block_given?
+      end
+
+      def each
+        self.class.name.split(/::/)[1..-1].each{|x| yield x.downcase }
+        @options.each{|x| yield x }
+      end
+
+      def clone(&block)
+        self.class.new to_h, &block
+      end
+
+      def to_h
+        {options: @options.to_h}
+      end
+
+      def to_s
+        to_a.join(" ")
+      end
+    end
+
     class OptionCollection
       extend Forwardable
       include Enumerable
@@ -63,40 +91,14 @@ module Cargofile
       end
 
       def to_s
-        to_a.join(" ")
+        to_a.join " "
       end
     end
 
-    class Base
+    class Build
       extend AttrCallable
-      include Enumerable
+      include Executable
 
-      attr_accessor :options
-
-      def initialize(options:nil, &block)
-        @options = OptionCollection.new(options || {})
-        instance_eval(&block) if block_given?
-      end
-
-      def each
-        self.class.name.split(/::/)[1..-1].each{|x| yield x.downcase }
-        @options.each{|x| yield x }
-      end
-
-      def clone(&block)
-        self.class.new to_h, &block
-      end
-
-      def to_h
-        {options: @options.to_h}
-      end
-
-      def to_s
-        to_a.join(" ")
-      end
-    end
-
-    class Build < Base
       attr_writer :path
 
       attr_method_accessor :path
@@ -116,7 +118,10 @@ module Cargofile
       end
     end
 
-    class Run < Base
+    class Run
+      extend AttrCallable
+      include Executable
+
       attr_writer :image, :cmd
 
       attr_method_accessor :image
@@ -161,8 +166,7 @@ module Cargofile
       end
 
       def family
-        dirs = [@registry, @username, @name].compact.map(&:to_s)
-        File.join *dirs
+        File.join *[@registry, @username, @name].compact.map(&:to_s)
       end
 
       def to_h
@@ -179,7 +183,7 @@ module Cargofile
       end
 
       def update(options = {})
-        options.each{|k,v| instance_variable_set(:"@#{k}", v) }
+        options.each{|k,v| send k, v }
         self
       end
 
