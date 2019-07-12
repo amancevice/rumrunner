@@ -34,6 +34,11 @@ module Cargofile
         self.class.new to_h, &block
       end
 
+      def method_missing(m, *args, &block)
+        @options.send(m, *args, &block)
+        self
+      end
+
       def to_h
         {options: @options.to_h}
       end
