@@ -30,10 +30,11 @@ Create `Cargofile` and describe your build:
 require "cargofile"
 
 cargo :image_name do
-  tag    "1.2.3"
-  target :build
-  target :test
-  target :deploy
+  tag "1.2.3"
+
+  stage :build
+  stage :test
+  stage :deploy
 end
 ```
 
@@ -80,11 +81,11 @@ Stages can be customized with blocks. Methods invoked on the stage are (with a f
 cargo :image_name do
   tag "1.2.3"
 
-  target :build
+  stage :build
 
-  target :test
+  stage :test
 
-  target :deploy do
+  stage :deploy do
     build_arg :AWS_ACCESS_KEY_ID
     build_arg :AWS_SECRET_ACCESS_KEY
     build_arg :AWS_DEFAULT_REGION => "us-east-1"
@@ -99,7 +100,7 @@ Use the `artifact` method to specify an artifact to be exported from the image.
 
 ```ruby
 cargo :image_name do
-  target :build
+  stage :build
 
   artifact "package.zip" => :build
 end
@@ -109,7 +110,7 @@ By default the container simply `cat`s the file from the container to the local 
 
 ```ruby
 cargo :imagename do
-  target :build
+  stage :build
 
   artifact "package.zip" => :build do
     workdir "/var/task/"

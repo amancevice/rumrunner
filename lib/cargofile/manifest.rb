@@ -11,7 +11,7 @@ module Cargofile
       @root      = root || :".docker"
       @image     = Docker::Image.parse(name)
       @env       = []
-      @targets   = {}
+      @stages    = {}
       @artifacts = {}
       @shells    = {}
       instance_eval(&block) if block_given?
@@ -21,13 +21,13 @@ module Cargofile
       @env << key_val
     end
 
-    def target(name_deps, &block)
+    def stage(name_deps, &block)
       name, deps = name_deps.is_a?(Hash) ? name_deps.first : [name_deps, nil]
       image      = "#{@image}-#{name}"
       iidfile    = File.join(root, image)
       options    = build_options.iidfile(iidfile).tag(image).target(name)
       @shells[name]  = Docker::Run.new.interactive(true).rm(true).tty(true).cmd("/bin/bash")
-      @targets[name] = {
+      @stages[name] = {
         iidfile: iidfile,
         prereqs: [deps].flatten.compact,
         command: Docker::Build.new(options: options.to_h, &block),
@@ -54,7 +54,7 @@ module Cargofile
     def install
       directory root
 
-      @targets  .each{|name, target| install_target   name, target }
+      @stages   .each{|name, target| install_stage    name, target }
       @artifacts.each{|name, target| install_artifact name, target }
       @shells   .each{|name, target| install_shell    name, target }
 
@@ -75,11 +75,11 @@ module Cargofile
       opts
     end
 
-    def install_target(name, target)
+    def install_stage(name, target)
       command = target[:command]
       iidfile = target[:iidfile]
       iidpath = File.split(iidfile).first
-      prereqs = target[:prereqs].map{|x| @targets[x][:iidfile] }.flatten
+      prereqs = target[:prereqs].map{|x| @stages[x][:iidfile] }.flatten
       prereqs << iidpath
 
       directory iidpath
@@ -91,7 +91,7 @@ module Cargofile
       desc "Build `#{name}` stage"
       task name => iidfile
 
-      preclean = @targets.select{|k,v| v[:prereqs].include? name }.keys.map{|x| :"#{x}:clean" }
+      preclean = @stages.select{|k,v| v[:prereqs].include? name }.keys.map{|x| :"#{x}:clean" }
       desc "Remove any temporary images and products from `#{name}` stage"
       task :"#{name}:clean" => preclean do
         if File.exists? iidfile
@@ -104,7 +104,7 @@ module Cargofile
     def install_artifact(name, target)
       path    = File.split(name).first
       command = target[:command]
-      iidfile = target[:prereqs].map{|x| @targets[x][:iidfile] }.flatten.first
+      iidfile = target[:prereqs].map{|x| @stages[x][:iidfile] }.flatten.first
 
       directory path
 
@@ -117,7 +117,7 @@ module Cargofile
     end
 
     def install_shell(name, command)
-      iidfile = @targets[name][:iidfile]
+      iidfile = @stages[name][:iidfile]
 
       desc "Shell into `#{name}` stage"
       task :"#{name}:shell" => iidfile do

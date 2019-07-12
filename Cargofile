@@ -11,10 +11,10 @@ cargo :"registry:5000/cargofile/example" do
   # Shared environment variable (--build-arg / --env)
   env :RUNTIME => "ruby2.5"
 
-  # Build targets
-  target :build
-  target :test => :build
-  target :plan => :test do
+  # Build stages
+  stage :build
+  stage :test => :build
+  stage :plan => :test do
     build_arg :AWS_ACCESS_KEY_ID
     build_arg :AWS_DEFAULT_REGION
     build_arg :AWS_SECRET_ACCESS_KEY
