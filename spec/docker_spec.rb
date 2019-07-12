@@ -1,17 +1,3 @@
-RSpec.describe Cargofile::Docker::AttrCallable do
-  class Test
-    extend Cargofile::Docker::AttrCallable
-
-    attr_method_accessor :fizz
-  end
-
-  it "::attr_method_accessor" do
-    ret = Test.new
-    ret.fizz :buzz
-    expect(ret.fizz).to eq(:buzz)
-  end
-end
-
 RSpec.describe Cargofile::Docker::OptionCollection do
   it "#new" do
     ret = Cargofile::Docker::OptionCollection.new do |o|
@@ -184,12 +170,18 @@ RSpec.describe Cargofile::Docker::Image do
     expect(a.to_h).not_to eq(b.to_h)
   end
 
+  it "#each" do
+  ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
+  exp = %w{registry user fizz latest}
+  expect(ret.to_a).to eq(exp)
+
+  end
+
   it "#family" do
     ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
     exp = "registry/user/fizz"
     expect(ret.family).to eq(exp)
   end
-
 
   it "#to_s" do
     ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"

@@ -1,20 +1,5 @@
 module Cargofile
   module Docker
-    module AttrCallable
-      def attr_method_accessor(*args)
-        args.each do |var|
-          define_method var do |value = nil|
-            if value.nil?
-              instance_variable_get :"@#{var}"
-            else
-              instance_variable_set :"@#{var}", value
-              self
-            end
-          end
-        end
-      end
-    end
-
     module Executable
       include Enumerable
 
@@ -36,7 +21,7 @@ module Cargofile
 
       def method_missing(m, *args, &block)
         @options.send(m, *args, &block)
-        self
+        args.any? ? self : @options[m]
       end
 
       def to_h
@@ -155,6 +140,7 @@ module Cargofile
 
     class Image
       extend AttrCallable
+      include Enumerable
 
       attr_method_accessor :registry, :username, :name, :tag
 
@@ -164,6 +150,10 @@ module Cargofile
         @name     = name
         @tag      = tag
         instance_eval(&block) if block_given?
+      end
+
+      def each
+        [@registry, @username, @name, @tag].compact.each{|x| yield x }
       end
 
       def clone(&block)
