@@ -125,11 +125,16 @@ module Cargofile
       def each
         super{|x| yield x }
         yield @image
-        cmd.is_a?(Array) ? cmd.each{|x| yield x } : yield(cmd) unless cmd.nil?
+        @cmd.is_a?(Array) ? @cmd.each{|x| yield x } : yield(@cmd) unless @cmd.nil?
       end
 
       def cmd(*values)
-        @cmd = values.any? ? values : @cmd
+        if values.any?
+          @cmd = values
+          self
+        else
+          @cmd
+        end
       end
 
       def to_h
