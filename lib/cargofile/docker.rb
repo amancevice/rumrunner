@@ -84,7 +84,7 @@ module Cargofile
           @options[m] ||= []
           @options[m]  += args
         end
-        @options[m]
+        self
       end
 
       def clone(&block)

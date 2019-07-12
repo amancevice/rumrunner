@@ -84,6 +84,12 @@ RSpec.describe Cargofile::Docker::Build do
     expect(a.to_a).not_to eq(b.to_a)
   end
 
+  it "#method_missing" do
+    ret = Cargofile::Docker::Build.new.label(:FIZZ)
+    exp = {label: [:FIZZ]}
+    expect(ret.options.to_h).to eq(exp)
+  end
+
   it "#to_h" do
     build = Cargofile::Docker::Build.new do |b|
       b.options.rm true
