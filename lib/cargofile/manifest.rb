@@ -114,6 +114,9 @@ module Cargofile
         command.cmd "cat", name if command.cmd.nil?
         sh "#{command} > #{name}"
       end
+      task :clean do
+        rm_r name if File.exists?(name)
+      end
     end
 
     def install_shell(name, command)
@@ -133,7 +136,7 @@ module Cargofile
           sh "docker", "image", "rm", "--force", File.read(name) if File.file?(name)
           rm_r name
         end
-        rm_r root
+        rm_r root if File.exists?(root)
       end
     end
   end
