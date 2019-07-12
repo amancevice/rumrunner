@@ -1,5 +1,20 @@
 module Cargofile
   module Docker
+    module AttrCallable
+      def attr_method_accessor(*args)
+        args.each do |var|
+          define_method var do |value = nil|
+            if value.nil?
+              instance_variable_get :"@#{var}"
+            else
+              instance_variable_set :"@#{var}", value
+              self
+            end
+          end
+        end
+      end
+    end
+
     module Executable
       include Enumerable
 

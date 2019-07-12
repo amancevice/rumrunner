@@ -7,6 +7,7 @@ if ENV['CI'] == 'true'
 end
 
 require "bundler/setup"
+require "rake"
 require "cargofile"
 
 RSpec.configure do |config|

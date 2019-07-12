@@ -1,3 +1,17 @@
+RSpec.describe Cargofile::Docker::AttrCallable do
+  class Test
+    extend Cargofile::Docker::AttrCallable
+
+    attr_method_accessor :fizz
+  end
+
+  it "::attr_method_accessor" do
+    ret = Test.new
+    ret.fizz :buzz
+    expect(ret.fizz).to eq(:buzz)
+  end
+end
+
 RSpec.describe Cargofile::Docker::OptionCollection do
   it "#new" do
     ret = Cargofile::Docker::OptionCollection.new do |o|
@@ -110,6 +124,12 @@ RSpec.describe Cargofile::Docker::Run do
     b = a.clone
     a.image "buzz"
     expect(a.to_a).not_to eq(b.to_a)
+  end
+
+  it "#cmd" do
+    ret = Cargofile::Docker::Run.new image: "fizz"
+    ret.cmd "echo", "hello"
+    expect(ret.cmd).to eq(["echo", "hello"])
   end
 
   it "#to_h" do

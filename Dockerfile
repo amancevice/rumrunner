@@ -14,7 +14,7 @@ RUN bundle install --with development
 RUN bundle exec rake
 RUN bundle exec rake gem:build
 
-FROM hashicorp/terraform:0.12.3 AS plan
+FROM hashicorp/terraform:0.12.4 AS plan
 RUN >&2 echo "PLAN"
 WORKDIR /var/task/
 ARG AWS_ACCESS_KEY_ID

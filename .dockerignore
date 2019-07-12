@@ -1,4 +1,7 @@
 *
 !*.gemspec
+!Cargofile
 !Gemfile
+!Rakefile
 !lib/
+!spec/
