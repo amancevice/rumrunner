@@ -67,15 +67,11 @@ module Cargofile
     private
 
     def build_options
-      opts = Docker::OptionCollection.new
-      @env.each{|x| opts.build_arg x }
-      opts
+      Docker::OptionCollection.new build_arg: @env
     end
 
     def run_options
-      opts = Docker::OptionCollection.new
-      @env.each{|x| opts.env x }
-      opts
+      Docker::OptionCollection.new env: @env
     end
 
     def install_stage(name, target)
