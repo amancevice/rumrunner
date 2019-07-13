@@ -23,31 +23,34 @@ module Cargofile
 
     def stage(name_deps, &block)
       name, deps = name_deps.is_a?(Hash) ? name_deps.first : [name_deps, nil]
-      image      = "#{@image}-#{name}"
-      iidfile    = File.join(root, image)
-      options    = build_options.iidfile(iidfile).tag(image).target(name)
-      @shells[name]  = Docker::Run.new.interactive(true).rm(true).tty(true).cmd("/bin/bash")
-      @stages[name] = {
-        iidfile: iidfile,
-        prereqs: [deps].flatten.compact,
-        command: Docker::Build.new(options: options.to_h, &block),
-      }
+
+      image   = "#{@image}-#{name}"
+      iidfile = File.join(root, image)
+      prereqs = [deps].flatten.compact
+      options = build_options.iidfile(iidfile).tag(image).target(name)
+      command = Docker::Build.new(options: options.to_h, &block)
+
+      @shells[name] = Docker::Run.new.interactive(true).rm(true).tty(true).cmd("/bin/bash")
+      @stages[name] = {iidfile: iidfile, prereqs: prereqs, command: command}
     end
 
     def artifact(name_deps, &block)
       name, deps = name_deps.is_a?(Hash) ? name_deps.first : [name_deps, nil]
-      options    = run_options.rm(true)
-      @artifacts[name] = {
-        prereqs: [deps].flatten.compact,
-        command: Docker::Run.new(options: options.to_h, &block)
-      }
+
+      options = run_options.rm(true)
+      prereqs = [deps].flatten.compact
+      command = Docker::Run.new(options: options, &block)
+
+      @artifacts[name] = {prereqs: prereqs, command: command}
     end
 
     def shell(name_deps, &block)
       name, deps = name_deps.is_a?(Hash) ? name_deps.first : [nil, name_deps]
-      options    = run_options.interactive(true).rm(true).tty(true)
-      command    = Docker::Run.new(options: options.to_h, &block)
+
+      options = run_options.interactive(true).rm(true).tty(true)
+      command = Docker::Run.new(options: options.to_h, &block)
       command.cmd name unless name.nil?
+
       @shells[deps] = command
     end
 
@@ -136,7 +139,7 @@ module Cargofile
           sh "docker", "image", "rm", "--force", File.read(name) if File.file?(name)
           rm_r name
         end
-        rm_r root if File.exists?(root)
+        rm_r root if Dir.exists?(root)
       end
     end
   end
