@@ -2,19 +2,18 @@
 
 require "cargofile"
 
-cargo :"cargofile/example" do |c|
-  c.tag Time.now.utc.strftime("%Y.%-m.%-d")
+cargo :"cargofile/ruby2.5" do
+  tag Time.now.utc.strftime("%Y.%-m.%-d")
 
-  c.stage :build do |s|
-    s.artifact "Gemfile.lock"
-    s.artifact "lambda.zip"
+  stage :build
+  stage :test
+
+  stage :plan do
+    build_arg :AWS_ACCESS_KEY_ID
+    build_arg :AWS_SECRET_ACCESS_KEY
+    build_arg :AWS_DEFAULT_REGION => "us-east-1"
   end
 
-  c.stage :test
-
-  c.stage :plan do |s|
-    s.build_arg :AWS_ACCESS_KEY_ID
-    s.build_arg :AWS_SECRET_ACCESS_KEY
-    s.build_arg :AWS_DEFAULT_REGION => "us-east-1"
-  end
+  artifact "Gemfile.lock" => :build
+  artifact "lambda.zip"   => :build
 end
