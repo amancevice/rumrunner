@@ -33,8 +33,8 @@ cargo :image_name do
   tag "1.2.3"
 
   stage :build
-  stage :test
-  stage :deploy
+  stage :test => :build
+  stage :deploy => :test
 end
 ```
 
@@ -68,7 +68,7 @@ The name of the images are taken from the name of the initial block and appended
 The default location for the digests is in `.docker`, but that can be modified:
 
 ```ruby
-cargo :imagename => "tmp" do |c|
+cargo :image_name => "tmp" do |c|
   # ...
 end
 ```
@@ -83,9 +83,9 @@ cargo :image_name do
 
   stage :build
 
-  stage :test
+  stage :test => :build
 
-  stage :deploy do
+  stage :deploy => :test do
     build_arg :AWS_ACCESS_KEY_ID
     build_arg :AWS_SECRET_ACCESS_KEY
     build_arg :AWS_DEFAULT_REGION => "us-east-1"
@@ -109,7 +109,7 @@ end
 By default the container simply `cat`s the file from the container to the local file system, but more complex exports can be defined:
 
 ```ruby
-cargo :imagename do
+cargo :image_name do
   stage :build
 
   artifact "package.zip" => :build do
