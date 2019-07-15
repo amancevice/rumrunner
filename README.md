@@ -25,10 +25,6 @@ FROM ruby AS deploy
 Create `Cargofile` and describe your build:
 
 ```ruby
-#!/usr/bin/env ruby
-
-require "cargofile"
-
 cargo :image_name do
   tag "1.2.3"
 
@@ -38,9 +34,7 @@ cargo :image_name do
 end
 ```
 
-Run `rake -f Cargofile --tasks` to view the installed tasks:
-
-(*NOTE — eventually there will be a `cargo` entrypoint for that will behave like `rake`*)
+Run `bundle exec cargo --tasks` to view the installed tasks:
 
 ```bash
 rake build         # Build `build` stage
@@ -135,3 +129,19 @@ cargo :image_name do
     volume "#{Dir.pwd}:/var/task/"
   end
 end
+```
+
+## Default Task
+
+Use the `default` method to set a default task when running `bundle exec cargo`:
+
+
+```ruby
+cargo :image_name do
+  default "package.zip"
+
+  stage :build
+
+  artifact "package.zip" => :build
+end
+```
