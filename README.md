@@ -73,7 +73,7 @@ cargo :image_name => "tmp" do |c|
 end
 ```
 
-### Customize Stages
+## Customize Stages
 
 Stages can be customized with blocks. Methods invoked on the stage are (with a few exceptions) passed onto the `docker build` command.
 
@@ -94,7 +94,7 @@ cargo :image_name do
 end
 ```
 
-### Export Artifacts
+## Export Artifacts
 
 Use the `artifact` method to specify an artifact to be exported from the image.
 
@@ -118,3 +118,20 @@ cargo :image_name do
   end
 end
 ```
+
+## Shell into Stages
+
+By default, all stages have a `:shell` task that can be invoked to build and shell into a container for a stage. By default the container is run as an ephemeral container (`--rm`) in interactive with TTY allocated and a bash shell open.
+
+Customize the shell for a stage with the `shell` method:
+
+```ruby
+cargo :image_name do
+  stage :dev
+
+  shell :dev do
+    rm     false
+    cmd    "/bin/zsh"
+    volume "#{Dir.pwd}:/var/task/"
+  end
+end
