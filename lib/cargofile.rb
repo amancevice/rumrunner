@@ -1,6 +1,8 @@
 require "forwardable"
 require "securerandom"
 
+require "rake"
+
 require "cargofile/docker"
 require "cargofile/manifest"
 require "cargofile/version"
@@ -11,7 +13,7 @@ module Cargofile
 end
 
 def cargo(*args, &block)
-  name_root  = args.first
-  name, root = name_root.is_a?(Hash) ? name_root.first : [name_root, nil]
+  name, _, deps = Rake.application.resolve_args(args)
+  root = deps.first || :".docker"
   Cargofile::Manifest.new(name: name, root: root, &block).install
 end

@@ -27,7 +27,9 @@ cargo :"registry:5000/cargofile/example" do
   end
 
   # Shell customizations
-  shell "/bin/sh" => :test
+  shell :test do
+    cmd "/bin/sh"
+  end
   shell :plan do
     entrypoint "/bin/sh"
     env :AWS_ACCESS_KEY_ID

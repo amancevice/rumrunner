@@ -12,52 +12,39 @@ RSpec.describe Cargofile::Docker::AttrCallable do
   end
 end
 
-RSpec.describe Cargofile::Docker::OptionCollection do
+RSpec.describe Cargofile::Docker::Options do
   it "#new" do
-    ret = Cargofile::Docker::OptionCollection.new do |o|
-      o.flag :value
-      o.flag :key => :value
-    end
+    ret = Cargofile::Docker::Options.new.flag(:value).flag(:key => :value)
     exp = {:flag => [:value, {:key => :value}]}
     expect(ret.to_h).to eq(exp)
   end
 
   it "#each" do
-    ret = Cargofile::Docker::OptionCollection.new do |o|
-      o.flag :value
-      o.flag :key => :value
-    end.to_a
+    ret = Cargofile::Docker::Options.new.flag(:value).flag(:key => :value)
     exp = %w{--flag value --flag key=value}
-    expect(ret).to eq(exp)
+    expect(ret.to_a).to eq(exp)
   end
 
   it "#method_missing" do
-    ret = Cargofile::Docker::OptionCollection.new
-    ret.fizz true
-    expect(ret.instance_variable_get(:@options).keys).to eq([:fizz])
+    ret = Cargofile::Docker::Options.new.fizz(true)
+    expect(ret.to_h.keys).to eq([:fizz])
   end
 
   it "#to_h" do
-    ret = Cargofile::Docker::OptionCollection.new do |o|
-      o.flag :value
-      o.flag :key => :value
-    end.to_h
+    ret = Cargofile::Docker::Options.new.flag(:value).flag(:key => :value)
     exp = {
       :flag => [
         :value,
         {:key => :value},
       ],
     }
-    expect(ret).to eq(exp)
+    expect(ret.to_h).to eq(exp)
   end
 
   it "#to_s" do
-    ret = Cargofile::Docker::OptionCollection.new do |o|
-      o.flag :value
-      o.flag :key => :value
-    end.to_s
+    ret = Cargofile::Docker::Options.new.flag(:value).flag(:key => :value)
     exp = "--flag value --flag key=value"
-    expect(ret).to eq(exp)
+    expect(ret.to_s).to eq(exp)
   end
 end
 

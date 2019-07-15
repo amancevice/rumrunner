@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.files         = Dir["README*", "LICENSE*", "lib/**/*"]
 
-  spec.add_runtime_dependency "rake", "~> 10.0"
+  spec.add_runtime_dependency "rake", "~> 12.3"
 
   spec.add_development_dependency "bundler",   "~> 2.0"
   spec.add_development_dependency "codecov",   "~> 0.1"

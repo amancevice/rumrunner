@@ -21,7 +21,7 @@ module Cargofile
       attr_reader :options
 
       def initialize(options:nil, &block)
-        @options = OptionCollection.new(options || {})
+        @options = options || Options.new
         instance_eval(&block) if block_given?
       end
 
@@ -42,21 +42,33 @@ module Cargofile
       def to_s
         to_a.join(" ")
       end
+
+      def with_defaults(options = {}, &block)
+        options.reject{|k,v| @options.include? k }.each{|k,v| @options[k] << v }
+        self
+      end
     end
 
-    class OptionCollection
+    class Options
       extend Forwardable
       include Enumerable
 
-      def_delegators :@options, :[], :[]=, :update
+      attr_reader :data
+
+      def_delegators :@data, :[], :[]=, :include?, :to_h, :update
 
       def initialize(options = {}, &block)
-        @options = options
+        @data = Hash.new{|hash, key| hash[key] = [] }.update(options)
         instance_eval(&block) if block_given?
       end
 
+      def method_missing(m, *args, &block)
+        @data[m] += args unless args.empty?
+        self
+      end
+
       def each
-        @options.each do |name, values|
+        @data.each do |name, values|
           option = name.length == 1 ? "-#{name}" : "--#{name.to_s.gsub(/_/, "-")}"
           yield option if values.empty?
           values.each do |value|
@@ -73,18 +85,6 @@ module Cargofile
             end
           end
         end
-      end
-
-      def method_missing(m, *args, &block)
-        unless args.empty?
-          @options[m] ||= []
-          @options[m]  += args
-        end
-        self
-      end
-
-      def to_h
-        @options.clone
       end
 
       def to_s
