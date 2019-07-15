@@ -21,7 +21,7 @@ RSpec.describe Cargofile::Docker::Options do
 
   it "#each" do
     ret = Cargofile::Docker::Options.new.flag(:value).flag(:key => :value)
-    exp = %w{--flag value --flag key=value}
+    exp = %w[--flag value --flag key=value]
     expect(ret.to_a).to eq(exp)
   end
 
@@ -43,7 +43,7 @@ RSpec.describe Cargofile::Docker::Build do
   end
 
   it "#each" do
-    expect(Cargofile::Docker::Build.new.to_a).to eq(%w{docker build .})
+    expect(Cargofile::Docker::Build.new.to_a).to eq(%w[docker build .])
   end
 
   it "#method_missing" do
@@ -78,19 +78,19 @@ RSpec.describe Cargofile::Docker::Run do
 
   it "#each" do
     ret = Cargofile::Docker::Run.new image: "fizz"
-    expect(ret.to_a).to eq(%w{docker run fizz})
+    expect(ret.to_a).to eq(%w[docker run fizz])
   end
 
   it "#cmd" do
     ret = Cargofile::Docker::Run.new image: "fizz"
-    ret.cmd %w{echo hello}
+    ret.cmd %w[echo hello]
     expect(ret.cmd).to eq(["echo", "hello"])
   end
 
   it "#to_s" do
     ret = Cargofile::Docker::Run.new(image: "fizz") do |r|
       r.options.rm true
-      r.cmd %w{echo hello, world}
+      r.cmd %w[echo hello, world]
     end
     exp = "docker run --rm fizz echo hello, world"
     expect(ret.to_s).to eq(exp)
@@ -144,7 +144,7 @@ RSpec.describe Cargofile::Docker::Image do
 
   it "#each" do
     ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
-    exp = %w{registry user fizz latest}
+    exp = %w[registry user fizz latest]
     expect(ret.to_a).to eq(exp)
   end
 

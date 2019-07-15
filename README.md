@@ -114,7 +114,7 @@ cargo :image_name do
 
   artifact "package.zip" => :build do
     workdir "/var/task/"
-    cmd     %w{zip -r - .}
+    cmd     %w[zip -r - .]
   end
 end
 ```

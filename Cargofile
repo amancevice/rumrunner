@@ -23,7 +23,7 @@ cargo :"registry:5000/cargofile/example" do
   # Build artifacts
   artifact "Gemfile.lock" => :build
   artifact "pkg/vendor.zip" => :build do
-    cmd %w{zip -r - vendor}
+    cmd %w[zip -r - vendor]
   end
 
   # Shell customizations
