@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require "cargofile"
+
+Rake.application.instance_variable_set :@rakefiles, [
+  "cargofile",
+  "Cargofile",
+  "cargofile.rb",
+  "Cargofile.rb"]
+Rake.application.run

@@ -15,6 +15,11 @@ module Cargofile
       instance_eval(&block) if block_given?
     end
 
+    def default(*args, &block)
+      name = Rake.application.resolve_args(args).first
+      task :default => name
+    end
+
     def build(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
       task name => deps do

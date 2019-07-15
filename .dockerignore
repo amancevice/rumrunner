@@ -4,5 +4,6 @@
 !Cargofile
 !Gemfile
 !Rakefile
+!bin/
 !lib/
 !spec/

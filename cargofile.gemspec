@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
   spec.require_paths = ["lib"]
   spec.files         = Dir["README*", "LICENSE*", "lib/**/*"]
+  spec.executables   = ["cargo"]
 
   spec.add_runtime_dependency "rake", "~> 12.3"
 

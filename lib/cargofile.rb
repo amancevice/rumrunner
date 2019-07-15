@@ -3,9 +3,9 @@ require "securerandom"
 
 require "rake"
 
+require "cargofile/version"
 require "cargofile/docker"
 require "cargofile/manifest"
-require "cargofile/version"
 
 module Cargofile
   class Error < StandardError

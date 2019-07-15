@@ -9,7 +9,7 @@ Experiment in building projects with multi-stage Dockerfiles.
 
 ## Example
 
-Imagine a simple two-stage Dockerfile:
+Imagine a simple multi-stage Dockerfile:
 
 ```Dockerfile
 FROM ruby AS build

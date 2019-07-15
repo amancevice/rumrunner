@@ -1,9 +1,7 @@
 #!/usr/bin/env ruby
 
-require "cargofile"
-require "pry"
-
 cargo :"registry:5000/cargofile/example" do
+  default ["pkg/vendor.zip", "Gemfile.lock"]
 
   # Base tag name for built images
   tag %x(git describe --tags --always).strip
