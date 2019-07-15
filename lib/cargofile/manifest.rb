@@ -142,11 +142,11 @@ module Cargofile
     private
 
     def build_options
-      Docker::Options.new(build_arg: @env)
+      Docker::Options.new(build_arg: @env) unless @env.empty?
     end
 
     def run_options
-      Docker::Options.new(env: @env)
+      Docker::Options.new(env: @env) unless @env.empty?
     end
 
     def install_clean
