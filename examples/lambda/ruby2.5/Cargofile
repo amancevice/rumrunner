@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
-
-require "cargofile"
-
 cargo :"cargofile/ruby2.5" do
+  default ["Gemfile.lock", "lambda.zip"]
+
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
   stage :build

@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
-
-require "cargofile"
-
 cargo :"cargofile/nodejs10.x" do
+  default ["package-lock.json", "lambda.zip"]
+
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
   stage :build
