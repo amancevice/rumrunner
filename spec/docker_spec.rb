@@ -17,9 +17,9 @@ RSpec.describe Cargofile::Docker::OptionCollection do
     ret = Cargofile::Docker::OptionCollection.new do |o|
       o.flag :value
       o.flag :key => :value
-    end.instance_variable_get(:@options)
+    end
     exp = {:flag => [:value, {:key => :value}]}
-    expect(ret).to eq(exp)
+    expect(ret.to_h).to eq(exp)
   end
 
   it "#each" do
@@ -35,13 +35,6 @@ RSpec.describe Cargofile::Docker::OptionCollection do
     ret = Cargofile::Docker::OptionCollection.new
     ret.fizz true
     expect(ret.instance_variable_get(:@options).keys).to eq([:fizz])
-  end
-
-  it "#clone" do
-    opt1 = Cargofile::Docker::OptionCollection.new
-    opt2 = opt1.clone
-    opt2.flag :value
-    expect(opt1.to_h).not_to eq(opt2.to_h)
   end
 
   it "#to_h" do
@@ -75,13 +68,6 @@ RSpec.describe Cargofile::Docker::Build do
 
   it "#each" do
     expect(Cargofile::Docker::Build.new.to_a).to eq(%w{docker build .})
-  end
-
-  it "#clone" do
-    a = Cargofile::Docker::Build.new
-    b = a.clone
-    a.path "../."
-    expect(a.to_a).not_to eq(b.to_a)
   end
 
   it "#method_missing" do
@@ -119,33 +105,16 @@ RSpec.describe Cargofile::Docker::Run do
     expect(ret.to_a).to eq(%w{docker run fizz})
   end
 
-  it "#clone" do
-    a = Cargofile::Docker::Run.new image: "fizz"
-    b = a.clone
-    a.image "buzz"
-    expect(a.to_a).not_to eq(b.to_a)
-  end
-
   it "#cmd" do
     ret = Cargofile::Docker::Run.new image: "fizz"
-    ret.cmd "echo", "hello"
+    ret.cmd %w{echo hello}
     expect(ret.cmd).to eq(["echo", "hello"])
-  end
-
-  it "#to_h" do
-    ret = Cargofile::Docker::Run.new do |r|
-      r.options.rm true
-      r.image "fizz"
-      r.cmd *%w{echo hello, world}
-    end
-    exp = {cmd: %w{echo hello, world}, image: "fizz", options: {rm: [true]}}
-    expect(ret.to_h).to eq(exp)
   end
 
   it "#to_s" do
     ret = Cargofile::Docker::Run.new(image: "fizz") do |r|
       r.options.rm true
-      r.cmd *%w{echo hello, world}
+      r.cmd %w{echo hello, world}
     end
     exp = "docker run --rm fizz echo hello, world"
     expect(ret.to_s).to eq(exp)
@@ -154,47 +123,45 @@ end
 
 RSpec.describe Cargofile::Docker::Image do
   it "::parse(image)" do
-    ret = Cargofile::Docker::Image.parse("image").to_h
-    exp = {registry: nil, username: nil, name: "image", tag: nil}
+    exp = "image"
+    ret = Cargofile::Docker::Image.parse(exp).to_s
+    expect(ret).to eq("#{exp}:latest")
   end
 
   it "::parse(username/image)" do
-    ret = Cargofile::Docker::Image.parse("username/image").to_h
-    exp = {registry: nil, username: "username", name: "image", tag: nil}
+    exp = "username/image"
+    ret = Cargofile::Docker::Image.parse(exp).to_s
+    expect(ret).to eq("#{exp}:latest")
   end
 
   it "::parse(image:tag)" do
-    ret = Cargofile::Docker::Image.parse("image:tag").to_h
-    exp = {registry: nil, username: nil, name: "image", tag: "tag"}
+    exp = "image:tag"
+    ret = Cargofile::Docker::Image.parse(exp).to_s
+    expect(ret).to eq(exp)
   end
 
   it "::parse(username/image:tag)" do
-    ret = Cargofile::Docker::Image.parse("username/image:tag").to_h
-    exp = {registry: nil, username: "username", name: "image", tag: "tag"}
+    exp = "username/image:tag"
+    ret = Cargofile::Docker::Image.parse(exp).to_s
+    expect(ret).to eq(exp)
   end
 
   it "::parse(registry/username/image)" do
-    ret = Cargofile::Docker::Image.parse("registry:5000/username/image").to_h
-    exp = {registry: "registry:5000", username: "username", name: "image", tag: nil}
+    exp = "registry:5000/username/image"
+    ret = Cargofile::Docker::Image.parse(exp).to_s
+    expect(ret).to eq("#{exp}:latest")
   end
 
   it "::parse(registry/username/image:tag)" do
-    ret = Cargofile::Docker::Image.parse("registry:5000/username/image:tag").to_h
-    exp = {registry: "registry:5000", username: "username", name: "image", tag: "tag"}
-  end
-
-  it "#clone" do
-    a = Cargofile::Docker::Image.new name: "fizz"
-    b = a.clone
-    b.name "buzz"
-    expect(a.to_h).not_to eq(b.to_h)
+    exp = "registry:5000/username/image:tag"
+    ret = Cargofile::Docker::Image.parse(exp).to_s
+    expect(ret).to eq(exp)
   end
 
   it "#each" do
-  ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
-  exp = %w{registry user fizz latest}
-  expect(ret.to_a).to eq(exp)
-
+    ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
+    exp = %w{registry user fizz latest}
+    expect(ret.to_a).to eq(exp)
   end
 
   it "#family" do
@@ -206,13 +173,6 @@ RSpec.describe Cargofile::Docker::Image do
   it "#to_s" do
     ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
     exp = "registry/user/fizz:latest"
-    expect(ret.to_s).to eq(exp)
-  end
-
-  it "#update" do
-    ret = Cargofile::Docker::Image.parse "registry/user/fizz:latest"
-    ret.update tag: "1.2.3"
-    exp = "registry/user/fizz:1.2.3"
     expect(ret.to_s).to eq(exp)
   end
 end

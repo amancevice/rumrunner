@@ -18,7 +18,7 @@ module Cargofile
     module Executable
       include Enumerable
 
-      attr_accessor :options
+      attr_reader :options
 
       def initialize(options:nil, &block)
         @options = OptionCollection.new(options || {})
@@ -28,10 +28,6 @@ module Cargofile
       def each
         self.class.name.split(/::/)[1..-1].each{|x| yield x.downcase }
         @options.each{|x| yield x }
-      end
-
-      def clone(&block)
-        self.class.new to_h, &block
       end
 
       def method_missing(m, *args, &block)
@@ -87,16 +83,12 @@ module Cargofile
         self
       end
 
-      def clone(&block)
-        OptionCollection.new @options.clone, &block
-      end
-
       def to_h
         @options.clone
       end
 
       def to_s
-        to_a.join " "
+        to_a.join(" ")
       end
     end
 
@@ -104,11 +96,9 @@ module Cargofile
       extend AttrCallable
       include Executable
 
-      attr_writer :path
-
       attr_method_accessor :path
 
-      def initialize(path:nil, options:nil, &block)
+      def initialize(options:nil, path:nil, &block)
         @path = path
         super options: options, &block
       end
@@ -127,14 +117,12 @@ module Cargofile
       extend AttrCallable
       include Executable
 
-      attr_writer :image, :cmd
+      attr_method_accessor :image, :cmd
 
-      attr_method_accessor :image
-
-      def initialize(image:nil, cmd:nil, options:nil)
+      def initialize(options:nil, image:nil, cmd:nil, &block)
         @image = image
         @cmd   = cmd
-        super options: options
+        super options: options, &block
       end
 
       def each
@@ -143,18 +131,8 @@ module Cargofile
         @cmd.is_a?(Array) ? @cmd.each{|x| yield x } : yield(@cmd) unless @cmd.nil?
       end
 
-      def cmd(*values)
-        if values.any?
-          @cmd = values
-          self
-        else
-          @cmd
-        end
-      end
-
       def to_h
-        super.update image: @image.clone,
-                     cmd:   @cmd.clone
+        super.update image: @image.clone, cmd: @cmd.clone
       end
     end
 
@@ -176,10 +154,6 @@ module Cargofile
         [@registry, @username, @name, @tag].compact.each{|x| yield x }
       end
 
-      def clone(&block)
-        Image.new to_h, &block
-      end
-
       def family
         File.join *[@registry, @username, @name].compact.map(&:to_s)
       end
@@ -197,37 +171,31 @@ module Cargofile
         "#{family}:#{@tag || :latest}"
       end
 
-      def update(options = {})
-        options.each{|k,v| send k, v }
-        self
-      end
-
       class << self
         def parse(string_or_symbol)
           string = string_or_symbol.to_s
           if string.count("/").zero? && string.count(":").zero?
             # image
-            options = {name: string}
+            new name: string
           elsif string.count("/").zero?
             # image:tag
             name, tag = string.split(/:/)
-            options = {name: name, tag: tag}
+            new name: name, tag: tag
           elsif string.count("/") == 1 && string.count(":").zero?
             # username/image
             username, name = string.split(/\//)
-            options = {username: username, name: name}
+            new name: name, username: username
           elsif string.count("/") == 1
             # username/image:tag
             username, name_tag = string.split(/\//)
             name, tag          = name_tag.split(/:/)
-            options = {username: username, name: name, tag: tag}
+            new name: name, username: username, tag: tag
           else
             # registry/username/image[:tag]
             registry, username, name_tag = string.split(/\//)
             name, tag                    = name_tag.split(/:/)
-            options = {registry: registry, username: username, name: name, tag: tag}
+            new name: name, registry: registry, username: username, tag: tag
           end
-          new options
         end
       end
     end

@@ -3,11 +3,11 @@ module Cargofile
     extend Forwardable
     include Rake::DSL if defined? Rake::DSL
 
+    def_delegator :@env, :<<, :env
     def_delegator :@root, :to_s, :root
-    def_delegators :@image, :registry, :username, :name, :tag
+    def_delegators :@image, :registry, :username, :name, :tag, :to_s
 
     def initialize(name:, root:nil, &block)
-      @name      = name
       @root      = root || :".docker"
       @image     = Docker::Image.parse(name)
       @env       = []
@@ -15,10 +15,6 @@ module Cargofile
       @artifacts = {}
       @shells    = {}
       instance_eval(&block) if block_given?
-    end
-
-    def env(key_val)
-      @env << key_val
     end
 
     def stage(name_deps, &block)
