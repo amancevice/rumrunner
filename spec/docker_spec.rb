@@ -30,17 +30,6 @@ RSpec.describe Cargofile::Docker::Options do
     expect(ret.to_h.keys).to eq([:fizz])
   end
 
-  it "#to_h" do
-    ret = Cargofile::Docker::Options.new.flag(:value).flag(:key => :value)
-    exp = {
-      :flag => [
-        :value,
-        {:key => :value},
-      ],
-    }
-    expect(ret.to_h).to eq(exp)
-  end
-
   it "#to_s" do
     ret = Cargofile::Docker::Options.new.flag(:value).flag(:key => :value)
     exp = "--flag value --flag key=value"
@@ -63,15 +52,6 @@ RSpec.describe Cargofile::Docker::Build do
     expect(ret.options.to_h).to eq(exp)
   end
 
-  it "#to_h" do
-    build = Cargofile::Docker::Build.new do |b|
-      b.options.rm true
-      b.options.label :FIZZ
-    end
-    exp = {path: nil, options: {rm: [true], label: [:FIZZ]}}
-    expect(build.to_h).to eq(exp)
-  end
-
   it "#to_s" do
     ret = Cargofile::Docker::Build.new do |b|
       b.options.build_arg :FIZZ => "buzz"
@@ -79,6 +59,15 @@ RSpec.describe Cargofile::Docker::Build do
     end
     exp = "docker build --build-arg FIZZ=buzz --build-arg BUZZ ."
     expect(ret.to_s).to eq(exp)
+  end
+
+  it "#with_defaults" do
+    ret = Cargofile::Docker::Build.new do
+      tag    :fizz
+      target :buzz
+    end.with_defaults(tag: "foo", target: "bar", :jazz => :fuzz)
+    exp = {:tag=>[:fizz], :target=>[:buzz], :jazz => [:fuzz]}
+    expect(ret.options.to_h).to eq(exp)
   end
 end
 
@@ -105,6 +94,14 @@ RSpec.describe Cargofile::Docker::Run do
     end
     exp = "docker run --rm fizz echo hello, world"
     expect(ret.to_s).to eq(exp)
+  end
+
+  it "#with_defaults" do
+    ret = Cargofile::Docker::Run.new do
+      rm false
+    end.with_defaults(rm: true)
+    exp = {:rm=>[false]}
+    expect(ret.options.to_h).to eq(exp)
   end
 end
 

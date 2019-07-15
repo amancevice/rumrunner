@@ -10,6 +10,7 @@ FROM lambci/lambda:build-${RUNTIME} AS test
 RUN >&2 echo "TEST"
 COPY --from=build /var/task/ .
 ARG BUNDLE_SILENCE_ROOT_WARNING=1
+ARG RAKE_ENV=test
 RUN bundle install --with development
 RUN bundle exec rake
 RUN bundle exec rake gem:build

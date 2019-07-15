@@ -11,5 +11,5 @@ namespace :gem do
 end
 
 namespace :cargo do
-  load "Cargofile"
+  load "Cargofile" unless ENV["RAKE_ENV"] == "test"
 end

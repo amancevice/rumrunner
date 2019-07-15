@@ -35,10 +35,6 @@ module Cargofile
         args.any? ? self : @options[m]
       end
 
-      def to_h
-        {options: @options.to_h}
-      end
-
       def to_s
         to_a.join(" ")
       end
@@ -107,10 +103,6 @@ module Cargofile
         super{|x| yield x }
         yield @path || "."
       end
-
-      def to_h
-        super.update path: @path.clone
-      end
     end
 
     class Run
@@ -129,10 +121,6 @@ module Cargofile
         super{|x| yield x }
         yield @image
         @cmd.is_a?(Array) ? @cmd.each{|x| yield x } : yield(@cmd) unless @cmd.nil?
-      end
-
-      def to_h
-        super.update image: @image.clone, cmd: @cmd.clone
       end
     end
 
@@ -156,15 +144,6 @@ module Cargofile
 
       def family
         File.join *[@registry, @username, @name].compact.map(&:to_s)
-      end
-
-      def to_h
-        {
-          registry: @registry.clone,
-          username: @username.clone,
-          name:     @name.clone,
-          tag:      @tag.clone,
-        }
       end
 
       def to_s
