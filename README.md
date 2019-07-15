@@ -119,7 +119,7 @@ cargo :image_name do
 end
 ```
 
-## Shell into Stages
+## Customize Shell
 
 By default, all stages have a `:shell` task that can be invoked to build and shell into a container for a stage. By default the container is run as an ephemeral container (`--rm`) in interactive with TTY allocated and a bash shell open.
 
