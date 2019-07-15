@@ -7,7 +7,6 @@ cargo :"cargofile/ruby2.5" do
 
   stage :build
   stage :test
-
   stage :plan do
     build_arg :AWS_ACCESS_KEY_ID
     build_arg :AWS_SECRET_ACCESS_KEY
