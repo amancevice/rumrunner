@@ -37,16 +37,16 @@ end
 Run `bundle exec cargo --tasks` to view the installed tasks:
 
 ```bash
-rake build         # Build `build` stage
-rake build:clean   # Remove any temporary images and products from `build` stage
-rake build:shell   # Shell into `build` stage
-rake clean         # Remove any temporary images and products
-rake deploy        # Build `deploy` stage
-rake deploy:clean  # Remove any temporary images and products from `deploy` stage
-rake deploy:shell  # Shell into `deploy` stage
-rake test          # Build `test` stage
-rake test:clean    # Remove any temporary images and products from `test` stage
-rake test:shell    # Shell into `test` stage
+cargo build         # Build `build` stage
+cargo build:clean   # Remove any temporary images and products from `build` stage
+cargo build:shell   # Shell into `build` stage
+cargo clean         # Remove any temporary images and products
+cargo deploy        # Build `deploy` stage
+cargo deploy:clean  # Remove any temporary images and products from `deploy` stage
+cargo deploy:shell  # Shell into `deploy` stage
+cargo test          # Build `test` stage
+cargo test:clean    # Remove any temporary images and products from `test` stage
+cargo test:shell    # Shell into `test` stage
 ```
 
 Run the `<stage>` task to build the image up to that stage and cache the image digest.
