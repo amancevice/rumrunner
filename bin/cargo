@@ -2,9 +2,13 @@
 
 require "cargofile"
 
-Rake.application.instance_variable_set :@rakefiles, [
-  "cargofile",
-  "Cargofile",
-  "cargofile.rb",
-  "Cargofile.rb"]
-Rake.application.run
+Rake.application.standard_exception_handling do
+  Rake.application.instance_variable_set :@rakefiles, [
+    "cargofile",
+    "Cargofile",
+    "cargofile.rb",
+    "Cargofile.rb"]
+  Rake.application.init "cargo", ARGV
+  Rake.application.load_rakefile
+  Rake.application.top_level
+end
