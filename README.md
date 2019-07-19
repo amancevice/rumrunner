@@ -5,7 +5,11 @@
 
 Experiment in building projects with multi-stage Dockerfiles.
 
-*THIS IS ALL HIGHLY EXPERIMENTAL AT THE MOMENT*
+## Installation
+
+```bash
+gem install cargofile
+```
 
 ## Example
 
