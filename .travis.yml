@@ -1,6 +1,7 @@
 language: ruby
 cache: bundler
 rvm:
+- 2.5.5
 - 2.6.3
 before_install:
 - gem install bundler
@@ -8,3 +9,21 @@ install:
 - bundle install
 script:
 - rspec
+deploy:
+  provider: rubygems
+  api_key:
+    secure: >-
+      nWU2rhBhdTpv1zSbdmr7utfXT65zZooLtGgj2EvZn4d6tehJPvjS15caopOfCLToCT+qEvV3s
+      +PtnfWEv0gcp7kRsHDC+OWfdOuV9/716A9Z0swV0YZq/K9edpEzUey51gLi+R0NvpPOUNLLDy
+      Orf8edohwe2qaO4CpM6le6dpT/77uV6Cyo38P3Kx0f6TXKyGmF66xrYTyNwtI2LNeipxnk5OB
+      02ggYdRdc6RRWM5jcfB34+U2bfw15E/ZMLY/EreZPS5RE1iYTLhi8+IZzK7A0lL/wuEYQi+yX
+      lm5ZLpSkswyO9O+WXw+n+WwvzFK6R3mxg4yMPibtVsl5Mq47bQI6CHn70upGMUDTTB3Rx1izG
+      OD36NBR8pyBJ/BHPhsKZLuIhUlaKsG6NSD4xkhhnPnTFAXb6b/I9USPCmIoslhZ472oOY4lS2
+      2Vhx55WCkoEhr9gKpGP1KPX1g5hmx/Z2E5gnIVQq07KegdbKDJikmZ2uipET7FxjhvRBX/KO0
+      8cJHKpra2YUbZAGcOpgfP6vo6GNg9/fhIGKV3giYjJERhw5ZLFfAUwDUOg4HeG1Pxked+QQyi
+      fG07VjCmxNyOOlFw+RA8oXOd0aboagOoT/egKYFX+bBPlVXTYzSEgPUgNOq8fHoMb4906Ioep
+      mc9kn0boQvHsmz0UK609Wc0LgA=
+  gem: cargofile
+  on:
+    tags: true
+    repo: amancevice/cargofile
