@@ -1,12 +1,6 @@
 require "forwardable"
 require "rake"
 
-def cargo(*args, &block)
-  name, _, deps = Rake.application.resolve_args(args)
-  root = deps.first || :".docker"
-  Cargofile::Manifest.new(name: name, root: root, &block).install
-end
-
 module Cargofile
   class Manifest
     extend Forwardable
