@@ -1,3 +1,5 @@
+require "forwardable"
+
 module Cargofile
   module Docker
     module AttrCallable
