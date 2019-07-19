@@ -6,6 +6,8 @@ module Cargofile
     extend Forwardable
     include Rake::DSL if defined? Rake::DSL
 
+    attr_reader :image
+
     def_delegator :@env, :<<, :env
     def_delegator :@root, :to_s, :root
     def_delegators :@image, :registry, :username, :name, :tag
