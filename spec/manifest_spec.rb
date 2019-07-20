@@ -6,9 +6,7 @@ RSpec.describe Cargofile::Manifest do
       stage    :build
       artifact "fizz" => :build
 
-      shell :build do
-        entrypoint "/bin/sh"
-      end
+      shell :build
 
       run   :jazz
       build :fuzz

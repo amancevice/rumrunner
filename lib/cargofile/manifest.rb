@@ -68,14 +68,15 @@ module Cargofile
 
       # Shell into stage
       desc "Shell into `#{name}` stage"
-      task :"#{name}:shell" => iidfile do
+      task :"#{name}:shell", [:shell] => iidfile do |t,args|
         digest = File.read(iidfile)
-        run = Docker::Run.new(options: run_options)
+        shell  = args.any? ? args.to_a.join(" ") : "/bin/sh"
+        run    = Docker::Run.new(options: run_options)
+          .entrypoint(shell)
           .interactive(true)
           .rm(true)
           .tty(true)
           .image(digest)
-          .cmd("/bin/bash")
         sh run.to_s
       end
 
@@ -131,11 +132,12 @@ module Cargofile
 
       Rake::Task[name].clear if Rake::Task.task_defined?(name)
 
-      desc "Shell into `#{name}` stage"
-      task name => iidfile do
+      desc "Shell into `#{target}` stage"
+      task name, [:shell] => iidfile do |t,args|
         digest = File.read(iidfile)
-        run = Docker::Run.new(options: run_options, image: digest, &block)
-        run.with_defaults(interactive:true, rm: true, tty: true)
+        shell  = args.any? ? args.to_a.join(" ") : "/bin/sh"
+        run    = Docker::Run.new(options: run_options, image: digest, &block)
+        run.with_defaults(entrypoint: shell, interactive:true, rm: true, tty: true)
         sh run.to_s
       end
     end

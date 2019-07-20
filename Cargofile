@@ -25,11 +25,11 @@ cargo :"registry:5000/cargofile/example" do
   end
 
   # Shell customizations
-  shell :test do
-    cmd "/bin/sh"
+  shell :build do
+    entrypoint "/bin/bash"
   end
+
   shell :plan do
-    entrypoint "/bin/sh"
     env :AWS_ACCESS_KEY_ID
     env :AWS_DEFAULT_REGION
     env :AWS_SECRET_ACCESS_KEY
