@@ -7,6 +7,6 @@ group :test do
 end
 
 group :development do
-  gem "cargofile", "~> 0.1", git: "https://github.com/amancevice/cargofile"
+  gem "cargofile", "~> 0.1"
   gem "pry",       "~> 0.12"
 end

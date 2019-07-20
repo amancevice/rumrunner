@@ -1,3 +1,0 @@
-source "https://rubygems.org"
-
-gem "cargofile", "~> 0.1", git: "https://github.com/amancevice/cargofile"

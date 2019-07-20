@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 cargo :"cargofile/ruby2.5" do
-  default ["Gemfile.lock", "lambda.zip"]
-
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
   stage :build
@@ -14,4 +12,6 @@ cargo :"cargofile/ruby2.5" do
 
   artifact "Gemfile.lock" => :build
   artifact "lambda.zip"   => :build
+
+  default ["Gemfile.lock", "lambda.zip"]
 end

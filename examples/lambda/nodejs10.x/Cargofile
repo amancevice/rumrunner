@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 cargo :"cargofile/nodejs10.x" do
-  default ["package-lock.json", "lambda.zip"]
-
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
   stage :build
@@ -14,4 +12,6 @@ cargo :"cargofile/nodejs10.x" do
 
   artifact "package-lock.json" => :build
   artifact "lambda.zip"        => :build
+
+  default ["package-lock.json", "lambda.zip"]
 end
