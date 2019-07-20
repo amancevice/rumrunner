@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Bash completion for Cargofile
+# Based on https://github.com/JoeNyland/rake-completion
+
+export COMP_WORDBREAKS=${COMP_WORDBREAKS/\:/}
+
+function _cargocomplete() {
+
+  # Error if no Cargofile
+  if [[ ! -e Cargofile ]]; then
+    return 1
+  fi
+
+  local tasks=$(cargo --tasks --silent | awk '{print $2}')
+  COMPREPLY=($(compgen -W "${tasks}" -- ${COMP_WORDS[COMP_CWORD]}))
+  return 0
+
+}
+
+complete -o default -o nospace -F _cargocomplete cargo
