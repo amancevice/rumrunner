@@ -3,7 +3,19 @@
 [![Build Status](https://travis-ci.com/amancevice/cargofile.svg?branch=master)](https://travis-ci.com/amancevice/cargofile)
 [![codecov](https://codecov.io/gh/amancevice/cargofile/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/cargofile)
 
-Experiment in building projects with multi-stage Dockerfiles.
+<img alt="cargofile" src="./docs/icon.png"/>
+
+Cargofile is a Rake-based utility for building projects using multi-stage Dockerfiles.
+
+Cargofile allows users to minimally annotate builds using a Rake-like DSL
+and execute them with a rake-like CLI.
+
+Carfofile has the following features:
+* Cargofiles are completely defined in standard Ruby syntax, like Rakefiles.
+* Users can specify Docker build stages with prerequisites.
+* Artifacts can be exported from stages
+* Stages' build steps can be customized
+* Shell tasks are automatically provided for every stage
 
 ## Installation
 
