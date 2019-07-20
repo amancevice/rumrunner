@@ -41,21 +41,23 @@ end
 Run `bundle exec cargo --tasks` to view the installed tasks:
 
 ```bash
-cargo build         # Build `build` stage
-cargo build:clean   # Remove any temporary images and products from `build` stage
-cargo build:shell   # Shell into `build` stage
-cargo clean         # Remove any temporary images and products
-cargo deploy        # Build `deploy` stage
-cargo deploy:clean  # Remove any temporary images and products from `deploy` stage
-cargo deploy:shell  # Shell into `deploy` stage
-cargo test          # Build `test` stage
-cargo test:clean    # Remove any temporary images and products from `test` stage
-cargo test:shell    # Shell into `test` stage
+cargo build                # Build `build` stage
+cargo build:clean          # Remove any temporary images and products from `build` stage
+cargo build:shell[shell]   # Shell into `build` stage
+cargo clean                # Remove any temporary images and products
+cargo deploy               # Build `deploy` stage
+cargo deploy:clean         # Remove any temporary images and products from `deploy` stage
+cargo deploy:shell[shell]  # Shell into `deploy` stage
+cargo test                 # Build `test` stage
+cargo test:clean           # Remove any temporary images and products from `test` stage
+cargo test:shell[shell]    # Shell into `test` stage
 ```
 
 Run the `<stage>` task to build the image up to that stage and cache the image digest.
 
 Run the `<stage>:shell` task to build the image and then shell into an instance of the image running as a temporary container.
+
+The default shell is `/bin/sh`, but this can be overridden at runtime with the task arg, eg `bundle exec cargo build:shell[/bin/bash]`
 
 The name of the images are taken from the name of the initial block and appended with the name of the stage. The above example would build:
 
@@ -128,9 +130,9 @@ cargo :image_name do
   stage :dev
 
   shell :dev do
-    rm     false
-    cmd    "/bin/zsh"
-    volume "#{Dir.pwd}:/var/task/"
+    entrypoint "/bin/zsh"
+    rm         false
+    volume     "#{Dir.pwd}:/var/task/"
   end
 end
 ```
@@ -142,10 +144,10 @@ Use the `default` method to set a default task when running `bundle exec cargo`:
 
 ```ruby
 cargo :image_name do
-  default "package.zip"
-
   stage :build
 
   artifact "package.zip" => :build
+
+  default "package.zip"
 end
 ```
