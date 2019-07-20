@@ -1,9 +1,7 @@
-# Cargofile
+<img alt="cargofile" src="./docs/icon.png"/>
 
 [![Build Status](https://travis-ci.com/amancevice/cargofile.svg?branch=master)](https://travis-ci.com/amancevice/cargofile)
 [![codecov](https://codecov.io/gh/amancevice/cargofile/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/cargofile)
-
-<img alt="cargofile" src="./docs/icon.png"/>
 
 Cargofile is a Rake-based utility for building projects using multi-stage Dockerfiles.
 
