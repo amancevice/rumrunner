@@ -1,24 +1,22 @@
-ARG RUNTIME=ruby2.5
+ARG RUBY_VERSION=latest
 
-FROM lambci/lambda:build-${RUNTIME} AS build
-RUN >&2 echo "BUILD"
+FROM ruby:${RUBY_VERSION} AS build
+WORKDIR /var/task/
 COPY . .
 ARG BUNDLE_SILENCE_ROOT_WARNING=1
-RUN bundle install --path vendor/bundle/ --without development
-
-FROM lambci/lambda:build-${RUNTIME} AS test
-RUN >&2 echo "TEST"
-COPY --from=build /var/task/ .
-ARG BUNDLE_SILENCE_ROOT_WARNING=1
-ARG RAKE_ENV=test
-RUN bundle install --with development
-RUN bundle exec rake
+RUN gem install bundler -v 2.0.2
+RUN bundle install --path vendor/bundle/
 RUN bundle exec rake gem:build
 
-FROM hashicorp/terraform:0.12.5 AS plan
-RUN >&2 echo "PLAN"
+FROM ruby:${RUBY_VERSION} AS test
 WORKDIR /var/task/
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_DEFAULT_REGION=us-east-1
-ARG AWS_SECRET_ACCESS_KEY
-RUN terraform -version
+COPY --from=build /usr/local/bundle/ /usr/local/bundle/
+COPY --from=build /var/task/ .
+RUN bundle exec rake
+
+FROM ruby:${RUBY_VERSION} AS release
+WORKDIR /var/task/
+COPY --from=build /usr/local/bundle/ /usr/local/bundle/
+COPY --from=build /var/task/ .
+ARG RUBYGEMS_API_KEY
+RUN bundle exec rake gem:publish

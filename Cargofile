@@ -1,37 +1,18 @@
 #!/usr/bin/env ruby
+gem = Gem::Specification::load("cargofile.gemspec")
 
-cargo :"registry:5000/cargofile/example" do
-  default ["pkg/vendor.zip", "Gemfile.lock"]
+cargo gem.name do
+  tag gem.version
 
-  # Base tag name for built images
-  tag %x(git describe --tags --always).strip
+  env :RUBY_VERSION => ENV["RUBY_VERSION"] || "latest"
 
-  # Shared environment variable (--build-arg / --env)
-  env :RUNTIME => "ruby2.5"
-
-  # Build stages
   stage :build
   stage :test => :build
-  stage :plan => :test do
-    build_arg :AWS_ACCESS_KEY_ID
-    build_arg :AWS_DEFAULT_REGION
-    build_arg :AWS_SECRET_ACCESS_KEY
+  stage :release => :test do
+    build_arg :RUBYGEMS_API_KEY
   end
 
-  # Build artifacts
-  artifact "Gemfile.lock" => :build
-  artifact "pkg/vendor.zip" => :build do
-    cmd %w[zip -r - vendor]
-  end
+  artifact "pkg/#{gem.full_name}.gem" => :test
 
-  # Shell customizations
-  shell :build do
-    entrypoint "/bin/bash"
-  end
-
-  shell :plan do
-    env :AWS_ACCESS_KEY_ID
-    env :AWS_DEFAULT_REGION
-    env :AWS_SECRET_ACCESS_KEY
-  end
+  default "pkg/#{gem.full_name}.gem"
 end

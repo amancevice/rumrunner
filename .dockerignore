@@ -1,7 +1,6 @@
 *
 !*.gemspec
 !.rspec
-!Cargofile
 !Gemfile
 !Rakefile
 !bin/
