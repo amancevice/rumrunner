@@ -12,7 +12,7 @@ cargo gem.name do
     build_arg :RUBYGEMS_API_KEY
   end
 
-  artifact "pkg/#{gem.full_name}.gem" => :test
+  artifact "pkg/#{gem.full_name}.gem" => :build
 
   default "pkg/#{gem.full_name}.gem"
 end

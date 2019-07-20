@@ -23,6 +23,7 @@ RSpec.describe Cargofile::Manifest do
       "build:clean"                                     => Rake::Task,
       "build:shell"                                     => Rake::Task,
       "clean"                                           => Rake::Task,
+      "clobber"                                         => Rake::Task,
       "default"                                         => Rake::Task,
       "fizz"                                            => Rake::FileTask,
       "fuzz"                                            => Rake::Task,

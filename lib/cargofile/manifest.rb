@@ -118,7 +118,8 @@ module Cargofile
         sh "#{run} > #{name}"
       end
 
-      task :clean do
+      desc "Remove any generated files"
+      task :clobber do
         rm name if File.exists?(name)
         rm_r path if Dir.exists?(path) && path != "."
       end

@@ -45,6 +45,7 @@ cargo build                # Build `build` stage
 cargo build:clean          # Remove any temporary images and products from `build` stage
 cargo build:shell[shell]   # Shell into `build` stage
 cargo clean                # Remove any temporary images and products
+cargo clobber              # Remove any generated files
 cargo deploy               # Build `deploy` stage
 cargo deploy:clean         # Remove any temporary images and products from `deploy` stage
 cargo deploy:shell[shell]  # Shell into `deploy` stage
