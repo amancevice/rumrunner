@@ -145,6 +145,8 @@ module Rum
 
     def install
       install_clean
+
+      self
     end
 
     private
