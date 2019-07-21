@@ -1,6 +1,0 @@
-#!/usr/bin/env ruby
-
-require "cargofile"
-
-Rake.application = Cargofile::Application.new
-Rake.application.run

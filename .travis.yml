@@ -23,7 +23,7 @@ deploy:
       8cJHKpra2YUbZAGcOpgfP6vo6GNg9/fhIGKV3giYjJERhw5ZLFfAUwDUOg4HeG1Pxked+QQyi
       fG07VjCmxNyOOlFw+RA8oXOd0aboagOoT/egKYFX+bBPlVXTYzSEgPUgNOq8fHoMb4906Ioep
       mc9kn0boQvHsmz0UK609Wc0LgA=
-  gem: cargofile
+  gem: rumfile
   on:
     tags: true
-    repo: amancevice/cargofile
+    repo: amancevice/rumfile

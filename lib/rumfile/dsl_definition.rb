@@ -1,17 +1,17 @@
 require "rake"
 
-require "cargofile/manifest"
+require "rumfile/manifest"
 
-module Cargofile
+module Rumfile
   module DSL
 
     private
 
     # :call-seq:
-    #   cargo image_name
-    #   cargo image_name: digest_dir
+    #   rum image_name
+    #   rum image_name: digest_dir
     #
-    def cargo(*args, &block)
+    def rum(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
       root = deps.first || :".docker"
       Manifest.new(name: name, root: root, &block).install
@@ -19,4 +19,4 @@ module Cargofile
   end
 end
 
-self.extend Cargofile::DSL
+self.extend Rumfile::DSL

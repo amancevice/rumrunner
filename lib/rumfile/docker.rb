@@ -1,6 +1,6 @@
 require "forwardable"
 
-module Cargofile
+module Rumfile
   module Docker
     module AttrCallable
       def attr_method_accessor(*args)

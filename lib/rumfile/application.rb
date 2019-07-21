@@ -1,24 +1,24 @@
 require "rake"
 
-module Cargofile
+module Rumfile
   class Application < Rake::Application
     DEFAULT_RAKEFILES = [
-      "cargofile",
-      "Cargofile",
-      "cargofile.rb",
-      "Cargofile.rb",
+      "rumfile",
+      "Rumfile",
+      "rumfile.rb",
+      "Rumfile.rb",
     ]
 
-    # Initialize a Cargofile::Application object.
+    # Initialize a Rumfile::Application object.
     def initialize
       super
-      @name = "cargo"
+      @name = "rum"
       @rakefiles = DEFAULT_RAKEFILES.dup
     end
 
     # Initialize the command line parameters and app name.
-    def init(app_name="cargo", argv = ARGV)
-      super "cargo", argv
+    def init(app_name="rum", argv = ARGV)
+      super "rum", argv
     end
   end
 end

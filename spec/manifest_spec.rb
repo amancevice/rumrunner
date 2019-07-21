@@ -1,6 +1,6 @@
-RSpec.describe Cargofile::Manifest do
+RSpec.describe Rumfile::Manifest do
   it "defines a whole bunch of tasks" do
-    manifest = Cargofile::Manifest.new(:name => :"registry:5000/username/name") do
+    manifest = Rumfile::Manifest.new(:name => :"registry:5000/username/name") do
       tag      "1.2.3"
       default  :build
       stage    :build

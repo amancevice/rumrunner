@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
-gem = Gem::Specification::load("cargofile.gemspec")
+gem = Gem::Specification::load("rumfile.gemspec")
 
-cargo gem.name do
+rum gem.name do
   tag gem.version
 
   env :RUBY_VERSION => ENV["RUBY_VERSION"] || "latest"

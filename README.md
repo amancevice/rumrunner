@@ -1,15 +1,15 @@
-<img alt="cargofile" src="./docs/icon.png"/>
+<img alt="rumfile" src="./docs/icon.png"/>
 
-[![Build Status](https://travis-ci.com/amancevice/cargofile.svg?branch=master)](https://travis-ci.com/amancevice/cargofile)
-[![codecov](https://codecov.io/gh/amancevice/cargofile/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/cargofile)
+[![Build Status](https://travis-ci.com/amancevice/rumfile.svg?branch=master)](https://travis-ci.com/amancevice/rumfile)
+[![codecov](https://codecov.io/gh/amancevice/rumfile/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/rumfile)
 
-Cargofile is a Rake-based utility for building projects using multi-stage Dockerfiles.
+Rumfile is a Rake-based utility for building projects using multi-stage Dockerfiles.
 
-Cargofile allows users to minimally annotate builds using a Rake-like DSL
+Rumfile allows users to minimally annotate builds using a Rake-like DSL
 and execute them with a rake-like CLI.
 
 Carfofile has the following features:
-* Cargofiles are completely defined in standard Ruby syntax, like Rakefiles.
+* Rumfiles are completely defined in standard Ruby syntax, like Rakefiles.
 * Users can specify Docker build stages with prerequisites.
 * Artifacts can be exported from stages
 * Stages' build steps can be customized
@@ -18,7 +18,7 @@ Carfofile has the following features:
 ## Installation
 
 ```bash
-gem install cargofile
+gem install rumfile
 ```
 
 ## Example
@@ -36,10 +36,10 @@ FROM ruby AS deploy
 # Run deploy steps here...
 ```
 
-Create `Cargofile` and describe your build:
+Create `Rumfile` and describe your build:
 
 ```ruby
-cargo :image_name do
+rum :image_name do
   tag "1.2.3"
 
   stage :build
@@ -48,27 +48,27 @@ cargo :image_name do
 end
 ```
 
-Run `bundle exec cargo --tasks` to view the installed tasks:
+Run `bundle exec rum --tasks` to view the installed tasks:
 
 ```bash
-cargo build                # Build `build` stage
-cargo build:clean          # Remove any temporary images and products from `build` stage
-cargo build:shell[shell]   # Shell into `build` stage
-cargo clean                # Remove any temporary images and products
-cargo clobber              # Remove any generated files
-cargo deploy               # Build `deploy` stage
-cargo deploy:clean         # Remove any temporary images and products from `deploy` stage
-cargo deploy:shell[shell]  # Shell into `deploy` stage
-cargo test                 # Build `test` stage
-cargo test:clean           # Remove any temporary images and products from `test` stage
-cargo test:shell[shell]    # Shell into `test` stage
+rum build                # Build `build` stage
+rum build:clean          # Remove any temporary images and products from `build` stage
+rum build:shell[shell]   # Shell into `build` stage
+rum clean                # Remove any temporary images and products
+rum clobber              # Remove any generated files
+rum deploy               # Build `deploy` stage
+rum deploy:clean         # Remove any temporary images and products from `deploy` stage
+rum deploy:shell[shell]  # Shell into `deploy` stage
+rum test                 # Build `test` stage
+rum test:clean           # Remove any temporary images and products from `test` stage
+rum test:shell[shell]    # Shell into `test` stage
 ```
 
 Run the `<stage>` task to build the image up to that stage and cache the image digest.
 
 Run the `<stage>:shell` task to build the image and then shell into an instance of the image running as a temporary container.
 
-The default shell is `/bin/sh`, but this can be overridden at runtime with the task arg, eg `bundle exec cargo build:shell[/bin/bash]`
+The default shell is `/bin/sh`, but this can be overridden at runtime with the task arg, eg `bundle exec rum build:shell[/bin/bash]`
 
 The name of the images are taken from the name of the initial block and appended with the name of the stage. The above example would build:
 
@@ -79,7 +79,7 @@ The name of the images are taken from the name of the initial block and appended
 The default location for the digests is in `.docker`, but that can be modified:
 
 ```ruby
-cargo :image_name => "tmp" do |c|
+rum :image_name => "tmp" do |c|
   # ...
 end
 ```
@@ -89,7 +89,7 @@ end
 Stages can be customized with blocks. Methods invoked on the stage are (with a few exceptions) passed onto the `docker build` command.
 
 ```ruby
-cargo :image_name do
+rum :image_name do
   tag "1.2.3"
 
   stage :build
@@ -110,7 +110,7 @@ end
 Use the `artifact` method to specify an artifact to be exported from the image.
 
 ```ruby
-cargo :image_name do
+rum :image_name do
   stage :build
 
   artifact "package.zip" => :build
@@ -120,7 +120,7 @@ end
 By default the container simply `cat`s the file from the container to the local file system, but more complex exports can be defined:
 
 ```ruby
-cargo :image_name do
+rum :image_name do
   stage :build
 
   artifact "package.zip" => :build do
@@ -137,7 +137,7 @@ By default, all stages have a `:shell` task that can be invoked to build and she
 Customize the shell for a stage with the `shell` method:
 
 ```ruby
-cargo :image_name do
+rum :image_name do
   stage :dev
 
   shell :dev do
@@ -150,11 +150,11 @@ end
 
 ## Default Task
 
-Use the `default` method to set a default task when running `bundle exec cargo`:
+Use the `default` method to set a default task when running `bundle exec rum`:
 
 
 ```ruby
-cargo :image_name do
+rum :image_name do
   stage :build
 
   artifact "package.zip" => :build

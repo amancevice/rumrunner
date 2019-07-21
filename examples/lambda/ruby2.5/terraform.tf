@@ -5,9 +5,9 @@ provider "aws" {
 
 resource "aws_lambda_function" "lambda" {
   filename         = "lambda.zip"
-  function_name    = "cargofile-example"
+  function_name    = "rumfile-example"
   handler          = "lambda.handler"
-  role             = "cargofile"
+  role             = "rumfile"
   runtime          = "ruby2.5"
   source_code_hash = filebase64sha256("lambda.zip")
 }

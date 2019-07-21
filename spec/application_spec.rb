@@ -1,13 +1,13 @@
-RSpec.describe Cargofile::Application do
+RSpec.describe Rumfile::Application do
   it "::new" do
-    app = Cargofile::Application.new
-    expect(app.name).to eq("cargo")
+    app = Rumfile::Application.new
+    expect(app.name).to eq("rum")
   end
 
   it "#init" do
-    app = Cargofile::Application.new
+    app = Rumfile::Application.new
     expect(app.top_level_tasks).to eq([])
-    app.init "cargo", []
+    app.init "rum", []
     expect(app.top_level_tasks).to eq(["default"])
   end
 end

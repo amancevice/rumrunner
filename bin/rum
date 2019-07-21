@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require "rumfile"
+Rake.application = Rumfile::Application.new
+Rake.application.run

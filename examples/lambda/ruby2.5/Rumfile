@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-cargo :"cargofile/nodejs10.x" do
+rum :"rumfile/ruby2.5" do
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
   stage :build
@@ -10,8 +10,8 @@ cargo :"cargofile/nodejs10.x" do
     build_arg :AWS_DEFAULT_REGION => "us-east-1"
   end
 
-  artifact "package-lock.json" => :build
-  artifact "lambda.zip"        => :build
+  artifact "Gemfile.lock" => :build
+  artifact "lambda.zip"   => :build
 
-  default ["package-lock.json", "lambda.zip"]
+  default ["Gemfile.lock", "lambda.zip"]
 end

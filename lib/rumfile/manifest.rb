@@ -1,7 +1,7 @@
 require "forwardable"
 require "rake"
 
-module Cargofile
+module Rumfile
   class Manifest
     extend Forwardable
     include Rake::DSL if defined? Rake::DSL
