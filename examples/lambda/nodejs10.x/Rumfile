@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-rum :"rumfile/nodejs10.x" do
+rum :"rumrunner/nodejs10.x" do
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
   stage :build

@@ -1,11 +1,11 @@
-<img alt="rumfile" src="./docs/icon.png"/>
+<img alt="rumrunner" src="./docs/icon.png"/>
 
-[![Build Status](https://travis-ci.com/amancevice/rumfile.svg?branch=master)](https://travis-ci.com/amancevice/rumfile)
-[![codecov](https://codecov.io/gh/amancevice/rumfile/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/rumfile)
+[![Build Status](https://travis-ci.com/amancevice/rumrunner.svg?branch=master)](https://travis-ci.com/amancevice/rumrunner)
+[![codecov](https://codecov.io/gh/amancevice/rumrunner/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/rumrunner)
 
-Rumfile is a Rake-based utility for building projects using multi-stage Dockerfiles.
+Rumrunner is a Rake-based utility for building projects using multi-stage Dockerfiles.
 
-Rumfile allows users to minimally annotate builds using a Rake-like DSL
+Rumrunner allows users to minimally annotate builds using a Rake-like DSL
 and execute them with a rake-like CLI.
 
 Carfofile has the following features:
@@ -18,7 +18,7 @@ Carfofile has the following features:
 ## Installation
 
 ```bash
-gem install rumfile
+gem install rumrunner
 ```
 
 ## Example

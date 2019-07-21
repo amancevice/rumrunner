@@ -1,5 +1,5 @@
 {
-  "author": "rumfile",
+  "author": "rumrunner",
   "dependencies": {
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.26"
@@ -7,7 +7,7 @@
   "description": "Rumfile NodeJS example",
   "license": "MIT",
   "main": "lambda.js",
-  "name": "rumfile-example",
+  "name": "rumrunner-example",
   "private": true,
   "scripts": {
     "test": "node lambda.js"

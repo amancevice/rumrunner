@@ -1,10 +1,10 @@
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "rumfile/version"
+require "rumrunner/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "rumfile"
-  spec.version       = Rumfile::VERSION
+  spec.name          = "rumrunner"
+  spec.version       = Rum::VERSION
   spec.authors       = ["Alexander Mancevice"]
   spec.email         = ["smallweirdnum@gmail.com"]
   spec.summary       = %q{Rumfile is a Rake-based utility for building projects using multi-stage Dockerfiles}
@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
     * Stages' build steps can be customized
     * Shell tasks are automatically provided for every stage
   DESCRIPTION
-  spec.homepage      = "https://github.com/amancevice/rumfile.git"
+  spec.homepage      = "https://github.com/amancevice/rumrunner.git"
   spec.license       = "MIT"
   spec.require_paths = ["lib"]
   spec.files         = Dir["README*", "LICENSE*", "lib/**/*"]

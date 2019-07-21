@@ -1,8 +1,8 @@
 require "rake"
 
-require "rumfile/manifest"
+require "rumrunner/manifest"
 
-module Rumfile
+module Rum
   module DSL
 
     private
@@ -19,4 +19,4 @@ module Rumfile
   end
 end
 
-self.extend Rumfile::DSL
+self.extend Rum::DSL

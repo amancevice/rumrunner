@@ -7,6 +7,6 @@ group :test do
 end
 
 group :development do
-  gem "rumfile", "~> 0.1"
-  gem "pry",     "~> 0.12"
+  gem "rumrunner", "~> 0.1"
+  gem "pry",       "~> 0.12"
 end

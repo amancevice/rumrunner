@@ -1,6 +1,6 @@
 require "rake"
 
-module Rumfile
+module Rum
   class Application < Rake::Application
     DEFAULT_RAKEFILES = [
       "rumfile",

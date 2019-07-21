@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Bash completion for Rumfile
+# Bash completion for Rum Runner
 # Based on https://github.com/JoeNyland/rake-completion
 
 export COMP_WORDBREAKS=${COMP_WORDBREAKS/\:/}

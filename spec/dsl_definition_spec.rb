@@ -1,4 +1,4 @@
-RSpec.describe Rumfile::DSL do
-  it "cargo" do
+RSpec.describe Rum::DSL do
+  it "rum" do
   end
 end

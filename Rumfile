@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-gem = Gem::Specification::load("rumfile.gemspec")
+gem = Gem::Specification::load("rumrunner.gemspec")
 
 rum gem.name do
   tag gem.version

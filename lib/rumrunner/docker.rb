@@ -1,6 +1,6 @@
 require "forwardable"
 
-module Rumfile
+module Rum
   module Docker
     module AttrCallable
       def attr_method_accessor(*args)

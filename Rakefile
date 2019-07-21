@@ -9,7 +9,7 @@ task :default => :spec
 namespace :gem do
   require "bundler/gem_tasks"
 
-  gem = Gem::Specification::load("rumfile.gemspec")
+  gem = Gem::Specification::load("rumrunner.gemspec")
 
   desc "Push #{gem.full_name}.gem to rubygems.org"
   task :publish do

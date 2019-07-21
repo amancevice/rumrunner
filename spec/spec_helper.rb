@@ -8,7 +8,7 @@ end
 
 require "bundler/setup"
 require "rake"
-require "rumfile"
+require "rumrunner"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
