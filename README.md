@@ -3,17 +3,21 @@
 [![Build Status](https://travis-ci.com/amancevice/rumrunner.svg?branch=master)](https://travis-ci.com/amancevice/rumrunner)
 [![codecov](https://codecov.io/gh/amancevice/rumrunner/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/rumrunner)
 
-Rumrunner is a Rake-based utility for building projects using multi-stage Dockerfiles.
+Rum Runner is a Rake-based utility for building multi-stage Dockerfiles.
 
-Rumrunner allows users to minimally annotate builds using a Rake-like DSL
-and execute them with a rake-like CLI.
+Users can pair a multi-stage Dockerfile with a Rumfile that uses a
+Rake-like DSL to customize each stage's build options and dependencies.
 
-Carfofile has the following features:
+The `rum` executable allows users to easily invoke builds, shell-into
+specific stages for debugging, and export artifacts from built containers.
+
+Rum Runner has the following features:
+* Rake-like DSL/CLI that enable simple annotation and execution of builds.
 * Rumfiles are completely defined in standard Ruby syntax, like Rakefiles.
-* Users can specify Docker build stages with prerequisites.
+* Users can chain Docker build stages with prerequisites.
 * Artifacts can be exported from stages
-* Stages' build steps can be customized
 * Shell tasks are automatically provided for every stage
+* Stage, artifact, and shell, steps can be customized
 
 ## Installation
 

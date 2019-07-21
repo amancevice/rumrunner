@@ -7,19 +7,23 @@ Gem::Specification.new do |spec|
   spec.version       = Rum::VERSION
   spec.authors       = ["Alexander Mancevice"]
   spec.email         = ["smallweirdnum@gmail.com"]
-  spec.summary       = %q{Rumfile is a Rake-based utility for building projects using multi-stage Dockerfiles}
+  spec.summary       = %q{Rum Runner is a Rake-based utility for building projects with multi-stage Dockerfiles}
   spec.description   = <<~DESCRIPTION
-    Rumfile is a Rake-based utility for building projects using multi-stage Dockerfiles.
+    Rum Runner is a Rake-based utility for building multi-stage Dockerfiles.
 
-    Rumfile allows users to minimally annotate builds using a Rake-like DSL
-    and execute them with a rake-like CLI.
+    Users can pair a multi-stage Dockerfile with a Rumfile that uses a
+    Rake-like DSL to customize each stage's build options and dependencies.
 
-    Carfofile has the following features:
+    The `rum` executable allows users to easily invoke builds, shell-into
+    specific stages for debugging, and export artifacts from built containers.
+
+    Rum Runner has the following features:
+    * Rake-like DSL/CLI that enable simple annotation and execution of builds.
     * Rumfiles are completely defined in standard Ruby syntax, like Rakefiles.
-    * Users can specify Docker build stages with prerequisites.
+    * Users can chain Docker build stages with prerequisites.
     * Artifacts can be exported from stages
-    * Stages' build steps can be customized
     * Shell tasks are automatically provided for every stage
+    * Stage, artifact, and shell, steps can be customized
   DESCRIPTION
   spec.homepage      = "https://github.com/amancevice/rumrunner.git"
   spec.license       = "MIT"
