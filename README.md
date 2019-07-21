@@ -19,6 +19,10 @@ Rum Runner has the following features:
 * Shell tasks are automatically provided for every stage
 * Stage, artifact, and shell, steps can be customized
 
+**Origins**
+
+This project was born from using Makefiles to drive multi-stage builds. For the most part this worked really well, but it became a bit of an ordeal to write for more complex projects. This tool is an attempt to recreate that general technique with minimal annotation and limited assumptions.
+
 ## Installation
 
 ```bash
