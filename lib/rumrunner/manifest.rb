@@ -35,7 +35,7 @@ module Rum
     def run(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
       task name => deps do
-        sh Docker::Run.new(&block).to_s
+        sh Docker::Run.new(image: @image, &block).to_s
       end
     end
 

@@ -21,3 +21,11 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+module Rum
+  class Manifest
+    def sh(*cmd, &block)
+      cmd
+    end
+  end
+end
