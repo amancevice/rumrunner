@@ -1,6 +1,6 @@
 # Rum Runner for Ruby
 
-A NodeJS project for AWS Lambda.
+A Ruby project for AWS Lambda.
 
 ## Quickstart
 
