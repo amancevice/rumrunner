@@ -27,6 +27,24 @@ This project was born from using Makefiles to drive multi-stage builds. For the 
 gem install rumrunner
 ```
 
+## Quickstart
+
+Use the helper `Rum.init` to create a template Rumfile for your project:
+
+```bash
+# Install the gem
+gem install rumrunner
+
+# Navigate to the location of your Dockerfile
+cd /path/to/your/Dockerfile/project/
+
+# Create a basic Rumfile
+ruby -r rumrunner -e Rum.init > Rumfile
+
+# View available tasks
+rum --tasks
+```
+
 ## Example
 
 Imagine a simple multi-stage Dockerfile:
@@ -48,9 +66,9 @@ Create `Rumfile` and describe your build:
 rum :image_name do
   tag "1.2.3"
 
-  stage :build
-  stage :test => :build
-  stage :deploy => :test
+  stage :build           # => docker build --target build  --tag image_name:1.2.3-build .
+  stage :test => :build  # => docker build --target test   --tag image_name:1.2.3-test .
+  stage :deploy => :test # => docker build --target deploy --tag image_name:1.2.3-deploy .
 end
 ```
 
@@ -87,6 +105,41 @@ The default location for the digests is in `.docker`, but that can be modified:
 ```ruby
 rum :image_name => "tmp" do |c|
   # ...
+end
+```
+
+## Build vs. Run
+
+At the core, every directive within the `rum` block will eventually be interpreted as either a `docker build` or a `docker run` command. The type of directive is simply a way of specifying defaults for the command.
+
+If you simply wish to define a named task that executes a build or a run, you can use the `build` or `run` directives:
+
+```ruby
+rum :image_name do
+  build :fizz do
+    tag  "image_name"
+    path "."
+  end # => docker build --tag image_name .
+
+  run :buzz do
+    rm    true
+    image "image_name"
+    cmd   %w{echo hello}
+  end # => docker run --rm image_name echo hello
+end
+```
+
+## Shared ENV variables
+
+The `env` method can be invoked in the `rum` block to declare a value that will be passed to all stages/artifacts/shells. For stages, the value will be passed using the `--build-arg` option; for artifacts and shells, the `--env` option.
+
+```ruby
+rum :image_name do
+  env :FIZZ => :BUZZ
+
+  stage :build # => docker build --build-arg FIZZ=BUZZ ...
+
+  artifact "pkg.zip" => :build # => docker run --env FIZZ=BUZZ ...
 end
 ```
 
