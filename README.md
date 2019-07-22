@@ -5,11 +5,9 @@
 
 Rum Runner is a Rake-based utility for building multi-stage Dockerfiles.
 
-Users can pair a multi-stage Dockerfile with a Rumfile that uses a
-Rake-like DSL to customize each stage's build options and dependencies.
+Users can pair a multi-stage Dockerfile with a Rumfile that uses a Rake-like DSL to customize each stage's build options and dependencies.
 
-The `rum` executable allows users to easily invoke builds, shell-into
-specific stages for debugging, and export artifacts from built containers.
+The `rum` executable allows users to easily invoke builds, shell-into specific stages for debugging, and export artifacts from built containers.
 
 Rum Runner has the following features:
 * Rake-like DSL/CLI that enable simple annotation and execution of builds.
