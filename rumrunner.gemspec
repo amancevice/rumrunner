@@ -18,9 +18,10 @@ Gem::Specification.new do |spec|
     specific stages for debugging, and export artifacts from built containers.
 
     Rum Runner has the following features:
-    * Rake-like DSL/CLI that enable simple annotation and execution of builds.
-    * Rumfiles are completely defined in standard Ruby syntax, like Rakefiles.
-    * Users can chain Docker build stages with prerequisites.
+    * Fully compatible with Rake
+    * Rake-like DSL/CLI that enable simple annotation and execution of builds
+    * Rumfiles are completely defined in standard Ruby syntax, like Rakefiles
+    * Users can chain Docker build stages with prerequisites
     * Artifacts can be exported from stages
     * Shell tasks are automatically provided for every stage
     * Stage, artifact, and shell, steps can be customized
