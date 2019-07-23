@@ -14,17 +14,14 @@ module Rum
 
       # Put stages
       if File.exists? "Dockerfile"
-        lines  = File.read("Dockerfile").scan(/^FROM .*?$/)
-        stages = lines.each_with_index.map do |line, i|
-          line.scan(/ AS (.*?)$/).flatten.first || i.to_s
-        end
+        stages = File.read("Dockerfile").scan(/^FROM .*? AS (.*?)$/).flatten
         stages.reverse.zip(stages.reverse[1..-1]).reverse.each do |stage, dep|
           if dep.nil?
             stdout.write "  stage :\"#{stage}\"\n"
           else
             stdout.write "  stage :\"#{stage}\" => :\"#{dep}\"\n"
           end
-        end
+        end unless stages.empty?
       end
 
       # Fin

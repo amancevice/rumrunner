@@ -11,14 +11,13 @@ RSpec.describe Rum do
       expect { Rum.init "test_image" }.to output(exp).to_stdout
     end
 
-    it "should print a single unnamed stage Rumfile" do
+    it "should print an empty Rumfile because the stage is unnamed" do
       dockerfile = <<~EOS
         FROM ruby
       EOS
       exp = <<~EOS
         #!/usr/bin/env ruby
         rum :"test_image" do
-          stage :"0"
         end
       EOS
       allow($stderr).to receive(:write)
@@ -43,7 +42,7 @@ RSpec.describe Rum do
       expect { Rum.init "test_image" }.to output(exp).to_stdout
     end
 
-    it "should print an unnamed multi-stage Rumfile with deps" do
+    it "should print an empty Rumfile because the stages are unnamed" do
       dockerfile = <<~EOS
         FROM ruby
         FROM ruby
@@ -51,8 +50,6 @@ RSpec.describe Rum do
       exp = <<~EOS
         #!/usr/bin/env ruby
         rum :"test_image" do
-          stage :"0"
-          stage :"1" => :"0"
         end
       EOS
       allow($stderr).to receive(:write)
