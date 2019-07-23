@@ -119,7 +119,7 @@ Images build with the `stage` task have their digests cached for easy lookup.
 The default location for the digests is in `.docker`, but that can be modified:
 
 ```ruby
-rum :image_name => "tmp" do |c|
+rum :image_name => "tmp"
   # ...
 end
 ```
