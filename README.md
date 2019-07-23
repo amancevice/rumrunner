@@ -272,7 +272,7 @@ It isn't strictly necessary to include a `Rumfile` in your project. Rum Runner c
 
 require "rumrunner"
 
-namespace :rum
+namespace :rum do
   rum :image_name do
     stage :build
     stage :test => :build
