@@ -249,7 +249,7 @@ module Rum
       ##
       # Get the image reference without the @tag component.
       def family
-        File.join *[@registry, @username, @name].compact.map(&:to_s)
+        File.join(*[@registry, @username, @name].compact.map(&:to_s))
       end
 
       ##

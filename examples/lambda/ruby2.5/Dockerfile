@@ -1,4 +1,5 @@
 ARG RUNTIME=ruby2.5
+ARG TERRAFORM_VERSION=latest
 
 FROM lambci/lambda:build-${RUNTIME} AS build
 COPY Gemfile lambda.rb /var/task/
@@ -13,8 +14,7 @@ ARG BUNDLE_SILENCE_ROOT_WARNING=1
 RUN bundle install --with test
 RUN bundle exec rake
 
-FROM lambci/lambda:build-${RUNTIME} AS plan
-COPY --from=hashicorp/terraform /bin/terraform /bin/
+FROM hashicorp/terraform:${TERRAFORM_VERSION} AS plan
 COPY --from=test /var/task/ .
 COPY terraform.tf .
 ARG AWS_ACCESS_KEY_ID

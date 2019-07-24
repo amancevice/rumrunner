@@ -20,7 +20,7 @@ module Rum
       stdout.write "rum :\"#{image.family}\" do\n"
 
       # Put stages
-      if File.exists? "Dockerfile"
+      if File.exist? "Dockerfile"
         stages = File.read("Dockerfile").scan(/^FROM .*? AS (.*?)$/).flatten
         stages.reverse.zip(stages.reverse[1..-1]).reverse.each do |stage, dep|
           if dep.nil?

@@ -123,7 +123,7 @@ module Rum
       # Clean stage
       desc "Remove any temporary images and products from `#{name}` stage"
       task :"#{name}:clean" do
-        if File.exists? iidfile
+        if File.exist? iidfile
           sh "docker", "image", "rm", "--force", File.read(iidfile)
           rm iidfile
         end
@@ -168,8 +168,8 @@ module Rum
 
       desc "Remove any generated files"
       task :clobber do
-        rm name if File.exists?(name)
-        rm_r path if Dir.exists?(path) && path != "."
+        rm name if File.exist?(name)
+        rm_r path if Dir.exist?(path) && path != "."
       end
     end
 
@@ -230,7 +230,7 @@ module Rum
           sh "docker", "image", "rm", "--force", File.read(name) if File.file?(name)
           rm_r name
         end
-        rm_r root if Dir.exists?(root)
+        rm_r root if Dir.exist?(root)
       end
     end
   end

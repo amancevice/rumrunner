@@ -1,4 +1,5 @@
 ARG RUNTIME=nodejs10.x
+ARG TERRAFORM_VERSION=latest
 
 FROM lambci/lambda:build-${RUNTIME} AS build
 COPY lambda.js package*.json /var/task/
@@ -10,8 +11,8 @@ COPY --from=build /var/task/ .
 RUN npm install
 RUN npm test
 
-FROM lambci/lambda:build-${RUNTIME} AS plan
-COPY --from=hashicorp/terraform /bin/terraform /bin/
+FROM hashicorp/terraform:${TERRAFORM_VERSION} AS plan
+WORKDIR /var/task/
 COPY --from=test /var/task/ .
 COPY terraform.tf .
 ARG AWS_ACCESS_KEY_ID

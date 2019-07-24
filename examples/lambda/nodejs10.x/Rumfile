@@ -2,6 +2,8 @@
 rum :"rumrunner/nodejs10.x" do
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
+  env :TERRAFORM_VERSION => "0.12.5"
+
   stage :build
   stage :test
   stage :plan do

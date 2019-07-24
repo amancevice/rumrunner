@@ -1,5 +1,5 @@
 RSpec.describe Rum::Manifest do
-  manifest = Rum::Manifest.new(:name => :"registry:5000/username/name") do
+  Rum::Manifest.new(:name => :"registry:5000/username/name") do
     tag      "1.2.3"
     stage    :build
     stage    :test => :build
