@@ -33,22 +33,24 @@ module Rum
     end
 
     ##
-    # :call-seq:
+    # Defines the default task for +rum+ executable.
+    #
+    # Example:
     #   default :task_or_file
     #   default :task_or_file => [:deps]
     #
-    # Defines the default task for +rum+ executable.
     def default(*args, &block)
       name = Rake.application.resolve_args(args).first
       task :default => name
     end
 
     ##
-    # :call-seq:
+    # Defines generic +docker build+ task.
+    #
+    # Example:
     #   build :name
     #   build :name => [:deps]
     #
-    # Defines generic +docker build+ task.
     def build(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
       task name => deps do
@@ -57,11 +59,12 @@ module Rum
     end
 
     ##
-    # :call-seq:
+    # Defines generic +docker run+ task.
+    #
+    # Example:
     #   run :name
     #   run :name => [:deps]
     #
-    # Defines generic +docker run+ task.
     def run(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
       task name => deps do
@@ -70,11 +73,12 @@ module Rum
     end
 
     ##
-    # :call-seq:
+    # Defines +docker build+ task for the given stage.
+    #
+    # Example:
     #   stage :name
     #   stage :name => [:deps]
     #
-    # Defines +docker build+ task for the given stage.
     def stage(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
 
@@ -133,12 +137,13 @@ module Rum
     end
 
     ##
-    # :call-seq:
-    #   artifact :name => [:stage]
-    #
     # Defines +docker run+ task for redirecting a file from a running
     # instance of the dependent stage's container to the local file
     # system.
+    #
+    # Example:
+    #   artifact :name => [:stage]
+    #
     def artifact(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
 
@@ -169,11 +174,12 @@ module Rum
     end
 
     ##
-    # :call-seq:
+    # Defines +docker run+ task for shelling into the given stage.
+    #
+    # Example:
     #   shell :stage
     #   shell :stage => [:deps]
     #
-    # Defines +docker run+ task for shelling into the given stage.
     def shell(*args, &block)
       target  = Rake.application.resolve_args(args).first
       name    = :"#{target}:shell"

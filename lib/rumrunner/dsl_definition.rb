@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "rake"
 
 require "rumrunner/manifest"
@@ -11,9 +12,7 @@ module Rum
     private
 
     ##
-    # :call-seq:
-    #   rum image_name
-    #   rum :image_name => "digest_dir"
+    # Rum base task block.
     #
     # Example
     #   rum :amancevice/rumrunner do

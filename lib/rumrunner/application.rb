@@ -8,6 +8,8 @@ module Rum
   # command line, a Rum::Application object is created and run.
   class Application < Rake::Application
 
+    ##
+    # Default names for Rum Runner manifests.
     DEFAULT_RAKEFILES = [
       "rumfile",
       "Rumfile",
