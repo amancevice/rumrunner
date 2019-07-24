@@ -51,8 +51,6 @@ module Rum
       extend Forwardable
       include Enumerable
 
-      attr_reader :data
-
       def_delegators :@data, :[], :[]=, :include?, :to_h, :update
 
       def initialize(options = {}, &block)
@@ -76,7 +74,7 @@ module Rum
                 yield val
               end
             elsif [true, false].include? value
-              yield option
+              yield "#{option}=#{value}"
             else
               yield option
               yield value.to_s

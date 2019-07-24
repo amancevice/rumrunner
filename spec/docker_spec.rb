@@ -108,10 +108,10 @@ RSpec.describe Rum::Docker::Run do
   describe "#to_s" do
     it "converts to a Docker run command string" do
       ret = Rum::Docker::Run.new(image: "fizz") do |r|
-        r.options.rm true
+        r.options.rm false
         r.cmd %w[echo hello, world]
       end
-      exp = "docker run --rm fizz echo hello, world"
+      exp = "docker run --rm=false fizz echo hello, world"
       expect(ret.to_s).to eq(exp)
     end
   end
