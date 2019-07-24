@@ -1,8 +1,32 @@
+# frozen_string_literal: true
 require "forwardable"
 
 module Rum
+
+  ##
+  # Docker-specific objects and mixins.
   module Docker
+
+    ##
+    # Mixin to enable adding instance methods to a class that
+    # gets or sets-and-returns the given  attr of the instance.
     module AttrCallable
+
+      ##
+      # Method to define a method-accessor for each argument supplied.
+      # When extended by a class
+      #
+      # Example:
+      #  class Fizz
+      #    extend AttrCallable
+      #    attr_method_accessor :buzz
+      #  end
+      #
+      #  fizz = Fizz.new
+      #  fizz.buzz "foo"
+      #  fizz.buzz
+      #  # => "foo"
+      #
       def attr_method_accessor(*args)
         args.each do |var|
           define_method var do |value = nil|
@@ -17,52 +41,94 @@ module Rum
       end
     end
 
+    ##
+    # Mixin to enable runtime Docker command manipulation.
     module Executable
       include Enumerable
 
+      ##
+      # The +OPTIONS+ portion of a Docker command.
       attr_reader :options
 
+      ##
+      # Initialize Docker executable with +OPTIONS+ and evaluate the
+      # <tt>&block</tt> if given.
       def initialize(options:nil, &block)
         @options = options || Options.new
         instance_eval(&block) if block_given?
       end
 
+      ##
+      # Yield Docker command word by word.
       def each
         self.class.name.split(/::/)[1..-1].each{|x| yield x.downcase }
         @options.each{|x| yield x }
       end
 
+      ##
+      # Interpret missing methods as +OPTION+.
       def method_missing(m, *args, &block)
         @options.send(m, *args, &block)
         args.any? ? self : @options[m]
       end
 
+      ##
+      # Convert Docker command to string.
       def to_s
         to_a.join(" ")
       end
 
-      def with_defaults(options = {}, &block)
+      ##
+      # Assign default values to Docker command if not explicitly set.
+      #
+      # Example:
+      #   Run.new(&block).with_defaults(user: "fizz")
+      #
+      # Unless the <tt>&block</tt> contains a directive to set a value for +user+,
+      # it will be set to "fizz".
+      def with_defaults(options = {})
         options.reject{|k,v| @options.include? k }.each{|k,v| @options[k] << v }
         self
       end
     end
 
+    ##
+    # Collection of Docker command options to be applied on execution.
     class Options
       extend Forwardable
       include Enumerable
 
       def_delegators :@data, :[], :[]=, :include?, :to_h, :update
 
+      ##
+      # Initialize a new +OPTIONS+ collection for Docker executable.
+      # Evaluates the <tt>&block</tt> if given.
       def initialize(options = {}, &block)
         @data = Hash.new{|hash, key| hash[key] = [] }.update(options)
         instance_eval(&block) if block_given?
       end
 
+      ##
+      # Missing methods are interpreted as options to be added to the
+      # underlying collection.
+      #
+      # Example:
+      #   opts = Options.new
+      #   opts.fizz "buzz"
+      #   # => @data={:fizz=>["buzz"]}
       def method_missing(m, *args, &block)
         @data[m] += args unless args.empty?
         self
       end
 
+      ##
+      # Yield each option as a CLI flag/option, with +-+ or +--+ prefix.
+      #
+      # Example:
+      #   opts = Options.new
+      #   opts.fizz "buzz"
+      #   opts.to_a
+      #   # => ["--fizz", "buzz"]
       def each
         @data.each do |name, values|
           option = name.length == 1 ? "-#{name}" : "--#{name.to_s.gsub(/_/, "-")}"
@@ -83,11 +149,21 @@ module Rum
         end
       end
 
+      ##
+      # Convert options to string.
+      #
+      # Example:
+      #   opts = Options.new
+      #   opts.fizz "buzz"
+      #   opts.to_s
+      #   # => "--fizz buzz"
       def to_s
         to_a.join(" ")
       end
     end
 
+    ##
+    # Docker build command object.
     class Build
       extend AttrCallable
       include Executable
