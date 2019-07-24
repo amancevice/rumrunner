@@ -1,4 +1,4 @@
-<img alt="rumrunner" src="./docs/icon.png"/>
+<img alt="rumrunner" src="https://github.com/amancevice/rumrunner/blob/master/docs/icon.png?raw=true"/>
 
 [![Build Status](https://travis-ci.com/amancevice/rumrunner.svg?branch=master)](https://travis-ci.com/amancevice/rumrunner)
 [![codecov](https://codecov.io/gh/amancevice/rumrunner/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/rumrunner)
