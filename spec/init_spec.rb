@@ -7,7 +7,7 @@ RSpec.describe Rum do
         end
       EOS
       allow($stderr).to receive(:write)
-      allow(File).to receive(:exists?).and_return false
+      allow(File).to receive(:exist?).and_return false
       expect { Rum.init "test_image" }.to output(exp).to_stdout
     end
 
@@ -21,7 +21,7 @@ RSpec.describe Rum do
         end
       EOS
       allow($stderr).to receive(:write)
-      allow(File).to receive(:exists?).and_return true
+      allow(File).to receive(:exist?).and_return true
       allow(File).to receive(:read).and_return dockerfile
       expect { Rum.init "test_image" }.to output(exp).to_stdout
     end
@@ -37,7 +37,7 @@ RSpec.describe Rum do
         end
       EOS
       allow($stderr).to receive(:write)
-      allow(File).to receive(:exists?).and_return true
+      allow(File).to receive(:exist?).and_return true
       allow(File).to receive(:read).and_return dockerfile
       expect { Rum.init "test_image" }.to output(exp).to_stdout
     end
@@ -53,7 +53,7 @@ RSpec.describe Rum do
         end
       EOS
       allow($stderr).to receive(:write)
-      allow(File).to receive(:exists?).and_return true
+      allow(File).to receive(:exist?).and_return true
       allow(File).to receive(:read).and_return dockerfile
       expect { Rum.init "test_image" }.to output(exp).to_stdout
     end
@@ -71,7 +71,7 @@ RSpec.describe Rum do
         end
       EOS
       allow($stderr).to receive(:write)
-      allow(File).to receive(:exists?).and_return true
+      allow(File).to receive(:exist?).and_return true
       allow(File).to receive(:read).and_return dockerfile
       expect { Rum.init "test_image" }.to output(exp).to_stdout
     end
