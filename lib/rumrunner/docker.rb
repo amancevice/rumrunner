@@ -116,6 +116,7 @@ module Rum
       #   opts = Options.new
       #   opts.fizz "buzz"
       #   # => @data={:fizz=>["buzz"]}
+      #
       def method_missing(m, *args, &block)
         @data[m] += args unless args.empty?
         self
@@ -129,6 +130,7 @@ module Rum
       #   opts.fizz "buzz"
       #   opts.to_a
       #   # => ["--fizz", "buzz"]
+      #
       def each
         @data.each do |name, values|
           option = name.length == 1 ? "-#{name}" : "--#{name.to_s.gsub(/_/, "-")}"
@@ -157,6 +159,7 @@ module Rum
       #   opts.fizz "buzz"
       #   opts.to_s
       #   # => "--fizz buzz"
+      #
       def to_s
         to_a.join(" ")
       end
@@ -168,31 +171,47 @@ module Rum
       extend AttrCallable
       include Executable
 
+      ##
+      # Access +PATH+ with method.
       attr_method_accessor :path
 
+      ##
+      # Initialize Docker build command with +OPTIONS+ and +PATH+.
+      # Evaluates the <tt>&block</tt> if given.
       def initialize(options:nil, path:nil, &block)
         @path = path
         super options: options, &block
       end
 
+      ##
+      # Yield the Docker build commmand word-by-word.
       def each
         super{|x| yield x }
         yield @path || "."
       end
     end
 
+    ##
+    # Docker run command object.
     class Run
       extend AttrCallable
       include Executable
 
+      ##
+      # Access +IMAGE+ and +CMD+ with method.
       attr_method_accessor :image, :cmd
 
+      ##
+      # Initialize Docker run command with +OPTIONS+, +IMAGE+, and +CMD+.
+      # Evaluates the <tt>&block</tt> if given.
       def initialize(options:nil, image:nil, cmd:nil, &block)
         @image = image
         @cmd   = cmd
         super options: options, &block
       end
 
+      ##
+      # Yield the Docker run commmand word-by-word.
       def each
         super{|x| yield x }
         yield @image
@@ -200,12 +219,19 @@ module Rum
       end
     end
 
+    ##
+    # Docker image object.
     class Image
       extend AttrCallable
       include Enumerable
 
+      ##
+      # Access components of the image reference by method.
       attr_method_accessor :registry, :username, :name, :tag
 
+      ##
+      # Initialize image by reference component.
+      # Evaluates <tt>&block</tt> if given.
       def initialize(name:, registry:nil, username:nil, tag:nil, &block)
         @registry = registry
         @username = username
@@ -214,19 +240,37 @@ module Rum
         instance_eval(&block) if block_given?
       end
 
+      ##
+      # Yield each non-nil component of the image reference in order.
       def each
         [@registry, @username, @name, @tag].compact.each{|x| yield x }
       end
 
+      ##
+      # Get the image reference without the @tag component.
       def family
         File.join *[@registry, @username, @name].compact.map(&:to_s)
       end
 
+      ##
+      # Convert the image reference to string.
       def to_s
         "#{family}:#{@tag || :latest}"
       end
 
       class << self
+
+        ##
+        # Parse a string as a Docker image reference
+        #
+        # Example:
+        #   Image.parse("image")
+        #   Image.parse("image:tag")
+        #   Image.parse("username/image")
+        #   Image.parse("username/image:tag")
+        #   Image.parse("registry:5000/username/image")
+        #   Image.parse("registry:5000/username/image:tag")
+        #
         def parse(string_or_symbol)
           string = string_or_symbol.to_s
           if string.count("/").zero? && string.count(":").zero?

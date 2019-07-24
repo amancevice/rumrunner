@@ -6,7 +6,6 @@ module Rum
 
   ##
   # Defines the DSL methods for Rum Runner.
-
   module DSL
 
     private

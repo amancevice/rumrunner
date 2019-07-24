@@ -8,7 +8,7 @@ module Rum
     #
     # Example:
     #   $ ruby -r rumrunner -e Rum.init > Rumfile
-
+    #
     def init(input = nil, stdin = $stdin, stdout = $stdout, stderr = $stderr)
       # Get image name from stdin
       stderr.write "Docker image name [#{default = File.split(Dir.pwd).last}]: "

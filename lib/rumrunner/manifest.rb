@@ -2,16 +2,28 @@ require "forwardable"
 require "rake"
 
 module Rum
+
+  ##
+  # Rum Runner Manifest for managing Docker commands.
   class Manifest
     extend Forwardable
     include Rake::DSL if defined? Rake::DSL
 
+    ##
+    # Access Docker image object.
     attr_reader :image
 
     def_delegator :@env, :<<, :env
     def_delegator :@root, :to_s, :root
     def_delegators :@image, :registry, :username, :name, :tag
 
+    ##
+    # Initialize new manifest with name and root path for caching
+    # build digests. Evaluates <tt>&block</tt> if given.
+    #
+    # Example:
+    #   Manifest.new(name: "my_image", root: ".docker")
+    #
     def initialize(name:, root:nil, &block)
       @name  = name
       @root  = root || :".docker"
@@ -20,11 +32,23 @@ module Rum
       instance_eval(&block) if block_given?
     end
 
+    ##
+    # :call-seq:
+    #   default :task_or_file
+    #   default :task_or_file => [:deps]
+    #
+    # Defines the default task for +rum+ executable.
     def default(*args, &block)
       name = Rake.application.resolve_args(args).first
       task :default => name
     end
 
+    ##
+    # :call-seq:
+    #   build :name
+    #   build :name => [:deps]
+    #
+    # Defines generic +docker build+ task.
     def build(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
       task name => deps do
@@ -32,6 +56,12 @@ module Rum
       end
     end
 
+    ##
+    # :call-seq:
+    #   run :name
+    #   run :name => [:deps]
+    #
+    # Defines generic +docker run+ task.
     def run(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
       task name => deps do
@@ -39,6 +69,12 @@ module Rum
       end
     end
 
+    ##
+    # :call-seq:
+    #   stage :name
+    #   stage :name => [:deps]
+    #
+    # Defines +docker build+ task for the given stage.
     def stage(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
 
@@ -96,6 +132,13 @@ module Rum
       deps.each{|dep| task :"#{dep}:clean" => :"#{name}:clean" }
     end
 
+    ##
+    # :call-seq:
+    #   artifact :name => [:stage]
+    #
+    # Defines +docker run+ task for redirecting a file from a running
+    # instance of the dependent stage's container to the local file
+    # system.
     def artifact(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
 
@@ -125,6 +168,12 @@ module Rum
       end
     end
 
+    ##
+    # :call-seq:
+    #   shell :stage
+    #   shell :stage => [:deps]
+    #
+    # Defines +docker run+ task for shelling into the given stage.
     def shell(*args, &block)
       target  = Rake.application.resolve_args(args).first
       name    = :"#{target}:shell"
@@ -143,6 +192,8 @@ module Rum
       end
     end
 
+    ##
+    # Install any remaining tasks for the manifest.
     def install
       install_clean
 
@@ -151,14 +202,21 @@ module Rum
 
     private
 
+    ##
+    # Get the shared build options for the Manifest.
     def build_options
       Docker::Options.new(build_arg: @env) unless @env.empty?
     end
 
+    ##
+    # Get the shared run options for the Manifest.
     def run_options
       Docker::Options.new(env: @env) unless @env.empty?
     end
 
+    ##
+    # Install :clean task for removing temporary Docker images and
+    # iidfiles.
     def install_clean
       desc "Remove any temporary images and products"
       task :clean do
