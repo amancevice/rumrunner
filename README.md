@@ -1,5 +1,5 @@
-<img alt="rumrunner" src="https://github.com/amancevice/rumrunner/blob/master/docs/icon.png?raw=true"/>
 
+![Rum Runner](rumrunner.png)
 [![Build Status](https://travis-ci.com/amancevice/rumrunner.svg?branch=master)](https://travis-ci.com/amancevice/rumrunner)
 [![codecov](https://codecov.io/gh/amancevice/rumrunner/branch/master/graph/badge.svg)](https://codecov.io/gh/amancevice/rumrunner)
 [![Gem Version](https://badge.fury.io/rb/rumrunner.svg)](https://badge.fury.io/rb/rumrunner)
@@ -22,6 +22,8 @@ Rum Runner has the following features:
 **Origins**
 
 This project was born from using Makefiles to drive multi-stage builds. For the most part this worked really well, but it became a bit of an ordeal to write for more complex projects. This tool is an attempt to recreate that general technique with minimal annotation and limited assumptions.
+
+View the docs on [rubydoc.info](https://www.rubydoc.info/github/amancevice/rumrunner)
 
 ## Installation
 
