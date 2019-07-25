@@ -79,12 +79,14 @@ RSpec.describe Rum do
 
   describe "::gets_image" do
     it "should return the default" do
+      allow($stderr).to receive(:write)
       ret = Rum.send :gets_image, nil, StringIO.new("\n")
       exp = Rum::Docker::Image.parse(File.split(Dir.pwd).last)
       expect(ret.to_a).to eq(exp.to_a)
     end
 
     it "should read the image from STDIN" do
+      allow($stderr).to receive(:write)
       ret = Rum.send :gets_image, nil, StringIO.new("my_image\n")
       exp = Rum::Docker::Image.parse("my_image")
       expect(ret.to_a).to eq(exp.to_a)
