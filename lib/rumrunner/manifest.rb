@@ -130,19 +130,9 @@ module Rum
         deps << path
       end
 
-      desc "Build `#{name}`"
-      file name => deps do
-        digest = File.read(iidfile)
-        run = Docker::Run.new(options: run_options, image: digest, cmd: ["cat", name], &block)
-        run.with_defaults(rm: true)
-        sh "#{run} > #{name}"
-      end
+      artifact_file name, deps, iidfile, &block
 
-      desc "Remove any generated files"
-      task :clobber do
-        rm name if File.exist?(name)
-        rm_r path if Dir.exist?(path) && path != "."
-      end
+      artifact_clobber name, path
     end
 
     ##
@@ -257,6 +247,28 @@ module Rum
 
       # Ensure subsequent stages are cleaned before this one
       deps.each{|dep| task :"#{dep}:clean" => :"#{name}:clean" }
+    end
+
+    ##
+    # Install file task for artifact
+    def artifact_file(name, deps, iidfile, &block)
+      desc "Build `#{name}`"
+      file name => deps do
+        digest = File.read(iidfile)
+        run = Docker::Run.new(options: run_options, image: digest, cmd: ["cat", name], &block)
+        run.with_defaults(rm: true)
+        sh "#{run} > #{name}"
+      end
+    end
+
+    ##
+    # Install clobber tasks for cleaning up generated files
+    def artifact_clobber(name, path)
+      desc "Remove any generated files"
+      task :clobber do
+        rm name if File.exist?(name)
+        rm_r path if Dir.exist?(path) && path != "."
+      end
     end
   end
 end
