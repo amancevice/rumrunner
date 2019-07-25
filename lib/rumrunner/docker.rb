@@ -272,25 +272,22 @@ module Rum
         #   Image.parse("registry:5000/username/image:tag")
         #
         def parse(string_or_symbol)
-          string = string_or_symbol.to_s
-          if string.count("/").zero? && string.count(":").zero?
-            # image
-            new name: string
-          elsif string.count("/").zero?
-            # image:tag
+          string      = string_or_symbol.to_s
+          slash_count = string.count("/")
+
+          # image[:tag]
+          if slash_count.zero?
             name, tag = string.split(/:/)
             new name: name, tag: tag
-          elsif string.count("/") == 1 && string.count(":").zero?
-            # username/image
-            username, name = string.split(/\//)
-            new name: name, username: username
-          elsif string.count("/") == 1
-            # username/image:tag
+
+          # username/image[:tag]
+          elsif slash_count == 1
             username, name_tag = string.split(/\//)
             name, tag          = name_tag.split(/:/)
             new name: name, username: username, tag: tag
+
+          # registry/username/image[:tag]
           else
-            # registry/username/image[:tag]
             registry, username, name_tag = string.split(/\//)
             name, tag                    = name_tag.split(/:/)
             new name: name, registry: registry, username: username, tag: tag
