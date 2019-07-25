@@ -37,16 +37,8 @@ gem install rumrunner
 Use the `Rum.init` helper to create a template Rumfile for your project:
 
 ```bash
-# Install the gem
 gem install rumrunner
-
-# Navigate to the location of your Dockerfile
-cd /path/to/your/Dockerfile/project/
-
-# Create a basic Rumfile
 ruby -r rumrunner -e Rum.init > Rumfile
-
-# View available tasks
 rum --tasks
 ```
 
@@ -146,8 +138,8 @@ rum :image_name do
     cmd   %w{echo hello}
   end
 
-  # rake fizz => docker build --tag image_name .
-  # rake buzz => docker run --rm image_name echo hello
+  # rum fizz => docker build --tag image_name .
+  # rum buzz => docker run --rm image_name echo hello
 end
 ```
 
