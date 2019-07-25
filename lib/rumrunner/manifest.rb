@@ -96,7 +96,7 @@ module Rum
       end
 
       # Build stage and save digest in iidfile
-      stage_file iidfile, iiddeps, image, name, &block
+      stage_file iidfile, iiddeps, tag: image, target: name, &block
 
       # Shortcut to build stage by name
       stage_task name, iidfile
@@ -198,10 +198,10 @@ module Rum
 
     ##
     # Install file task for stage and save digest in iidfile
-    def stage_file(iidfile, iiddeps, image, name, &block)
+    def stage_file(iidfile, iiddeps, tag:, target:, &block)
       file iidfile => iiddeps do
         build = Docker::Build.new(options: build_options, &block)
-        build.with_defaults(iidfile: iidfile, tag: image, target: name)
+        build.with_defaults(iidfile: iidfile, tag: tag, target: target)
         sh build.to_s
       end
     end
