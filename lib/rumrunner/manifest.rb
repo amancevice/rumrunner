@@ -96,44 +96,16 @@ module Rum
       end
 
       # Build stage and save digest in iidfile
-      file iidfile => iiddeps do
-        build = Docker::Build.new(options: build_options, &block)
-        build.with_defaults(iidfile: iidfile, tag: image, target: name)
-        sh build.to_s
-      end
+      stage_file iidfile, iiddeps, image, name, &block
 
       # Shortcut to build stage by name
-      desc "Build `#{name}` stage"
-      task name => iidfile
+      stage_task name, iidfile
 
       # Shell into stage
-      desc "Shell into `#{name}` stage"
-      task :"#{name}:shell", [:shell] => iidfile do |t,args|
-        digest = File.read(iidfile)
-        shell  = args.any? ? args.to_a.join(" ") : "/bin/sh"
-        run    = Docker::Run.new(options: run_options)
-          .entrypoint(shell)
-          .interactive(true)
-          .rm(true)
-          .tty(true)
-          .image(digest)
-        sh run.to_s
-      end
+      stage_shell name, iidfile
 
       # Clean stage
-      desc "Remove any temporary images and products from `#{name}` stage"
-      task :"#{name}:clean" do
-        if File.exist? iidfile
-          sh "docker", "image", "rm", "--force", File.read(iidfile)
-          rm iidfile
-        end
-      end
-
-      # Add stage to general clean
-      task :clean => :"#{name}:clean"
-
-      # Ensure subsequent stages are cleaned before this one
-      deps.each{|dep| task :"#{dep}:clean" => :"#{name}:clean" }
+      stage_clean name, iidfile, deps
     end
 
     ##
@@ -232,6 +204,59 @@ module Rum
         end
         rm_r root if Dir.exist?(root)
       end
+    end
+
+    ##
+    # Install file task for stage and save digest in iidfile
+    def stage_file(iidfile, iiddeps, image, name, &block)
+      file iidfile => iiddeps do
+        build = Docker::Build.new(options: build_options, &block)
+        build.with_defaults(iidfile: iidfile, tag: image, target: name)
+        sh build.to_s
+      end
+    end
+
+    ##
+    # Install alias task for building stage
+    def stage_task(name, iidfile)
+      desc "Build `#{name}` stage"
+      task name => iidfile
+    end
+
+    ##
+    # Install shell task for shelling into stage
+    def stage_shell(name, iidfile)
+      desc "Shell into `#{name}` stage"
+      task :"#{name}:shell", [:shell] => iidfile do |t,args|
+        digest = File.read(iidfile)
+        shell  = args.any? ? args.to_a.join(" ") : "/bin/sh"
+        run    = Docker::Run.new(options: run_options)
+          .entrypoint(shell)
+          .interactive(true)
+          .rm(true)
+          .tty(true)
+          .image(digest)
+        sh run.to_s
+      end
+    end
+
+    ##
+    # Install clean tasks for cleaning up stage image and iidfile
+    def stage_clean(name, iidfile, deps)
+      # Clean stage image
+      desc "Remove any temporary images and products from `#{name}` stage"
+      task :"#{name}:clean" do
+        if File.exist? iidfile
+          sh "docker", "image", "rm", "--force", File.read(iidfile)
+          rm iidfile
+        end
+      end
+
+      # Add stage to general clean
+      task :clean => :"#{name}:clean"
+
+      # Ensure subsequent stages are cleaned before this one
+      deps.each{|dep| task :"#{dep}:clean" => :"#{name}:clean" }
     end
   end
 end
