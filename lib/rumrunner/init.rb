@@ -16,7 +16,7 @@ module Rum
       # Begin Rumfile
       stdout.write "#!/usr/bin/env ruby\n"
       stdout.write "rum :\"#{image.family}\" do\n"
-      stdout.write parse_stages "Dockerfile"
+      stdout.write parse_stages "Dockerfile" if File.exist? "Dockerfile"
       stdout.write "end\n"
     end
 
@@ -36,13 +36,11 @@ module Rum
     ##
     # Parse stages from Dockerfile
     def parse_stages(dockerfile)
-      if File.exist? dockerfile
-        stages = File.read(dockerfile).scan(/^FROM .*? AS (.*?)$/).flatten
-        deps   = stages.reverse.zip(stages.reverse[1..-1] || []).reverse
-        lines  = deps.map do |stage, dep|
-          dep.nil? ? %{  stage :"#{stage}"\n} : %{  stage :"#{stage}" => :"#{dep}"\n}
-        end.join
-      end
+      stages = File.read(dockerfile).scan(/^FROM .*? AS (.*?)$/).flatten
+      deps   = [nil] + stages[0..-2]
+      lines  = stages.zip(deps).map do |stage, dep|
+        dep.nil? ? %{  stage :"#{stage}"\n} : %{  stage :"#{stage}" => :"#{dep}"\n}
+      end.join
     end
   end
 end
