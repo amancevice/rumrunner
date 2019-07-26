@@ -27,18 +27,18 @@ RSpec.describe Rum::Manifest do
         ".docker/registry:5000/username/name:1.2.3-build" => Rake::FileTask,
         ".docker/registry:5000/username/name:1.2.3-test"  => Rake::FileTask,
         "build"                                           => Rake::Task,
-        "build:clean"                                     => Rake::Task,
-        "build:shell"                                     => Rake::Task,
         "clean"                                           => Rake::Task,
+        "clean:build"                                     => Rake::Task,
+        "clean:test"                                      => Rake::Task,
         "clobber"                                         => Rake::Task,
         "default"                                         => Rake::Task,
-        "pkg"                                             => Rake::FileCreationTask,
-        "pkg/fizz.zip"                                    => Rake::FileTask,
         "fuzz"                                            => Rake::Task,
         "jazz"                                            => Rake::Task,
+        "pkg"                                             => Rake::FileCreationTask,
+        "pkg/fizz.zip"                                    => Rake::FileTask,
+        "shell:build"                                     => Rake::Task,
+        "shell:test"                                      => Rake::Task,
         "test"                                            => Rake::Task,
-        "test:clean"                                      => Rake::Task,
-        "test:shell"                                      => Rake::Task,
       }
       expect(ret).to eq(exp)
     end
@@ -89,26 +89,26 @@ RSpec.describe Rum::Manifest do
   end
 
   describe "#task_name" do
-    it "defaults to STAGE_FIRST" do
+    it "defaults to VERB_FIRST" do
       ret = manifest.send(:task_name, clean: "stage")
-      exp = :"stage:clean"
+      exp = :"clean:stage"
       expect(ret).to eq(exp)
     end
 
     it "uses to VERB_FIRST" do
-      ENV["RUM_TASK_NAME"] = "VERB_FIRST"
+      ENV["RUM_TASK_NAMES"] = "VERB_FIRST"
       ret = manifest.send(:task_name, clean: "stage")
       exp = :"clean:stage"
       expect(ret).to eq(exp)
-      ENV.delete "RUM_TASK_NAME"
+      ENV.delete "RUM_TASK_NAMES"
     end
 
     it "uses to STAGE_FIRST" do
-      ENV["RUM_TASK_NAME"] = "STAGE_FIRST"
+      ENV["RUM_TASK_NAMES"] = "STAGE_FIRST"
       ret = manifest.send(:task_name, clean: "stage")
       exp = :"stage:clean"
       expect(ret).to eq(exp)
-      ENV.delete "RUM_TASK_NAME"
+      ENV.delete "RUM_TASK_NAMES"
     end
   end
 end

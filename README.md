@@ -77,19 +77,28 @@ Run `rum --tasks` to view the installed tasks:
 
 ```bash
 rum build                # Build `build` stage
-rum build:clean          # Remove any temporary images and products from `build` stage
-rum build:shell[shell]   # Shell into `build` stage
 rum clean                # Remove any temporary images and products
+rum clean:build          # Remove any temporary images and products through `build` stage
+rum clean:deploy         # Remove any temporary images and products through `deploy` stage
+rum clean:test           # Remove any temporary images and products through `test` stage
 rum clobber              # Remove any generated files
 rum deploy               # Build `deploy` stage
-rum deploy:clean         # Remove any temporary images and products from `deploy` stage
-rum deploy:shell[shell]  # Shell into `deploy` stage
+rum shell:build[shell]   # Shell into `build` stage
+rum shell:deploy[shell]  # Shell into `deploy` stage
+rum shell:test[shell]    # Shell into `test` stage
 rum test                 # Build `test` stage
-rum test:clean           # Remove any temporary images and products from `test` stage
-rum test:shell[shell]    # Shell into `test` stage
 ```
 
-## Naming Convention
+## Task Naming Convention
+
+As of v0.3, rum runner uses a "verb-first" naming convention (eg. `clean:stage`) for tasks. To revert to the previous convention of "stage-first" (eg. `stage:clean`) use the environmental variable `RUM_TASK_NAMES`:
+
+```bash
+export RUM_TASK_NAMES=STAGE_FIRST  # => rum stage:clean
+export RUM_TASK_NAMES=VERB_FIRST   # => rum clean:stage (default)
+```
+
+## Image Naming Convention
 
 The name of the images are taken from the first argument to the main block and appended with the name of the stage.
 

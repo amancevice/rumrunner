@@ -144,7 +144,7 @@ module Rum
     #
     def shell(*args, &block)
       target  = Rake.application.resolve_args(args).first
-      name    = :"#{target}:shell"
+      name    = task_name shell: target
       image   = "#{@image}-#{target}"
       iidfile = File.join(root, image)
 
@@ -274,13 +274,13 @@ module Rum
     ##
     # Get name of support task
     def task_name(verb_stage)
-      case ENV["RUM_TASK_NAME"]&.upcase
+      case ENV["RUM_TASK_NAMES"]&.upcase
       when "STAGE_FIRST"
         verb_stage.first.reverse
       when "VERB_FIRST"
         verb_stage.first
       else
-        verb_stage.first.reverse
+        verb_stage.first
       end.join(":").to_sym
     end
   end
