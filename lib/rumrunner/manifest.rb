@@ -265,7 +265,7 @@ module Rum
     # Install clobber tasks for cleaning up generated files
     def artifact_clobber(name, path)
       desc "Remove any generated files"
-      task :clobber do
+      task :clobber => :clean do
         rm name if File.exist?(name)
         rm_r path if Dir.exist?(path) && path != "."
       end
