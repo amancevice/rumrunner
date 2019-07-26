@@ -165,6 +165,8 @@ module Rum
 
       private
 
+      ##
+      # Convert +OPTION+ to +--option+
       def flagify(name)
         name.length == 1 ? "-#{name}" : "--#{name.to_s.gsub(/_/, "-")}"
       end

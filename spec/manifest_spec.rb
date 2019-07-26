@@ -1,10 +1,13 @@
 RSpec.describe Rum::Manifest do
-  Rum::Manifest.new(:name => :"registry:5000/username/name") do
+  manifest = Rum::Manifest.new(:name => :"registry:5000/username/name") do
     tag      "1.2.3"
+
+    env :FIZZ => "buzz"
+
     stage    :build
     stage    :test => :build
 
-    artifact "fizz" => :build
+    artifact "pkg/fizz.zip" => :build
 
     shell :build
 
@@ -29,7 +32,8 @@ RSpec.describe Rum::Manifest do
         "clean"                                           => Rake::Task,
         "clobber"                                         => Rake::Task,
         "default"                                         => Rake::Task,
-        "fizz"                                            => Rake::FileTask,
+        "pkg"                                             => Rake::FileCreationTask,
+        "pkg/fizz.zip"                                    => Rake::FileTask,
         "fuzz"                                            => Rake::Task,
         "jazz"                                            => Rake::Task,
         "test"                                            => Rake::Task,
@@ -66,5 +70,21 @@ RSpec.describe Rum::Manifest do
   end
 
   describe "#install" do
+  end
+
+  describe "#build_options" do
+    it "returns the default options" do
+      ret = manifest.send(:build_options)
+      exp = ["--build-arg", "FIZZ=buzz"]
+      expect(ret.to_a).to eq(exp)
+    end
+  end
+
+  describe "#run_options" do
+    it "returns the default options" do
+      ret = manifest.send(:run_options)
+      exp = ["--env", "FIZZ=buzz"]
+      expect(ret.to_a).to eq(exp)
+    end
   end
 end

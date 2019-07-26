@@ -217,7 +217,7 @@ module Rum
     # Install shell task for shelling into stage
     def stage_shell(name, iidfile)
       desc "Shell into `#{name}` stage"
-      task :"#{name}:shell", [:shell] => iidfile do |t,args|
+      task task_name(shell: name), [:shell] => iidfile do |t,args|
         digest = File.read(iidfile)
         shell  = args.any? ? args.to_a.join(" ") : "/bin/sh"
         run    = Docker::Run.new(options: run_options)
@@ -235,7 +235,7 @@ module Rum
     def stage_clean(name, iidfile, deps)
       # Clean stage image
       desc "Remove any temporary images and products from `#{name}` stage"
-      task :"#{name}:clean" do
+      task task_name(clean: name) do
         if File.exist? iidfile
           sh "docker", "image", "rm", "--force", File.read(iidfile)
           rm iidfile
@@ -243,10 +243,10 @@ module Rum
       end
 
       # Add stage to general clean
-      task :clean => :"#{name}:clean"
+      task :clean => task_name(clean: name)
 
       # Ensure subsequent stages are cleaned before this one
-      deps.each{|dep| task :"#{dep}:clean" => :"#{name}:clean" }
+      deps.each{|dep| task task_name(clean: dep) => task_name(clean: name) }
     end
 
     ##
@@ -269,6 +269,19 @@ module Rum
         rm name if File.exist?(name)
         rm_r path if Dir.exist?(path) && path != "."
       end
+    end
+
+    ##
+    # Get name of support task
+    def task_name(verb_stage)
+      case ENV["RUM_TASK_NAME"]&.upcase
+      when "STAGE_FIRST"
+        verb_stage.first.reverse
+      when "VERB_FIRST"
+        verb_stage.first
+      else
+        verb_stage.first.reverse
+      end.join(":").to_sym
     end
   end
 end
