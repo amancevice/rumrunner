@@ -91,7 +91,9 @@ rum test                 # Build `test` stage
 
 ## Task Naming Convention
 
-As of v0.3, rum runner uses a "verb-first" naming convention (eg. `clean:stage`) for tasks. To revert to the previous convention of "stage-first" (eg. `stage:clean`) use the environmental variable `RUM_TASK_NAMES`:
+As of v0.3, rum runner uses a "verb-first" naming convention (eg. `clean:stage`) for tasks.
+
+To revert to the previous convention of "stage-first" (eg. `stage:clean`) use the environmental variable `RUM_TASK_NAMES`:
 
 ```bash
 export RUM_TASK_NAMES=STAGE_FIRST  # => rum stage:clean
