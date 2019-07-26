@@ -87,4 +87,28 @@ RSpec.describe Rum::Manifest do
       expect(ret.to_a).to eq(exp)
     end
   end
+
+  describe "#task_name" do
+    it "defaults to STAGE_FIRST" do
+      ret = manifest.send(:task_name, clean: "stage")
+      exp = :"stage:clean"
+      expect(ret).to eq(exp)
+    end
+
+    it "uses to VERB_FIRST" do
+      ENV["RUM_TASK_NAME"] = "VERB_FIRST"
+      ret = manifest.send(:task_name, clean: "stage")
+      exp = :"clean:stage"
+      expect(ret).to eq(exp)
+      ENV.delete "RUM_TASK_NAME"
+    end
+
+    it "uses to STAGE_FIRST" do
+      ENV["RUM_TASK_NAME"] = "STAGE_FIRST"
+      ret = manifest.send(:task_name, clean: "stage")
+      exp = :"stage:clean"
+      expect(ret).to eq(exp)
+      ENV.delete "RUM_TASK_NAME"
+    end
+  end
 end
