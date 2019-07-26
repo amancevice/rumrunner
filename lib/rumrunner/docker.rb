@@ -133,8 +133,7 @@ module Rum
       #
       def each
         @data.each do |name, values|
-          option = name.length == 1 ? "-#{name}" : "--#{name.to_s.gsub(/_/, "-")}"
-          yield option if values.empty?
+          option = flagify name
           values.each do |value|
             if value.is_a?(Hash)
               value.map{|kv| kv.join("=") }.each do |val|
@@ -162,6 +161,12 @@ module Rum
       #
       def to_s
         to_a.join(" ")
+      end
+
+      private
+
+      def flagify(name)
+        name.length == 1 ? "-#{name}" : "--#{name.to_s.gsub(/_/, "-")}"
       end
     end
 
