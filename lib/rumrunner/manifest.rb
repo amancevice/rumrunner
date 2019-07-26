@@ -234,7 +234,7 @@ module Rum
     # Install clean tasks for cleaning up stage image and iidfile
     def stage_clean(name, iidfile, deps)
       # Clean stage image
-      desc "Remove any temporary images and products from `#{name}` stage"
+      desc "Remove any temporary images and products through `#{name}` stage"
       task task_name(clean: name) do
         if File.exist? iidfile
           sh "docker", "image", "rm", "--force", File.read(iidfile)
