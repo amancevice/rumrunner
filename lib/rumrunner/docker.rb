@@ -250,7 +250,7 @@ module Rum
       ##
       # Yield each non-nil component of the image reference in order.
       def each
-        [@registry, @username, @name, @tag].compact.each{|x| yield x }
+        [@registry, @username, @name, @tag || :latest].compact.each{|x| yield x.to_s }
       end
 
       ##
