@@ -78,18 +78,18 @@ RSpec.describe Rum do
   end
 
   describe "::gets_image" do
+    let(:default)  { File.split(Dir.pwd).last }
+    let(:no_input) { Rum.send :gets_image, nil, StringIO.new("\n") }
+    let(:input)    { Rum.send :gets_image, nil, StringIO.new("my_image\n") }
+
+    before { allow($stderr).to receive :write }
+
     it "should return the default" do
-      allow($stderr).to receive(:write)
-      ret = Rum.send :gets_image, nil, StringIO.new("\n")
-      exp = Rum::Docker::Image.parse(File.split(Dir.pwd).last)
-      expect(ret.to_a).to eq(exp.to_a)
+      expect(no_input.name).to eq default
     end
 
     it "should read the image from STDIN" do
-      allow($stderr).to receive(:write)
-      ret = Rum.send :gets_image, nil, StringIO.new("my_image\n")
-      exp = Rum::Docker::Image.parse("my_image")
-      expect(ret.to_a).to eq(exp.to_a)
+      expect(input.name).to eq "my_image"
     end
   end
 end

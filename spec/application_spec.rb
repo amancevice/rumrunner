@@ -1,17 +1,16 @@
 RSpec.describe Rum::Application do
   describe "::new" do
-    it "initializes an instance of a Rum::Application" do
-      app = Rum::Application.new
-      expect(app.name).to eq("rum")
+    it "initializes with name `rum`" do
+      expect(subject.name).to eq("rum")
     end
   end
 
   describe "#init" do
     it "initializes the Rum::Application" do
-      app = Rum::Application.new
-      expect(app.top_level_tasks).to eq([])
-      app.init "rum", []
-      expect(app.top_level_tasks).to eq(["default"])
+      expect { subject.init "rum", [] }.to \
+      change { subject.top_level_tasks }
+        .from([])
+        .to(["default"])
     end
   end
 end
