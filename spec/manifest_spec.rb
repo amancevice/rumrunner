@@ -1,20 +1,14 @@
 RSpec.describe Rum::Manifest do
   manifest = Rum::Manifest.new(:name => :"registry:5000/username/name") do
     tag      "1.2.3"
-
-    env :FIZZ => "buzz"
-
+    env      :FIZZ => "buzz"
     stage    :build
     stage    :test => :build
-
     artifact "pkg/fizz.zip" => :build
-
-    shell :build
-
-    run :jazz
-    build :fuzz
-
-    default "fizz"
+    shell    :build
+    run      :jazz
+    build    :fuzz
+    default  "pkg/fizz.zip"
   end.install
 
   describe "::new" do
