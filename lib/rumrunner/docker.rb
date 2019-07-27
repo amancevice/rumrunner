@@ -69,7 +69,7 @@ module Rum
       # Interpret missing methods as +OPTION+.
       def method_missing(m, *args, &block)
         @options.send(m, *args, &block)
-        args.any? ? self : @options[m]
+        args.empty? ? @options[m] : self
       end
 
       ##
