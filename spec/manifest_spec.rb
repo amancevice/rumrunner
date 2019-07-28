@@ -1,29 +1,10 @@
 RSpec.describe Rum::Manifest do
-  let(:tasks) do
-    {
-      ".docker"                                         => Rake::FileCreationTask,
-      ".docker/registry:5000"                           => Rake::FileCreationTask,
-      ".docker/registry:5000/username"                  => Rake::FileCreationTask,
-      ".docker/registry:5000/username/name:1.2.3-build" => Rake::FileTask,
-      ".docker/registry:5000/username/name:1.2.3-test"  => Rake::FileTask,
-      "build"                                           => Rake::Task,
-      "clean"                                           => Rake::Task,
-      "clean:build"                                     => Rake::Task,
-      "clean:test"                                      => Rake::Task,
-      "clobber"                                         => Rake::Task,
-      "default"                                         => Rake::Task,
-      "fuzz"                                            => Rake::Task,
-      "jazz"                                            => Rake::Task,
-      "pkg"                                             => Rake::FileCreationTask,
-      "pkg/fizz.zip"                                    => Rake::FileTask,
-      "shell:build"                                     => Rake::Task,
-      "shell:test"                                      => Rake::Task,
-      "test"                                            => Rake::Task,
-    }
-  end
+  before { allow_any_instance_of(Rum::Manifest).to receive :sh }
+  before { allow(File).to receive(:read).and_return "<digest>" }
+  after  { Rake.application.clear }
 
   subject do
-    Rum::Manifest.new name: "registry:5000/username/name" do
+    Rum::Manifest.new(name: "registry:5000/username/name") do
       tag      "1.2.3"
       env      :FIZZ => "buzz"
       stage    :build
@@ -33,39 +14,112 @@ RSpec.describe Rum::Manifest do
       run      :jazz
       build    :fuzz
       default  "pkg/fizz.zip"
-    end
+    end.install
   end
 
-  before { subject.install }
-
-  describe "::new" do
-    it "defines a whole bunch of tasks" do
-      expect(Hash[Rake::Task.tasks.map{|x| [x.name, x.class] }]).to eq tasks
+  let(:stage) do
+    -> (x) do
+      s = <<~EOS
+        docker build \
+        --build-arg FIZZ=buzz \
+        --iidfile .docker/registry:5000/username/name:1.2.3-#{x} \
+        --tag registry:5000/username/name:1.2.3-#{x} \
+        --target #{x} .
+      EOS
+      s.strip
     end
   end
 
   describe "#build" do
     it "runs a Docker build command" do
-      expect(Rake::Task[:fuzz].invoke.first.call).to eq ["docker build ."]
+      subject.application[:fuzz].invoke
+      expect(subject).to have_received(:sh).with "docker build ."
     end
   end
 
   describe "#run" do
     it "runs a Docker run command" do
-      expect(Rake::Task[:jazz].invoke.first.call).to eq ["docker run registry:5000/username/name:1.2.3"]
+      subject.application[:jazz].invoke
+      expect(subject).to have_received(:sh).with "docker run registry:5000/username/name:1.2.3"
     end
   end
 
   describe "#stage" do
+    it "builds through `build` stage" do
+      subject.application[:build].invoke
+      expect(subject).to have_received(:sh).with(stage.call :build)
+    end
+
+    it "builds through `test` stage" do
+      subject.application[:test].invoke
+      expect(subject).to have_received(:sh).with(stage.call :build)
+      expect(subject).to have_received(:sh).with(stage.call :test)
+    end
   end
 
   describe "#artifact" do
+    it "extracts the artifact" do
+      cmd = <<~EOS
+        docker run \
+        --env FIZZ=buzz \
+        --rm=true \
+        <digest> \
+        cat pkg/fizz.zip > pkg/fizz.zip
+      EOS
+      subject.application[:"pkg/fizz.zip"].invoke
+      expect(subject).to have_received(:sh).with(stage.call :build)
+      expect(subject).to have_received(:sh).with(cmd.strip)
+    end
+
+    it "clobbers the artifact" do
+      allow(File).to receive(:exist?).and_return(true)
+      allow(subject).to receive(:rm)
+      allow(subject).to receive(:rm_r)
+      subject.application[:clobber].invoke
+      expect(subject).to have_received(:sh).twice.with(*%w[docker image rm --force <digest>])
+      expect(subject).to have_received(:rm).with(".docker/registry:5000/username/name:1.2.3-test")
+      expect(subject).to have_received(:rm).with(".docker/registry:5000/username/name:1.2.3-build")
+      expect(subject).to have_received(:rm).with("pkg/fizz.zip")
+    end
   end
 
   describe "#shell" do
+    it "shells into the `build` stage" do
+      cmd = <<~EOS
+        docker run \
+        --env FIZZ=buzz \
+        --entrypoint /bin/sh \
+        --interactive=true \
+        --rm=true \
+        --tty=true \
+        <digest>
+      EOS
+      subject.application[:"shell:build"].invoke
+      expect(subject).to have_received(:sh).with(stage.call :build)
+      expect(subject).to have_received(:sh).with(cmd.strip)
+    end
+
+    it "shells into the `test` stage" do
+      cmd = <<~EOS
+        docker run \
+        --env FIZZ=buzz \
+        --entrypoint /bin/sh \
+        --interactive=true \
+        --rm=true \
+        --tty=true \
+        <digest>
+      EOS
+      subject.application[:"shell:test"].invoke
+      expect(subject).to have_received(:sh).with(stage.call :build)
+      expect(subject).to have_received(:sh).with(stage.call :test)
+      expect(subject).to have_received(:sh).with(cmd.strip)
+    end
   end
 
   describe "#install" do
+    it "installs the clean command" do
+      expect(subject.application[:clean]).not_to be nil
+    end
   end
 
   describe "#build_options" do

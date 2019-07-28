@@ -7,6 +7,7 @@ if ENV['CI'] == 'true'
 end
 
 require "bundler/setup"
+require "pry"
 require "rake"
 require "rumrunner"
 
