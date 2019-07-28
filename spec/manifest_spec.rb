@@ -1,5 +1,7 @@
 RSpec.describe Rum::Manifest do
   before { allow_any_instance_of(Rum::Manifest).to receive :sh }
+  before { allow_any_instance_of(Rum::Manifest).to receive :mkdir_p }
+  before { allow(Dir).to receive(:[]).and_return %w[.docker/registry:5000 .docker/registry:5000/username] }
   before { allow(File).to receive(:read).and_return "<digest>" }
   after  { Rake.application.clear }
 
@@ -19,14 +21,13 @@ RSpec.describe Rum::Manifest do
 
   let(:stage) do
     -> (x) do
-      s = <<~EOS
-        docker build \
-        --build-arg FIZZ=buzz \
-        --iidfile .docker/registry:5000/username/name:1.2.3-#{x} \
-        --tag registry:5000/username/name:1.2.3-#{x} \
+      <<~EOS.strip.gsub(/\n/,' ')
+        docker build
+        --build-arg FIZZ=buzz
+        --iidfile .docker/registry:5000/username/name:1.2.3-#{x}
+        --tag registry:5000/username/name:1.2.3-#{x}
         --target #{x} .
       EOS
-      s.strip
     end
   end
 
@@ -59,16 +60,16 @@ RSpec.describe Rum::Manifest do
 
   describe "#artifact" do
     it "extracts the artifact" do
-      cmd = <<~EOS
-        docker run \
-        --env FIZZ=buzz \
-        --rm=true \
-        <digest> \
+      cmd = <<~EOS.strip.gsub(/\n/,' ')
+        docker run
+        --env FIZZ=buzz
+        --rm=true
+        <digest>
         cat pkg/fizz.zip > pkg/fizz.zip
       EOS
       subject.application[:"pkg/fizz.zip"].invoke
       expect(subject).to have_received(:sh).with(stage.call :build)
-      expect(subject).to have_received(:sh).with(cmd.strip)
+      expect(subject).to have_received(:sh).with(cmd)
     end
 
     it "clobbers the artifact" do
@@ -85,34 +86,34 @@ RSpec.describe Rum::Manifest do
 
   describe "#shell" do
     it "shells into the `build` stage" do
-      cmd = <<~EOS
-        docker run \
-        --env FIZZ=buzz \
-        --entrypoint /bin/sh \
-        --interactive=true \
-        --rm=true \
-        --tty=true \
+      cmd = <<~EOS.strip.gsub(/\n/,' ')
+        docker run
+        --env FIZZ=buzz
+        --entrypoint /bin/sh
+        --interactive=true
+        --rm=true
+        --tty=true
         <digest>
       EOS
       subject.application[:"shell:build"].invoke
       expect(subject).to have_received(:sh).with(stage.call :build)
-      expect(subject).to have_received(:sh).with(cmd.strip)
+      expect(subject).to have_received(:sh).with(cmd)
     end
 
     it "shells into the `test` stage" do
-      cmd = <<~EOS
-        docker run \
-        --env FIZZ=buzz \
-        --entrypoint /bin/sh \
-        --interactive=true \
-        --rm=true \
-        --tty=true \
+      cmd = <<~EOS.strip.gsub(/\n/,' ')
+        docker run
+        --env FIZZ=buzz
+        --entrypoint /bin/sh
+        --interactive=true
+        --rm=true
+        --tty=true
         <digest>
       EOS
       subject.application[:"shell:test"].invoke
       expect(subject).to have_received(:sh).with(stage.call :build)
       expect(subject).to have_received(:sh).with(stage.call :test)
-      expect(subject).to have_received(:sh).with(cmd.strip)
+      expect(subject).to have_received(:sh).with(cmd)
     end
   end
 
