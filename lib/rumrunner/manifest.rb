@@ -33,6 +33,12 @@ module Rum
     end
 
     ##
+    # Get application
+    def application
+      Rake.application
+    end
+
+    ##
     # Defines the default task for +rum+ executable.
     #
     # Example:
