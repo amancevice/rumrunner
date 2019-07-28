@@ -15,7 +15,7 @@ module Rum
 
     def_delegator :@env, :<<, :env
     def_delegator :@root, :to_s, :root
-    def_delegators :@image, :registry, :username, :name, :tag
+    def_delegators :@image, :registry, :username, :name, :tag, :to_s
 
     ##
     # Initialize new manifest with name and root path for caching
@@ -68,7 +68,7 @@ module Rum
     def run(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
       task name => deps do
-        sh Docker::Run.new(image: @image, &block).to_s
+        sh Docker::Run.new(image: to_s, &block).to_s
       end
     end
 
