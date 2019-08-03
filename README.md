@@ -38,7 +38,7 @@ Use the `Rum.init` helper to create a template Rumfile for your project:
 
 ```bash
 gem install rumrunner
-ruby -r rumrunner -e Rum.init > Rumfile
+rum init > Rumfile
 rum --tasks
 ```
 
