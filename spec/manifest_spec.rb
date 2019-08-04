@@ -1,7 +1,7 @@
 RSpec.describe Rum::Manifest do
   before { allow_any_instance_of(Rum::Manifest).to receive :sh }
   before { allow_any_instance_of(Rum::Manifest).to receive :mkdir_p }
-  before { allow(Dir).to receive(:[]).and_return %w[.docker/registry:5000 .docker/registry:5000/username] }
+  before { allow(Dir).to receive(:[]).and_return %w[.docker/registry:5000 .docker/registry:5000/username .docker/registry:5000/username/name] }
   before { allow(File).to receive(:read).and_return "<digest>" }
   after  { Rake.application.clear }
 
@@ -24,7 +24,7 @@ RSpec.describe Rum::Manifest do
       <<~EOS.strip.gsub(/\n/,' ')
         docker build
         --build-arg FIZZ=buzz
-        --iidfile .docker/registry:5000/username/name:1.2.3-#{x}
+        --iidfile .docker/registry:5000/username/name/1.2.3-#{x}
         --tag registry:5000/username/name:1.2.3-#{x}
         --target #{x} .
       EOS
@@ -77,8 +77,8 @@ RSpec.describe Rum::Manifest do
       allow(subject).to receive(:rm_rf)
       subject.application[:clobber].invoke
       expect(subject).to have_received(:sh).twice.with(*%w[docker image rm --force <digest>])
-      expect(subject).to have_received(:rm_rf).with(".docker/registry:5000/username/name:1.2.3-test")
-      expect(subject).to have_received(:rm_rf).with(".docker/registry:5000/username/name:1.2.3-build")
+      expect(subject).to have_received(:rm_rf).with(".docker/registry:5000/username/name/1.2.3-test")
+      expect(subject).to have_received(:rm_rf).with(".docker/registry:5000/username/name/1.2.3-build")
       expect(subject).to have_received(:rm_rf).with("pkg/fizz.zip")
     end
   end

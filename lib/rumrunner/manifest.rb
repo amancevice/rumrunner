@@ -89,8 +89,8 @@ module Rum
       name, _, deps = Rake.application.resolve_args(args)
 
       # Assemble image/iidfile from manifest/stage name
-      image   = "#{@image}-#{name}"
-      iidfile = File.join(root, image)
+      image   = Docker::Image.parse("#{@image}-#{name}")
+      iidfile = File.join(root, *image)
       iidpath = File.split(iidfile).first
 
       # Ensure path to iidfile exists
@@ -98,7 +98,8 @@ module Rum
         directory iidpath
         iidpath
       else
-        deps.map{|x| File.join(root, "#{@image}-#{x}") }
+        images = deps.map{|x| Docker::Image.parse("#{@image}-#{x}") }
+        images.map{|x| File.join(root, *x) }
       end
 
       # Build stage and save digest in iidfile
@@ -126,8 +127,8 @@ module Rum
       name, _, deps = Rake.application.resolve_args(args)
 
       target  = deps.first
-      image   = "#{@image}-#{target}"
-      iidfile = File.join(root, image)
+      image   = Docker::Image.parse("#{@image}-#{target}")
+      iidfile = File.join(root, *image)
       path    = File.split(name).first
       deps    = [iidfile]
 
@@ -151,8 +152,8 @@ module Rum
     def shell(*args, &block)
       target  = Rake.application.resolve_args(args).first
       name    = task_name shell: target
-      image   = "#{@image}-#{target}"
-      iidfile = File.join(root, image)
+      image   = Docker::Image.parse("#{@image}-#{target}")
+      iidfile = File.join(root, *image)
 
       Rake::Task[name].clear if Rake::Task.task_defined?(name)
 
