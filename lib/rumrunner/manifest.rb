@@ -196,9 +196,9 @@ module Rum
       task :clean do
         Dir[File.join root, "**/*"].reverse.each do |name|
           sh "docker", "image", "rm", "--force", File.read(name) if File.file?(name)
-          rm_r name
+          rm_rf name
         end
-        rm_r root if Dir.exist?(root)
+        rm_rf root
       end
     end
 
@@ -244,7 +244,7 @@ module Rum
       task task_name(clean: name) do
         if File.exist? iidfile
           sh "docker", "image", "rm", "--force", File.read(iidfile)
-          rm iidfile
+          rm_rf iidfile
         end
       end
 
@@ -272,8 +272,8 @@ module Rum
     def artifact_clobber(name, path)
       desc "Remove any generated files"
       task :clobber => :clean do
-        rm name if File.exist?(name)
-        rm_r path if Dir.exist?(path) && path != "."
+        rm_rf name
+        rm_rf path
       end
     end
 

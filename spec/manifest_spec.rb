@@ -74,13 +74,12 @@ RSpec.describe Rum::Manifest do
 
     it "clobbers the artifact" do
       allow(File).to receive(:exist?).and_return(true)
-      allow(subject).to receive(:rm)
-      allow(subject).to receive(:rm_r)
+      allow(subject).to receive(:rm_rf)
       subject.application[:clobber].invoke
       expect(subject).to have_received(:sh).twice.with(*%w[docker image rm --force <digest>])
-      expect(subject).to have_received(:rm).with(".docker/registry:5000/username/name:1.2.3-test")
-      expect(subject).to have_received(:rm).with(".docker/registry:5000/username/name:1.2.3-build")
-      expect(subject).to have_received(:rm).with("pkg/fizz.zip")
+      expect(subject).to have_received(:rm_rf).with(".docker/registry:5000/username/name:1.2.3-test")
+      expect(subject).to have_received(:rm_rf).with(".docker/registry:5000/username/name:1.2.3-build")
+      expect(subject).to have_received(:rm_rf).with("pkg/fizz.zip")
     end
   end
 
