@@ -26,7 +26,7 @@ RSpec.describe Rum::Manifest do
       <<~EOS.strip.gsub(/\n/,' ')
         docker build
         --build-arg FIZZ=buzz
-        --iidfile .docker/registry:5000/username/name/1.2.3-#{x}
+        --iidfile .docker/registry:5000/username/name/1.2.3-#{x}@1234567890
         --tag registry:5000/username/name:1.2.3-#{x}
         --target #{x} .
       EOS
@@ -53,14 +53,14 @@ RSpec.describe Rum::Manifest do
     it "builds through `build` stage" do
       subject.application[:build].invoke
       expect(subject).to have_received(:sh).with(stage.call :build)
-      expect(subject).to have_received(:cp).with("#{path}-build", "#{path}-build@1234567890")
+      expect(subject).to have_received(:cp).with("#{path}-build@1234567890", "#{path}-build")
     end
 
     it "builds through `test` stage" do
       subject.application[:test].invoke
       expect(subject).to have_received(:sh).with(stage.call :build)
       expect(subject).to have_received(:sh).with(stage.call :test)
-      expect(subject).to have_received(:cp).with("#{path}-test", "#{path}-test@1234567890")
+      expect(subject).to have_received(:cp).with("#{path}-test@1234567890", "#{path}-test")
     end
   end
 

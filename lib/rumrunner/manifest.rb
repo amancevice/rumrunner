@@ -207,10 +207,11 @@ module Rum
     # Install file task for stage and save digest in iidfile
     def stage_file(iidfile, iiddeps, tag:, target:, &block)
       file iidfile => iiddeps do
+        tsfile = "#{iidfile}@#{Time.now.utc.to_i}"
         build = Docker::Build.new(options: build_options, &block)
-        build.with_defaults(iidfile: iidfile, tag: tag, target: target)
+        build.with_defaults(iidfile: tsfile, tag: tag, target: target)
         sh build.to_s
-        cp iidfile, "#{iidfile}@#{Time.now.utc.to_i}"
+        cp tsfile, iidfile
       end
     end
 
