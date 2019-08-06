@@ -1,4 +1,6 @@
 RSpec.describe Rum::Manifest do
+  before { allow_any_instance_of(Time).to receive(:to_i).and_return(1234567890) }
+  before { allow_any_instance_of(Rum::Manifest).to receive :cp }
   before { allow_any_instance_of(Rum::Manifest).to receive :sh }
   before { allow_any_instance_of(Rum::Manifest).to receive :mkdir_p }
   before { allow(Dir).to receive(:[]).and_return %w[.docker/registry:5000 .docker/registry:5000/username .docker/registry:5000/username/name] }
@@ -46,15 +48,19 @@ RSpec.describe Rum::Manifest do
   end
 
   describe "#stage" do
+    let(:path) { File.join(subject.root, *subject.image) }
+
     it "builds through `build` stage" do
       subject.application[:build].invoke
       expect(subject).to have_received(:sh).with(stage.call :build)
+      expect(subject).to have_received(:cp).with("#{path}-build", "#{path}-build@1234567890")
     end
 
     it "builds through `test` stage" do
       subject.application[:test].invoke
       expect(subject).to have_received(:sh).with(stage.call :build)
       expect(subject).to have_received(:sh).with(stage.call :test)
+      expect(subject).to have_received(:cp).with("#{path}-test", "#{path}-test@1234567890")
     end
   end
 

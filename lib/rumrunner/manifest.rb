@@ -210,6 +210,7 @@ module Rum
         build = Docker::Build.new(options: build_options, &block)
         build.with_defaults(iidfile: iidfile, tag: tag, target: target)
         sh build.to_s
+        cp iidfile, "#{iidfile}@#{Time.now.utc.to_i}"
       end
     end
 
