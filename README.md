@@ -4,6 +4,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/4b56853acc5cbb254125/test_coverage)](https://codeclimate.com/github/amancevice/rumrunner/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/4b56853acc5cbb254125/maintainability)](https://codeclimate.com/github/amancevice/rumrunner/maintainability)
 
+<sub>logo by [seenamavaddat.com](http://seenamavaddat.com/)</sub>
 
 Rum Runner is a Rake-based utility for building multi-stage Dockerfiles.
 
