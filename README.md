@@ -35,13 +35,15 @@ gem install rumrunner
 
 ## Quickstart
 
-Use the `Rum.init` helper to create a template Rumfile for your project:
+If you have a multi-stage Dockerfile in your project and are unsure where to begin, use the `rum init` helper to create a template Rumfile for your project:
 
 ```bash
 gem install rumrunner
 rum init > Rumfile
 rum --tasks
 ```
+
+The `init` command will parse a Dockerfile in the current directory and output a simple Rumfile with each stage and its dependencies declared.
 
 ## Example
 
@@ -159,7 +161,13 @@ end
 
 The methods inside blocks for `build`, `run`, `stage`, `artifact`, and `shell` tasks are dynamically handled. Any option you might pass to the `docker run` or `docker build` command can be used.
 
-Simply drop any leading `-`s from the option and convert to snake-case. Eg, `--build-arg` becomes `build_arg`; `--env-file` becomes `env_file`.
+Simply drop any leading `-`s from the option and convert to snake-case.
+
+Eg,
+
+`--build-arg` becomes `build_arg`
+
+`--env-file` becomes `env_file`.
 
 ## Shared ENV variables
 
@@ -174,7 +182,7 @@ rum :image_name do
   artifact "pkg.zip" => :build
 
   # rum build   => docker build --build-arg FIZZ=BUZZ ...
-  # rum pkg.zip => docker run --env FIZZ=BUZZ ...
+  # rum pkg.zip => docker run         --env FIZZ=BUZZ ...
 end
 ```
 
