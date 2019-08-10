@@ -276,7 +276,7 @@ module Rum
       desc "Remove any generated files"
       task :clobber => :clean do
         rm_rf name
-        rm_rf path
+        rm_rf path unless path == "."
       end
     end
 
