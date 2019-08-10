@@ -92,108 +92,6 @@ rum shell:test[shell]    # Shell into `test` stage
 rum test                 # Build `test` stage
 ```
 
-## Task Naming Convention
-
-As of v0.3, rum runner uses a "verb-first" naming convention (eg. `clean:stage`) for tasks.
-
-To revert to the previous convention of "stage-first" (eg. `stage:clean`) use the environmental variable `RUM_TASK_NAMES`:
-
-```bash
-export RUM_TASK_NAMES=STAGE_FIRST  # => rum stage:clean
-export RUM_TASK_NAMES=VERB_FIRST   # => rum clean:stage (default)
-```
-
-## Image Naming Convention
-
-The name of the images are taken from the first argument to the main block and appended with the name of the stage.
-
-In the above example, built images would build be named:
-
-- `image_name:1.2.3-build`
-- `image_name:1.2.3-test`
-- `image_name:1.2.3-deploy`
-
-The first argument to the main block can be any Docker image reference:
-
-```ruby
-rum :"registry:5000/username/image" do
-  #...
-end
-```
-
-## Digest Location
-
-Images build with the `stage` task have their digests cached for easy lookup.
-
-The default location for the digests is in `.docker`, but that can be modified:
-
-```ruby
-rum :image_name => "tmp" do
-  # ...
-end
-```
-
-## Build vs. Run
-
-At the core, every directive within the `rum` block will eventually be interpreted as either a `docker build` or a `docker run` command. The type of directive is simply a way of specifying defaults for the command.
-
-If you simply wish to define a named task that executes a build or a run, you can use the `build` or `run` directives:
-
-```ruby
-rum :image_name do
-  build :fizz do
-    tag  "image_name"
-    path "."
-  end
-
-  run :buzz do
-    rm    true
-    image "image_name"
-    cmd   %w{echo hello}
-  end
-
-  # rum fizz => docker build --tag image_name .
-  # rum buzz => docker run --rm image_name echo hello
-end
-```
-
-## Blocks
-
-The methods inside blocks for `build`, `run`, `stage`, `artifact`, and `shell` tasks are dynamically handled. Any option you might pass to the `docker run` or `docker build` command can be used.
-
-Simply drop any leading `-`s from the option and convert to snake-case.
-
-Eg,
-
-`--build-arg` becomes `build_arg`
-
-`--env-file` becomes `env_file`.
-
-## Shared ENV variables
-
-The `env` method can be invoked in the `rum` block to declare a value that will be passed to all stages/artifacts/shells. For stages, the value will be passed using the `--build-arg` option; for artifacts and shells, the `--env` option.
-
-```ruby
-rum :image_name do
-  env :FIZZ => :BUZZ
-
-  stage :build
-
-  artifact "pkg.zip" => :build
-
-  # rum build   => docker build --build-arg FIZZ=BUZZ ...
-  # rum pkg.zip => docker run         --env FIZZ=BUZZ ...
-end
-```
-
-## Shells
-
-Run a stage task to build the image up to that stage and cache the image digest.
-
-Run with the `:shell` suffix to build the image and then shell into an instance of the image running as a temporary container.
-
-The default shell is `/bin/sh`, but this can be overridden at runtime with the task arg, eg. `rum build:shell[/bin/bash]`
-
 ## Customize Shells
 
 By default, all stages have a `:shell` task that can be invoked to build and shell into a container for a stage. By default the container is run as an ephemeral container (`--rm`) in interactive with TTY allocated and a bash shell open.
@@ -275,6 +173,125 @@ rum :image_name do
   artifact "package.zip" => :build
 
   default "package.zip"
+end
+```
+## Shared ENV variables
+
+The `env` method can be invoked in the `rum` block to declare a value that will be passed to all stages/artifacts/shells. For stages, the value will be passed using the `--build-arg` option; for artifacts and shells, the `--env` option.
+
+```ruby
+rum :image_name do
+  env :FIZZ => :BUZZ
+
+  stage :build
+
+  # rum build => docker build --build-arg FIZZ=BUZZ ...
+end
+```
+
+## Shells
+
+Run a stage task to build the image up to that stage and cache the image digest.
+
+Run with the `:shell` suffix to build the image and then shell into an instance of the image running as a temporary container.
+
+The default shell is `/bin/sh`, but this can be overridden at runtime with the task arg, eg. `rum build:shell[/bin/bash]`
+
+## Build vs. Run
+
+At the core, every directive within the `rum` block will eventually be interpreted as either a `docker build` or a `docker run` command. The type of directive is simply a way of specifying defaults for the command.
+
+If you simply wish to define a named task that executes a build or a run, you can use the `build` or `run` directives:
+
+```ruby
+rum :image_name do
+  env :JAZZ => "fuzz"
+
+  build :fizz do
+    tag  "image_name"
+    path "."
+  end
+
+  run :buzz do
+    rm    true
+    image "image_name"
+    cmd   %w{echo hello}
+  end
+
+  # rum fizz => docker build --build-arg JAZZ=fuzz --tag image_name .
+  # rum buzz => docker run --rm --env JAZZ=fuzz image_name echo hello
+end
+```
+
+Note that the build/run commands will still import any shared ENV values defined above.
+
+If this is undesirable, use the `clear_options` method inside your block to clear ALL the default options:
+
+```ruby
+rum :image_name do
+
+  env :JAZZ => "fuzz"
+
+  run :buzz do
+    clear_options
+    image "image_name"
+    cmd   %w{echo hello}
+  end
+
+  # rum buzz => docker run image_name echo hello
+end
+```
+
+## Blocks
+
+The methods inside blocks for `build`, `run`, `stage`, `artifact`, and `shell` tasks are dynamically handled. Any option you might pass to the `docker run` or `docker build` command can be used.
+
+Simply drop any leading `-`s from the option and convert to snake-case.
+
+Eg,
+
+`--build-arg` becomes `build_arg`
+
+`--env-file` becomes `env_file`.
+
+## Task Naming Convention
+
+As of v0.3, rum runner uses a "verb-first" naming convention (eg. `clean:stage`) for tasks.
+
+To revert to the previous convention of "stage-first" (eg. `stage:clean`) use the environmental variable `RUM_TASK_NAMES`:
+
+```bash
+export RUM_TASK_NAMES=STAGE_FIRST  # => rum stage:clean
+export RUM_TASK_NAMES=VERB_FIRST   # => rum clean:stage (default)
+```
+
+## Image Naming Convention
+
+The name of the images are taken from the first argument to the main block and appended with the name of the stage.
+
+In the above example, built images would build be named:
+
+- `image_name:1.2.3-build`
+- `image_name:1.2.3-test`
+- `image_name:1.2.3-deploy`
+
+The first argument to the main block can be any Docker image reference:
+
+```ruby
+rum :"registry:5000/username/image" do
+  #...
+end
+```
+
+## Digest Location
+
+Images build with the `stage` task have their digests cached for easy lookup.
+
+The default location for the digests is in `.docker`, but that can be modified:
+
+```ruby
+rum :image_name => "tmp" do
+  # ...
 end
 ```
 

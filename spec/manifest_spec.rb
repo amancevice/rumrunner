@@ -37,14 +37,14 @@ RSpec.describe Rum::Manifest do
   describe "#build" do
     it "runs a Docker build command" do
       subject.application[:fuzz].invoke
-      expect(subject).to have_received(:sh).with "docker build ."
+      expect(subject).to have_received(:sh).with "docker build --build-arg FIZZ=buzz ."
     end
   end
 
   describe "#run" do
     it "runs a Docker run command" do
       subject.application[:jazz].invoke
-      expect(subject).to have_received(:sh).with "docker run registry:5000/username/name:1.2.3"
+      expect(subject).to have_received(:sh).with "docker run --env FIZZ=buzz registry:5000/username/name:1.2.3"
     end
   end
 
