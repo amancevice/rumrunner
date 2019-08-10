@@ -87,6 +87,7 @@ RSpec.describe Rum::Manifest do
       expect(subject).to have_received(:rm_rf).with(".docker/registry:5000/username/name/1.2.3-test")
       expect(subject).to have_received(:rm_rf).with(".docker/registry:5000/username/name/1.2.3-build")
       expect(subject).to have_received(:rm_rf).with("pkg/fizz.zip")
+      expect(subject).to have_received(:rm_rf).with("pkg")
       expect(subject).to have_received(:rm_rf).with("buzz.zip")
       expect(subject).not_to have_received(:rm_rf).with(".")
     end
