@@ -30,5 +30,19 @@ module Rum
     def init(app_name="rum", argv = ARGV)
       super "rum", argv
     end
+
+    def rumfile?
+      DEFAULT_RAKEFILES.map{|x| File.size? x }.any?
+    end
+
+    def run(argv = ARGV)
+      if argv.first == "init" && !rumfile?
+        Rum.init
+      elsif ["-V", "--version"].include? argv.first
+        puts "rum, version #{Rum::VERSION}"
+      else
+        super
+      end
+    end
   end
 end

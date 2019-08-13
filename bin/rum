@@ -1,8 +1,4 @@
 #!/usr/bin/env ruby
 require "rumrunner"
-if ARGV.first == "init" && Rum::Application::DEFAULT_RAKEFILES.map{|x| File.size? x }.none?
-  Rum.init
-else
-  Rake.application = Rum::Application.new
-  Rake.application.run
-end
+Rake.application = Rum::Application.new
+Rake.application.run
