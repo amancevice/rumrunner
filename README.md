@@ -215,7 +215,7 @@ rum :image_name do
   run :buzz do
     rm    true
     image "image_name"
-    cmd   %w{echo hello}
+    cmd   %w[echo hello]
   end
 
   # rum fizz => docker build --build-arg JAZZ=fuzz --tag image_name .
@@ -235,7 +235,7 @@ rum :image_name do
   run :buzz do
     clear_options
     image "image_name"
-    cmd   %w{echo hello}
+    cmd   %w[echo hello]
   end
 
   # rum buzz => docker run image_name echo hello
