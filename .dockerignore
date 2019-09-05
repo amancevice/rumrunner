@@ -3,6 +3,7 @@
 !.rspec
 !Gemfile
 !Rakefile
+!Rumfile
 !bin/
 !lib/
 !spec/
