@@ -9,11 +9,9 @@ rum gem.name do
 
   stage :build
   stage :test => :build
-  stage :release => :test do
-    build_arg :RUBYGEMS_API_KEY
-  end
+  stage :release => :test
 
-  artifact pkg => :build
+  artifact pkg => :release
 
   default pkg
 end
