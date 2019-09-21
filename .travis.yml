@@ -10,9 +10,11 @@ before_install:
 - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
 - chmod +x ./cc-test-reporter
 - ./cc-test-reporter before-build
+- export RUBY_VERSION=$(echo $RUBY_VERSION | sed 's/ruby-//')
 install:
 - bundle install
+- bundle exec rake gem:install
 script:
-- rspec
+- rum
 after_script:
 - ./cc-test-reporter after-build --exit-code ${TRAVIS_TEST_RESULT}
