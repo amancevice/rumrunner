@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 gem = Gem::Specification::load("rumrunner.gemspec")
+pkg = "pkg/#{gem.full_name}.gem"
 
 rum gem.name do
   tag gem.version
@@ -12,7 +13,7 @@ rum gem.name do
     build_arg :RUBYGEMS_API_KEY
   end
 
-  artifact "pkg/#{gem.full_name}.gem" => :build
+  artifact pkg => :build
 
-  default "pkg/#{gem.full_name}.gem"
+  default pkg
 end
