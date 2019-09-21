@@ -269,8 +269,8 @@ module Rum
       desc "Build `#{name}`"
       file name => deps do
         digest = File.read(iidfile)
-        run = Docker::Run.new(options: run_options, image: digest, cmd: ["cat", name], &block)
-        run.with_defaults(rm: true)
+        run = Docker::Run.new(options: run_options, image: digest, cmd: [name], &block)
+        run.with_defaults(rm: true, entrypoint: "cat")
         sh "#{run} > #{name}"
       end
     end

@@ -71,8 +71,9 @@ RSpec.describe Rum::Manifest do
         docker run
         --env FIZZ=buzz
         --rm=true
+        --entrypoint cat
         <digest>
-        cat pkg/fizz.zip > pkg/fizz.zip
+        pkg/fizz.zip > pkg/fizz.zip
       EOS
       subject.application[:"pkg/fizz.zip"].invoke
       expect(subject).to have_received(:sh).with(stage.call :build)
