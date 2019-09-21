@@ -13,5 +13,10 @@ rum gem.name do
 
   artifact pkg => :release
 
+  desc "Push `#{pkg}` to rubygems.org"
+  task :push => pkg do
+    sh "gem", "push", pkg
+  end
+
   default pkg
 end
