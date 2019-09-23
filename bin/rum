@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require "dotenv/load"
 require "rumrunner"
 Rake.application = Rum::Application.new
 Rake.application.run
