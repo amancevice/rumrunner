@@ -31,10 +31,14 @@ module Rum
       super "rum", argv
     end
 
+    ##
+    # Return true if any of the default Rumfiles exist
     def rumfile?
       DEFAULT_RAKEFILES.map{|x| File.size? x }.any?
     end
 
+    ##
+    # Run application
     def run(argv = ARGV)
       if argv.first == "init" && !rumfile?
         Rum.init
