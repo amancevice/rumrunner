@@ -16,6 +16,7 @@ RSpec.describe Rum::Application do
 
   describe "#rumfile?" do
     it "finds a Rumfile" do
+      allow(File).to receive(:size?).and_return(1)
       expect(subject.rumfile?).to be true
     end
 
