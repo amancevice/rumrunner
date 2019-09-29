@@ -7,11 +7,11 @@ rum gem.name do
 
   env :RUBY_VERSION => ENV["RUBY_VERSION"] || "latest"
 
-  stage :build
-  stage :test => :build
-  stage :release => :test
+  stage :install
+  stage :test  => :install
+  stage :build => :test
 
-  artifact pkg => :release
+  artifact pkg => :build
 
   desc "Push `#{pkg}` to rubygems.org"
   task :push => pkg do
