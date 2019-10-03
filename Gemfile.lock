@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rumrunner (0.4.2)
+    rumrunner (0.4.3)
       rake (~> 13.0)
 
 GEM
