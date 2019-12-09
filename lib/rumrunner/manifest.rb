@@ -58,9 +58,8 @@ module Rum
     #   build :name => [:deps]
     #
     def build(*args, &block)
-      name, _, deps = Rake.application.resolve_args(args)
-      task name => deps do
-        sh Docker::Build.new(options: build_options, &block).to_s
+      task(*args) do
+        sh Docker::Build.new(options: build_options, path: path, &block).to_s
       end
     end
 
