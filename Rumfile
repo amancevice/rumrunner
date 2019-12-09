@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
-gem = Gem::Specification::load("rumrunner.gemspec")
-pkg = "pkg/#{gem.full_name}.gem"
+GEM = Gem::Specification::load("rumrunner.gemspec")
+PKG = "pkg/#{GEM.full_name}.gem"
 
-rum gem.name do
-  tag gem.version
+rum GEM.name do
+  tag GEM.version
 
   env :RUBY_VERSION => ENV["RUBY_VERSION"] || "latest"
 
@@ -11,12 +11,12 @@ rum gem.name do
   stage :test  => :install
   stage :build => :test
 
-  artifact pkg => :build
+  artifact PKG => :build
 
-  desc "Push `#{pkg}` to rubygems.org"
-  task :push => pkg do
-    sh "gem", "push", pkg
+  desc "Push `#{PKG}` to rubygems.org"
+  task :push => PKG do
+    sh "gem", "push", PKG
   end
 
-  default pkg
+  default PKG
 end
