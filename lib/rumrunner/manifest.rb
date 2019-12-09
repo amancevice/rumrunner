@@ -59,7 +59,7 @@ module Rum
     #
     def build(*args, &block)
       task(*args) do
-        sh Docker::Build.new(options: build_options, path: path, &block).to_s
+        sh Docker::Build.new(options: build_options, &block).to_s
       end
     end
 
@@ -76,8 +76,8 @@ module Rum
       images   = deps.map{|dep| Docker::Image.parse("#{@image}-#{dep}") }
       iidfiles = images.map{|image| File.join(root, *image) }
 
-      task name => iidfiles do
-        image = iidfiles.empty? ? to_s : File.read(iidfiles.first)
+      task name => iidfiles do |t|
+        image = t.prereqs.empty? ? to_s : File.read(t.prereqs.first)
         sh Docker::Run.new(options: run_options, image: image, &block).to_s
       end
     end
@@ -199,20 +199,20 @@ module Rum
     def install_clean
       desc "Remove any temporary images and products"
       task :clean do
-        Dir[File.join root, "**/*"].reverse.each do |name|
+        Dir[File.join(root, "**/*")].reverse.each do |name|
           sh "docker", "image", "rm", "--force", File.read(name) if File.file?(name)
           rm_rf name
         end
-        rm_rf root
+        rm_rf root if Dir.exist?(root)
       end
     end
 
     ##
     # Install file task for stage and save digest in iidfile
     def stage_file(iidfile, iiddeps, tag:, target:, &block)
-      file iidfile => iiddeps do
-        tsfile = "#{iidfile}@#{Time.now.utc.to_i}"
-        build = Docker::Build.new(options: build_options, &block)
+      file iidfile => iiddeps do |t|
+        tsfile = "#{t.name}@#{Time.now.utc.to_i}"
+        build  = Docker::Build.new(options: build_options, &block)
         build.with_defaults(iidfile: tsfile, tag: tag, target: target)
         sh build.to_s
         cp tsfile, iidfile
@@ -231,7 +231,7 @@ module Rum
     def stage_shell(name, iidfile)
       desc "Shell into `#{name}` stage"
       task task_name(shell: name), [:shell] => iidfile do |t,args|
-        digest = File.read(iidfile)
+        digest = File.read(t.prereqs.first)
         shell  = args.any? ? args.to_a.join(" ") : "/bin/sh"
         run    = Docker::Run.new(options: run_options)
           .entrypoint(shell)
