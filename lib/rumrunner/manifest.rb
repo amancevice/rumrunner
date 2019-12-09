@@ -108,16 +108,16 @@ module Rum
       end
 
       # Build stage and save digest in iidfile
-      stage_file iidfile, iiddeps, tag: image, target: name, &block
+      stage_file(iidfile, iiddeps, tag: image, target: name, &block)
 
       # Shortcut to build stage by name
-      stage_task name, iidfile
+      stage_task(name, iidfile)
 
       # Shell into stage
-      stage_shell name, iidfile
+      stage_shell(name, iidfile)
 
       # Clean stage
-      stage_clean name, iidfile, deps
+      stage_clean(name, iidfile, deps)
     end
 
     ##
@@ -142,9 +142,9 @@ module Rum
         deps << path
       end
 
-      artifact_file name, deps, iidfile, &block
+      artifact_file(name, deps, iidfile, &block)
 
-      artifact_clobber name, path
+      artifact_clobber(name, path)
     end
 
     ##
@@ -250,7 +250,7 @@ module Rum
       # Clean stage image
       desc "Remove any temporary images and products through `#{name}` stage"
       task task_name(clean: name) do
-        if File.exist? iidfile
+        if File.exist?(iidfile)
           sh "docker", "image", "rm", "--force", File.read(iidfile)
           rm_rf iidfile
         end
