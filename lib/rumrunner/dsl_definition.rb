@@ -22,8 +22,8 @@ module Rum
     #
     def rum(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
-      root = deps.first || :".docker"
-      Manifest.new(name: name, root: root, &block).install
+      path, home = deps
+      Manifest.new(name: name, path: path, home: home, &block).install
     end
   end
 end

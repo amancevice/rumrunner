@@ -14,8 +14,12 @@ RSpec.describe Rum::DSL do
       expect(subject.image.to_s).to eq "image_name:latest"
     end
 
-    it "has the correct root" do
-      expect(subject.root).to eq ".docker"
+    it "has the correct path" do
+      expect(subject.path).to eq "."
+    end
+
+    it "has the correct home" do
+      expect(subject.home).to eq ".docker"
     end
   end
 end

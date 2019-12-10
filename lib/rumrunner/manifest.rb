@@ -14,21 +14,22 @@ module Rum
     attr_reader :image
 
     def_delegator :@env, :<<, :env
-    def_delegator :@root, :to_s, :root
+    def_delegator :@path, :to_s, :path
+    def_delegator :@home, :to_s, :home
     def_delegators :@image, :registry, :username, :name, :tag, :to_s
 
     ##
-    # Initialize new manifest with name and root path for caching
+    # Initialize new manifest with name, build path, and home path for caching
     # build digests. Evaluates <tt>&block</tt> if given.
     #
     # Example:
-    #   Manifest.new(name: "my_image", root: ".docker")
+    #   Manifest.new(name: "my_image", path: ".", home: ".docker")
     #
-    def initialize(name:, root:nil, &block)
-      @name  = name
-      @root  = root || :".docker"
+    def initialize(name:, path:nil, home:nil, env:nil, &block)
+      @path  = path || ENV["RUM_RUNNER_PATH"] || "."
+      @home  = home || ENV["RUM_RUNNER_HOME"] || ".docker"
+      @env   = env  || []
       @image = Docker::Image.parse(name)
-      @env   = []
       instance_eval(&block) if block_given?
     end
 
@@ -59,7 +60,7 @@ module Rum
     #
     def build(*args, &block)
       task(*args) do
-        sh Docker::Build.new(options: build_options, &block).to_s
+        sh Docker::Build.new(options: build_options, path: path, &block).to_s
       end
     end
 
@@ -74,7 +75,7 @@ module Rum
       name, _, deps = Rake.application.resolve_args(args)
 
       images   = deps.map{|dep| Docker::Image.parse("#{@image}-#{dep}") }
-      iidfiles = images.map{|image| File.join(root, *image) }
+      iidfiles = images.map{|image| File.join(home, *image) }
 
       task name => iidfiles do |t|
         image = t.prereqs.empty? ? to_s : File.read(t.prereqs.first)
@@ -94,7 +95,7 @@ module Rum
 
       # Assemble image/iidfile from manifest/stage name
       image   = Docker::Image.parse("#{@image}-#{name}")
-      iidfile = File.join(root, *image)
+      iidfile = File.join(home, *image)
       iidpath = File.split(iidfile).first
 
       # Ensure path to iidfile exists
@@ -103,7 +104,7 @@ module Rum
         iidpath
       else
         images = deps.map{|x| Docker::Image.parse("#{@image}-#{x}") }
-        images.map{|x| File.join(root, *x) }
+        images.map{|x| File.join(home, *x) }
       end
 
       # Build stage and save digest in iidfile
@@ -132,7 +133,7 @@ module Rum
 
       target  = deps.first
       image   = Docker::Image.parse("#{@image}-#{target}")
-      iidfile = File.join(root, *image)
+      iidfile = File.join(home, *image)
       path    = File.split(name).first
       deps    = [iidfile]
 
@@ -157,7 +158,7 @@ module Rum
       target  = Rake.application.resolve_args(args).first
       name    = task_name shell: target
       image   = Docker::Image.parse("#{@image}-#{target}")
-      iidfile = File.join(root, *image)
+      iidfile = File.join(home, *image)
 
       Rake::Task[name].clear if Rake::Task.task_defined?(name)
 
@@ -199,11 +200,11 @@ module Rum
     def install_clean
       desc "Remove any temporary images and products"
       task :clean do
-        Dir[File.join(root, "**/*")].reverse.each do |name|
+        Dir[File.join(home, "**/*")].reverse.each do |name|
           sh "docker", "image", "rm", "--force", File.read(name) if File.file?(name)
           rm_rf name
         end
-        rm_rf root if Dir.exist?(root)
+        rm_rf home if Dir.exist?(home)
       end
     end
 
@@ -212,7 +213,7 @@ module Rum
     def stage_file(iidfile, iiddeps, tag:, target:, &block)
       file iidfile => iiddeps do |t|
         tsfile = "#{t.name}@#{Time.now.utc.to_i}"
-        build  = Docker::Build.new(options: build_options, &block)
+        build  = Docker::Build.new(options: build_options, path: path, &block)
         build.with_defaults(iidfile: tsfile, tag: tag, target: target)
         sh build.to_s
         cp tsfile, iidfile

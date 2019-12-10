@@ -49,7 +49,7 @@ RSpec.describe Rum::Manifest do
   end
 
   describe "#stage" do
-    let(:path) { File.join(subject.root, *subject.image) }
+    let(:path) { File.join(subject.home, *subject.image) }
 
     it "builds through `build` stage" do
       subject.application[:build].invoke
