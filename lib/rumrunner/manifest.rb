@@ -175,6 +175,7 @@ module Rum
     ##
     # Install any remaining tasks for the manifest.
     def install
+      install_default unless Rake::Task.task_defined?(:default)
       install_clean
 
       self
@@ -206,6 +207,20 @@ module Rum
         end
         rm_rf home if Dir.exist?(home)
       end
+    end
+
+    ##
+    # Install :default task that builds the image
+    def install_default
+      iidfile = File.join(home, *image)
+      file iidfile do |t|
+        tsfile = "#{t.name}@#{Time.now.utc.to_i}"
+        build  = Docker::Build.new(options: build_options, path: path)
+        build.with_defaults(iidfile: tsfile, tag: tag || :latest)
+        sh build.to_s
+        cp tsfile, iidfile
+      end
+      task :default => iidfile
     end
 
     ##

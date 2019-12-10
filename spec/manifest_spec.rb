@@ -133,6 +133,20 @@ RSpec.describe Rum::Manifest do
     end
   end
 
+  describe "#install_default" do
+    let(:path) { File.join(subject.home, *subject.image) }
+
+    subject { Rum::Manifest.new(name: "registry:5000/username/name").install }
+
+    it "should install the default task" do
+      subject.application[:default].invoke
+      expect(subject).to have_received(:sh).with <<~EOS.strip
+        docker build --iidfile .docker/registry:5000/username/name/latest@1234567890 --tag latest .
+      EOS
+      expect(subject).to have_received(:cp).with("#{path}@1234567890", path)
+    end
+  end
+
   describe "#build_options" do
     it "returns the default options" do
       expect(subject.send(:build_options).to_a).to eq ["--build-arg", "FIZZ=buzz"]
