@@ -169,7 +169,8 @@ Every `rum` declaration has a default task associated with it so that simply exe
 In the most simple case, the default task simply builds the image:
 
 ```ruby
-rum :image_name  # => docker build --tag image_name .
+rum :image_name
+# rum => docker build --tag image_name .
 ```
 
 Use the `default` method inside the main block to set a default task or tasks:
@@ -183,6 +184,9 @@ rum :image_name do
 
   default ["package.zip", :plan]
 end
+# rum => docker build --target build ...
+#        docker run ... > package.zip
+#        docker build --target plan ...
 ```
 ## Shared ENV variables
 
