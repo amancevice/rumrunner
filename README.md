@@ -283,17 +283,34 @@ rum :"registry:5000/username/image" do
 end
 ```
 
-## Digest Location
+## Dockerfile Location
+
+Images built use the current working directory as the default path to the Dockerfile, but this can be modified:
+
+```ruby
+rum :image_name => "some/dockerfile/dir" do
+  # ...
+end
+```
+
+The default Dockerfile path can also be set using the `RUM_RUNNER_PATH` environmental variable.
+
+
+## Docker Image Digest Location
 
 Images build with the `stage` task have their digests cached for easy lookup.
 
 The default location for the digests is in `.docker`, but that can be modified:
 
 ```ruby
-rum :image_name => "tmp" do
+rum :image_name => [".", "tmp"] do
   # ...
 end
 ```
+
+Note that in this case you must also explicitly define the Dockerfile path.
+
+The default digest path can also be set using the `RUM_RUNNER_HOME` environmental variable.
 
 ## Integrate with Rake
 
