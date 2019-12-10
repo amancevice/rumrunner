@@ -1,0 +1,44 @@
+name: RSpec
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+  schedule:
+  - cron: "0/15 * * * *"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby:
+        - 2.4.x
+        - 2.5.x
+        - 2.6.x
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Setup Ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+
+    - name: Setup Code Climate
+      uses: amancevice/code-climate-action@v0
+      with:
+        cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
+        command: before-build
+
+    - name: RSpec
+      run: |
+        gem install bundler -v 2.0.2
+        bundle install --jobs 4 --retry 3
+        bundle exec rake
+
+    - name: Coverage Report
+      uses: amancevice/code-climate-action@v0
+      with:
+        cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
+        command: after-build -t simplecov
