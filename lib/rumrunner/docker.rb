@@ -267,6 +267,13 @@ module Rum
       end
 
       ##
+      # Show handle
+      def inspect
+        handle = @tag.nil? || @tag.to_sym == :latest ? family : to_s
+        "#<#{self.class.name}[#{handle}]>"
+      end
+
+      ##
       # Convert the image reference to string.
       def to_s
         "#{family}:#{@tag || :latest}"

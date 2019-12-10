@@ -170,6 +170,18 @@ RSpec.describe Rum::Docker::Image do
     end
   end
 
+  describe "#inspect" do
+    it "should show the shortened version of the instance (without tag)" do
+      subject.tag :latest
+      expect(subject.inspect).to eq "#<Rum::Docker::Image[registry/user/fizz]>"
+    end
+
+    it "should show the shortened version of the instance (with tag)" do
+      subject.tag :edge
+      expect(subject.inspect).to eq "#<Rum::Docker::Image[registry/user/fizz:edge]>"
+    end
+  end
+
   describe "#to_s" do
     it "converts to a fully-qualified Docker tag" do
       expect(subject.to_s).to eq "registry/user/fizz:latest"
