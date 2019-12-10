@@ -164,15 +164,24 @@ Methods invoked inside the artifact block are interpreted as options for the eve
 
 ## Default Task
 
-Use the `default` method to set a default task when running the bare `rum` executable:
+Every `rum` declaration has a default task associated with it so that simply executing `rum` on the command line does something.
+
+In the most simple case, the default task simply builds the image:
+
+```ruby
+rum :image_name  # => docker build --tag image_name .
+```
+
+Use the `default` method inside the main block to set a default task or tasks:
 
 ```ruby
 rum :image_name do
   stage :build
+  stage :plan => :build
 
   artifact "package.zip" => :build
 
-  default "package.zip"
+  default ["package.zip", :plan]
 end
 ```
 ## Shared ENV variables
@@ -293,7 +302,7 @@ rum :image_name => "some/dockerfile/dir" do
 end
 ```
 
-The default Dockerfile path can also be set using the `RUM_RUNNER_PATH` environmental variable.
+The default Dockerfile path can also be set using the `RUM_PATH` environmental variable.
 
 
 ## Docker Image Digest Location
@@ -310,7 +319,7 @@ end
 
 Note that in this case you must also explicitly define the Dockerfile path.
 
-The default digest path can also be set using the `RUM_RUNNER_HOME` environmental variable.
+The default digest path can also be set using the `RUM_HOME` environmental variable.
 
 ## Integrate with Rake
 

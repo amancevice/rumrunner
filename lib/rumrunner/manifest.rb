@@ -26,8 +26,8 @@ module Rum
     #   Manifest.new(name: "my_image", path: ".", home: ".docker")
     #
     def initialize(name:, path:nil, home:nil, env:nil, &block)
-      @path  = path || ENV["RUM_RUNNER_PATH"] || "."
-      @home  = home || ENV["RUM_RUNNER_HOME"] || ".docker"
+      @path  = path || ENV["RUM_PATH"] || "."
+      @home  = home || ENV["RUM_HOME"] || ".docker"
       @env   = env  || []
       @image = Docker::Image.parse(name)
       instance_eval(&block) if block_given?
