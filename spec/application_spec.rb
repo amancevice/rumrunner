@@ -1,4 +1,6 @@
 RSpec.describe Rum::Application do
+  subject { Rum.application }
+
   describe "::new" do
     it "initializes with name `rum`" do
       expect(subject.name).to eq("rum")

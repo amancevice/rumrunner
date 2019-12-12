@@ -7,4 +7,11 @@ require "rumrunner/init"
 
 ##
 # Rum Runner namespace.
-module Rum; end
+module Rum
+  class << self
+    # Current Rum Application
+    def application
+      @application ||= Rum::Application.new
+    end
+  end
+end

@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
 require "rumrunner"
-Rake.application = Rum::Application.new
+Rake.application = Rum.application
 Rake.application.run
