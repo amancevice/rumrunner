@@ -15,7 +15,7 @@ module Rum
       "Rumfile",
       "rumfile.rb",
       "Rumfile.rb",
-    ]
+    ].freeze
 
     ##
     # Initialize a Rumfile::Application object.
