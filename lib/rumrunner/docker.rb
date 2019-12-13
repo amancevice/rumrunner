@@ -267,6 +267,18 @@ module Rum
       end
 
       ##
+      # Get a path to an iidfile for this image
+      def iidfile(prefix:nil)
+        File.join(prefix || ".", family, tag || "latest")
+      end
+
+      ##
+      # Get a path for iidfiles for this image family
+      def iidpath(prefix:nil)
+        File.split(iidfile(prefix: prefix)).first
+      end
+
+      ##
       # Show handle
       def inspect
         handle = @tag.nil? || @tag.to_sym == :latest ? family : to_s
