@@ -304,12 +304,9 @@ module Rum
     # Get name of support task
     def task_name(verb_stage)
       case ENV["RUM_TASK_NAMES"]&.upcase
-      when "STAGE_FIRST"
-        verb_stage.first.reverse
-      when "VERB_FIRST"
-        verb_stage.first
-      else
-        verb_stage.first
+        when "STAGE_FIRST" then verb_stage.first.reverse
+        when "VERB_FIRST" then verb_stage.first
+        else verb_stage.first
       end.join(":").to_sym
     end
   end
