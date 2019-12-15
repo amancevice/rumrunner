@@ -170,26 +170,6 @@ RSpec.describe Rum::Docker::Image do
     end
   end
 
-  describe "#iidfile" do
-    it "gets the path to an iidfile in the current dir" do
-      expect(subject.iidfile).to eq "./registry/user/fizz/latest"
-    end
-
-    it "gets the path to an iidfile in a nested dir" do
-      expect(subject.iidfile prefix: ".docker").to eq ".docker/registry/user/fizz/latest"
-    end
-  end
-
-  describe "#iidpath" do
-    it "gets the path to an iidfile in the current dir" do
-      expect(subject.iidpath).to eq "./registry/user/fizz"
-    end
-
-    it "gets the path to an iidfile in a nested dir" do
-      expect(subject.iidpath prefix: ".docker").to eq ".docker/registry/user/fizz"
-    end
-  end
-
   describe "#inspect" do
     it "should show the shortened version of the instance (without tag)" do
       subject.tag :latest
