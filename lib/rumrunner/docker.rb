@@ -43,7 +43,7 @@ module Rum
 
     ##
     # Mixin to enable runtime Docker command manipulation.
-    module Executable
+    class Command
       include Enumerable
 
       ##
@@ -51,7 +51,7 @@ module Rum
       attr_reader :options
 
       ##
-      # Initialize Docker executable with +OPTIONS+ and evaluate the
+      # Initialize Docker command with +OPTIONS+ and evaluate the
       # <tt>&block</tt> if given.
       def initialize(options:nil, &block)
         @options = options || Options.new
@@ -108,7 +108,7 @@ module Rum
       def_delegators :@data, :[], :[]=, :include?, :to_h, :update
 
       ##
-      # Initialize a new +OPTIONS+ collection for Docker executable.
+      # Initialize a new +OPTIONS+ collection for Docker command.
       # Evaluates the <tt>&block</tt> if given.
       def initialize(options = {}, &block)
         @data = Hash.new{|hash, key| hash[key] = [] }.update(options)
@@ -181,9 +181,8 @@ module Rum
 
     ##
     # Docker build command object.
-    class Build
+    class Build < Command
       extend AttrCallable
-      include Executable
 
       ##
       # Access +PATH+ with method.
@@ -207,9 +206,8 @@ module Rum
 
     ##
     # Docker run command object.
-    class Run
+    class Run < Command
       extend AttrCallable
-      include Executable
 
       ##
       # Access +IMAGE+ and +CMD+ with method.
