@@ -261,19 +261,19 @@ module Rum
       ##
       # Get the image reference without the @tag component.
       def family
-        File.join(*[@registry, @username, @name].compact.map(&:to_s))
+        [@registry, @username, @name].compact.map(&:to_s).join("/")
       end
 
       ##
       # Get a path to an iidfile for this image
       def iidfile(prefix:nil)
-        File.join(prefix || ".", family, tag || "latest")
+        [prefix || ".", family, tag || :latest].map(&:to_s).join("/")
       end
 
       ##
       # Get a path for iidfiles for this image family
       def iidpath(prefix:nil)
-        File.split(iidfile(prefix: prefix)).first
+        [prefix || ".", family].map(&:to_s).join("/")
       end
 
       ##
