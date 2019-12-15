@@ -8,7 +8,7 @@ RSpec.describe Rum::Manifest do
   after  { Rake.application.clear }
 
   subject do
-    Rum::Manifest.new(name: "registry:5000/username/name") do
+    Rum::Manifest.new(name: "registry:5000/username/name").install do
       tag      "1.2.3"
       env      :FIZZ => "buzz"
       stage    :build

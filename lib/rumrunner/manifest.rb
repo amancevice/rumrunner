@@ -25,12 +25,11 @@ module Rum
     # Example:
     #   Manifest.new(name: "my_image", path: ".", home: ".docker")
     #
-    def initialize(name:, path:nil, home:nil, env:nil, &block)
+    def initialize(name:, path:nil, home:nil, env:nil)
       @path  = path || ENV["RUM_PATH"] || "."
       @home  = home || ENV["RUM_HOME"] || ".docker"
       @env   = env  || []
       @image = Docker::Image.parse(name)
-      instance_eval(&block) if block_given?
     end
 
     ##
@@ -174,7 +173,10 @@ module Rum
 
     ##
     # Install any remaining tasks for the manifest.
-    def install
+    def install(&block)
+      iidpath = File.join(@home, @image.family)
+      directory(iidpath)
+      instance_eval(&block) if block_given?
       install_default unless Rake::Task.task_defined?(:default)
       install_clean
 

@@ -23,7 +23,7 @@ module Rum
     def rum(*args, &block)
       name, _, deps = Rake.application.resolve_args(args)
       path, home = deps
-      Manifest.new(name: name, path: path, home: home, &block).install
+      Manifest.new(name: name, path: path, home: home).install(&block)
     end
   end
 end
