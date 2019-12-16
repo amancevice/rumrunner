@@ -103,7 +103,9 @@ module Rum
       stage_file(stage_name, arg_names, &block)
 
       # Define shell:stage task
-      stage_shell(stage_name)
+      shell(stage_name, [:shell]) do |t,args|
+        entrypoint args[:shell] || "/bin/sh"
+      end
 
       # Define clean:stage task
       stage_clean(stage_name, deps)
@@ -144,19 +146,22 @@ module Rum
     #   shell :stage => [:deps]
     #
     def shell(*args, &block)
-      target  = Rake.application.resolve_args(args).first
-      name    = task_name shell: target
-      image   = Docker::Image.parse("#{@image}-#{target}")
-      iidfile = File.join(home, *image)
+      stage_name, arg_names, deps = application.resolve_args(args)
+      shell_name = task_name(shell: stage_name)
 
-      Rake::Task[name].clear if Rake::Task.task_defined?(name)
+      Rake::Task[shell_name].clear if Rake::Task.task_defined?(shell_name)
 
-      desc "Shell into `#{target}` stage"
-      task name, [:shell] => iidfile do |t,args|
-        digest = File.read(iidfile)
-        shell  = args.any? ? args.to_a.join(" ") : "/bin/sh"
-        run    = Docker::Run.new(options: run_options, image: digest, &block)
-        run.with_defaults(entrypoint: shell, interactive:true, rm: true, tty: true)
+      desc "Shell into `#{stage_name}` stage"
+      task shell_name, arg_names => deps + [stage_name] do |t,args|
+        digest = File.read(iidfile(stage_name))
+        run = Docker::Run.new(options: run_options, image: digest)
+        run.instance_exec(t, args, &block) if block_given?
+        run.with_defaults(
+          entrypoint:  "/bin/sh",
+          interactive: true,
+          rm:          true,
+          tty:         true,
+        )
         sh run.to_s
       end
     end
@@ -235,24 +240,6 @@ module Rum
         )
         sh build.to_s
         cp tsfile, f.name
-      end
-    end
-
-    ##
-    # Install shell task for shelling into stage
-    def stage_shell(stage_name)
-      desc "Shell into `#{stage_name}` stage"
-      task task_name(shell: stage_name), [:shell] => stage_name do |t,args|
-        digest = File.read(iidfile(stage_name))
-        shell = args.any? ? args.to_a.join(" ") : "/bin/sh"
-        run = Docker::Run.new(options: run_options, image: digest)
-        run.with_defaults(
-          entrypoint:  shell,
-          interactive: true,
-          rm:          true,
-          tty:         true,
-        )
-        sh run.to_s
       end
     end
 
