@@ -199,7 +199,7 @@ module Rum
     # Install :clean task for removing temporary Docker images and
     # iidfiles.
     def install_clean
-      desc "Remove any temporary images and products"
+      desc "Remove ALL images and temporary products"
       task :clean do
         Dir[File.join(home, "**/*")].reverse.each do |name|
           sh "docker", "image", "rm", "--force", File.read(name) if File.file?(name)
@@ -263,7 +263,7 @@ module Rum
     # Install clean tasks for cleaning up stage image and iidfile
     def stage_clean(name, iidfile, deps)
       # Clean stage image
-      desc "Remove any temporary images and products through `#{name}` stage"
+      desc "Remove any images and temporary products through `#{name}` stage"
       task task_name(clean: name) do
         if File.exist?(iidfile)
           sh "docker", "image", "rm", "--force", File.read(iidfile)
