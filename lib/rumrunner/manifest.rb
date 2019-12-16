@@ -24,10 +24,18 @@ module Rum
     #   Manifest.new(name: "my_image", path: ".", home: ".docker")
     #
     def initialize(name:, path:nil, home:nil, env:nil)
-      @path  = path || ENV["RUM_PATH"] || "."
-      @home  = home || ENV["RUM_HOME"] || ".docker"
-      @env   = env  || []
       @image = Docker::Image.parse(name)
+      @home  = home || ENV["RUM_HOME"] || ".docker"
+      @path  = path || ENV["RUM_PATH"] || "."
+      @env   = env  || []
+    end
+
+    def iidpath
+      File.join(@home, @image.family)
+    end
+
+    def iidfile(stage)
+      File.join(iidpath, "#{@image.tag}-#{stage}")
     end
 
     ##
@@ -88,33 +96,19 @@ module Rum
     #   stage :name => [:deps]
     #
     def stage(*args, &block)
-      name, _, deps = Rake.application.resolve_args(args)
+      stage_name, arg_names, deps = application.resolve_args(args)
 
-      # Assemble image/iidfile from manifest/stage name
-      image   = Docker::Image.parse("#{@image}-#{name}")
-      iidfile = File.join(home, *image)
-      iidpath = File.split(iidfile).first
+      # Define stage task
+      stage_task(stage_name, arg_names, deps)
 
-      # Ensure path to iidfile exists
-      iiddeps = if deps.empty?
-        directory iidpath
-        iidpath
-      else
-        images = deps.map{|x| Docker::Image.parse("#{@image}-#{x}") }
-        images.map{|x| File.join(home, *x) }
-      end
+      # Define iidfile task
+      stage_file(stage_name, arg_names, &block)
 
-      # Build stage and save digest in iidfile
-      stage_file(iidfile, iiddeps, tag: image, target: name, &block)
+      # Define shell:stage task
+      stage_shell(stage_name)
 
-      # Shortcut to build stage by name
-      stage_task(name, iidfile)
-
-      # Shell into stage
-      stage_shell(name, iidfile)
-
-      # Clean stage
-      stage_clean(name, iidfile, deps)
+      # Define clean:stage task
+      stage_clean(stage_name, deps)
     end
 
     ##
@@ -172,7 +166,6 @@ module Rum
     ##
     # Install any remaining tasks for the manifest.
     def install(&block)
-      iidpath = File.join(@home, @image.family)
       directory(iidpath)
       instance_eval(&block) if block_given?
       install_default unless Rake::Task.task_defined?(:default)
@@ -224,58 +217,65 @@ module Rum
     end
 
     ##
+    # Install alias task for building stage
+    def stage_task(stage_name, arg_names, deps)
+      desc "Build `#{stage_name}` stage"
+      task stage_name, arg_names => deps + [iidfile(stage_name)]
+    end
+
+    ##
     # Install file task for stage and save digest in iidfile
-    def stage_file(iidfile, iiddeps, tag:, target:, &block)
-      file iidfile => iiddeps do |t|
-        tsfile = "#{t.name}@#{Time.now.utc.to_i}"
-        build  = Docker::Build.new(options: build_options, path: @path, &block)
-        build.with_defaults(iidfile: tsfile, tag: tag, target: target)
+    def stage_file(stage_name, arg_names, &block)
+      file iidfile(stage_name) => iidpath do |f,args|
+        tsfile = "#{f.name}@#{Time.now.utc.to_i}"
+        build = Docker::Build.new(options: build_options, path: @path)
+        build.instance_exec(Rake::Task[stage_name], args, &block) if block_given?
+        build.with_defaults(
+          iidfile: tsfile,
+          tag:     "#{@image}-#{stage_name}",
+          target:  stage_name,
+        )
         sh build.to_s
-        cp tsfile, iidfile
+        cp tsfile, f.name
       end
     end
 
     ##
-    # Install alias task for building stage
-    def stage_task(name, iidfile)
-      desc "Build `#{name}` stage"
-      task name => iidfile
-    end
-
-    ##
     # Install shell task for shelling into stage
-    def stage_shell(name, iidfile)
-      desc "Shell into `#{name}` stage"
-      task task_name(shell: name), [:shell] => iidfile do |t,args|
-        digest = File.read(t.prereqs.first)
-        shell  = args.any? ? args.to_a.join(" ") : "/bin/sh"
-        run    = Docker::Run.new(options: run_options)
-          .entrypoint(shell)
-          .interactive(true)
-          .rm(true)
-          .tty(true)
-          .image(digest)
+    def stage_shell(stage_name)
+      desc "Shell into `#{stage_name}` stage"
+      task task_name(shell: stage_name), [:shell] => stage_name do |t,args|
+        digest = File.read(iidfile(stage_name))
+        shell = args.any? ? args.to_a.join(" ") : "/bin/sh"
+        run = Docker::Run.new(options: run_options, image: digest)
+        run.with_defaults(
+          entrypoint:  shell,
+          interactive: true,
+          rm:          true,
+          tty:         true,
+        )
         sh run.to_s
       end
     end
 
     ##
     # Install clean tasks for cleaning up stage image and iidfile
-    def stage_clean(name, iidfile, deps)
-      # Clean stage image
-      desc "Remove any images and temporary products through `#{name}` stage"
-      task task_name(clean: name) do
-        if File.exist?(iidfile)
-          sh "docker", "image", "rm", "--force", File.read(iidfile)
-          rm_rf iidfile
+    def stage_clean(stage_name, deps)
+      clean_name = task_name(clean: stage_name)
+      desc "Remove any images and temporary products through `#{stage_name}` stage"
+      task clean_name do
+        file_name = iidfile(stage_name)
+        if File.exist?(file_name)
+          sh "docker", "image", "rm", "--force", File.read(file_name)
+          rm_rf file_name
         end
       end
 
       # Add stage to general clean
-      task :clean => task_name(clean: name)
+      task :clean => clean_name
 
       # Ensure subsequent stages are cleaned before this one
-      deps.each{|dep| task task_name(clean: dep) => task_name(clean: name) }
+      deps.each{|dep| task task_name(clean: dep) => clean_name }
     end
 
     ##
