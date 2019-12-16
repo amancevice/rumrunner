@@ -64,8 +64,10 @@ module Rum
     #   build :name => [:deps]
     #
     def build(*args, &block)
-      task(*args) do
-        sh Docker::Build.new(options: build_options, path: @path, &block).to_s
+      task(*args) do |t,args|
+        build = Docker::Build.new(options: build_options, path: @path)
+        build.instance_exec(t, args, &block) if block_given?
+        sh build.to_s
       end
     end
 
@@ -77,14 +79,10 @@ module Rum
     #   run :name => [:deps]
     #
     def run(*args, &block)
-      name, _, deps = Rake.application.resolve_args(args)
-
-      images   = deps.map{|dep| Docker::Image.parse("#{@image}-#{dep}") }
-      iidfiles = images.map{|image| File.join(home, *image) }
-
-      task name => iidfiles do |t|
-        image = t.prereqs.empty? ? to_s : File.read(t.prereqs.first)
-        sh Docker::Run.new(options: run_options, image: image, &block).to_s
+      task(*args) do |t,args|
+        run = Docker::Run.new(options: run_options, image: @image)
+        run.instance_exec(t, args, &block) if block_given?
+        sh run.to_s
       end
     end
 

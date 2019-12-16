@@ -19,6 +19,14 @@ RSpec.describe Rum::Manifest do
       run      :jazz
       build    :fuzz
       default  "pkg/fizz.zip"
+
+      run :razz, [:mtaz] do |t,args|
+        image "#{t.name}/#{args[:mtaz]}"
+      end
+
+      build :mtaz, [:razz] do |t,args|
+        tag "#{t.name}/#{args[:razz]}"
+      end
     end.install
   end
 
@@ -37,14 +45,28 @@ RSpec.describe Rum::Manifest do
   describe "#build" do
     it "runs a Docker build command" do
       subject.application[:fuzz].invoke
-      expect(subject).to have_received(:sh).with "docker build --build-arg FIZZ=buzz ."
+      expect(subject).to have_received(:sh).with \
+      "docker build --build-arg FIZZ=buzz ."
+    end
+
+    it "runs a Docker build command with a block" do
+      subject.application[:mtaz].invoke("razz")
+      expect(subject).to have_received(:sh).with \
+      "docker build --build-arg FIZZ=buzz --tag mtaz/razz ."
     end
   end
 
   describe "#run" do
     it "runs a Docker run command" do
       subject.application[:jazz].invoke
-      expect(subject).to have_received(:sh).with "docker run --env FIZZ=buzz registry:5000/username/name:1.2.3"
+      expect(subject).to have_received(:sh).with \
+      "docker run --env FIZZ=buzz registry:5000/username/name:1.2.3"
+    end
+
+    it "runs a Docker run command with a block" do
+      subject.application[:razz].invoke("mtaz")
+      expect(subject).to have_received(:sh).with \
+      "docker run --env FIZZ=buzz razz/mtaz"
     end
   end
 
