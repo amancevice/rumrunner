@@ -11,11 +11,9 @@ module Rum
 
     ##
     # Access Docker image object.
-    attr_reader :image
+    attr_reader :image, :home, :path
 
     def_delegator :@env, :<<, :env
-    def_delegator :@path, :to_s, :path
-    def_delegator :@home, :to_s, :home
     def_delegators :@image, :registry, :username, :name, :tag, :to_s
 
     ##
@@ -59,7 +57,7 @@ module Rum
     #
     def build(*args, &block)
       task(*args) do
-        sh Docker::Build.new(options: build_options, path: path, &block).to_s
+        sh Docker::Build.new(options: build_options, path: @path, &block).to_s
       end
     end
 
@@ -203,21 +201,21 @@ module Rum
     def install_clean
       desc "Remove ALL images and temporary products"
       task :clean do
-        Dir[File.join(home, "**/*")].reverse.each do |name|
+        Dir[File.join(@home, "**/*")].reverse.each do |name|
           sh "docker", "image", "rm", "--force", File.read(name) if File.file?(name)
           rm_rf name
         end
-        rm_rf home if Dir.exist?(home)
+        rm_rf @home if Dir.exist?(@home)
       end
     end
 
     ##
     # Install :default task that builds the image
     def install_default
-      iidfile = File.join(home, *image)
+      iidfile = File.join(@home, *image)
       file iidfile do |t|
         tsfile = "#{t.name}@#{Time.now.utc.to_i}"
-        build  = Docker::Build.new(options: build_options, path: path)
+        build  = Docker::Build.new(options: build_options, path: @path)
         build.with_defaults(iidfile: tsfile, tag: tag || :latest)
         sh build.to_s
         cp tsfile, iidfile
@@ -230,7 +228,7 @@ module Rum
     def stage_file(iidfile, iiddeps, tag:, target:, &block)
       file iidfile => iiddeps do |t|
         tsfile = "#{t.name}@#{Time.now.utc.to_i}"
-        build  = Docker::Build.new(options: build_options, path: path, &block)
+        build  = Docker::Build.new(options: build_options, path: @path, &block)
         build.with_defaults(iidfile: tsfile, tag: tag, target: target)
         sh build.to_s
         cp tsfile, iidfile
