@@ -48,13 +48,14 @@ module Rum
 
       ##
       # The +OPTIONS+ portion of a Docker command.
-      attr_reader :options
+      attr_reader :args, :options
 
       ##
       # Initialize Docker command with +OPTIONS+ and evaluate the
       # <tt>&block</tt> if given.
-      def initialize(options:nil, &block)
-        @options = options || Options.new
+      def initialize(*args, **options, &block)
+        @args = args
+        @options = Options.new(options)
         instance_eval(&block) if block_given?
       end
 
@@ -63,6 +64,7 @@ module Rum
       def each
         self.class.name.split(/::/)[1..-1].each{|x| yield x.downcase }
         @options.each{|x| yield x }
+        @args.each{|x| yield x }
       end
 
       ##
@@ -93,7 +95,7 @@ module Rum
       #
       # Unless the <tt>&block</tt> contains a directive to set a value for +user+,
       # it will be set to "fizz".
-      def with_defaults(options = {})
+      def with_defaults(**options)
         options.reject{|k,v| @options.include? k }.each{|k,v| @options[k] << v }
         self
       end
@@ -110,8 +112,9 @@ module Rum
       ##
       # Initialize a new +OPTIONS+ collection for Docker command.
       # Evaluates the <tt>&block</tt> if given.
-      def initialize(options = {}, &block)
-        @data = Hash.new{|hash, key| hash[key] = [] }.update(options)
+      def initialize(**options, &block)
+        @data = Hash.new{|hash, key| hash[key] = [] }
+        options.each{|key,val| @data[key] = [val].flatten }
         instance_eval(&block) if block_given?
       end
 
@@ -191,9 +194,9 @@ module Rum
       ##
       # Initialize Docker build command with +OPTIONS+ and +PATH+.
       # Evaluates the <tt>&block</tt> if given.
-      def initialize(options:nil, path:nil, &block)
+      def initialize(path, **options, &block)
+        super(options, &block)
         @path = path
-        super options: options, &block
       end
 
       ##
@@ -216,18 +219,18 @@ module Rum
       ##
       # Initialize Docker run command with +OPTIONS+, +IMAGE+, and +CMD+.
       # Evaluates the <tt>&block</tt> if given.
-      def initialize(options:nil, image:nil, cmd:nil, &block)
+      def initialize(image, cmd = nil, **options, &block)
+        super(options, &block)
         @image = image
         @cmd   = cmd
-        super options: options, &block
       end
 
       ##
       # Yield the Docker run commmand word-by-word.
       def each
-        super{|x| yield x }
+        super {|x| yield x }
         yield @image
-        @cmd.is_a?(Array) ? @cmd.each{|x| yield x } : yield(@cmd) unless @cmd.nil?
+        [@cmd].flatten.each{|x| yield x } unless @cmd.nil?
       end
     end
 

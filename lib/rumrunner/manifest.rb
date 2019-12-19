@@ -65,7 +65,7 @@ module Rum
     #
     def build(*args, &block)
       task(*args) do |t,args|
-        build = Docker::Build.new(options: build_options, path: @path)
+        build = Docker::Build.new(@path, build_options)
         build.instance_exec(t, args, &block) if block_given?
         sh build.to_s
       end
@@ -80,7 +80,7 @@ module Rum
     #
     def run(*args, &block)
       task(*args) do |t,args|
-        run = Docker::Run.new(options: run_options, image: @image)
+        run = Docker::Run.new(@image, run_options)
         run.instance_exec(t, args, &block) if block_given?
         sh run.to_s
       end
@@ -154,7 +154,7 @@ module Rum
       desc "Shell into `#{stage_name}` stage"
       task shell_name, arg_names => deps + [stage_name] do |t,args|
         digest = File.read(iidfile(stage_name))
-        run = Docker::Run.new(options: run_options, image: digest)
+        run = Docker::Run.new(digest, run_options)
         run.instance_exec(t, args, &block) if block_given?
         run.with_defaults(
           entrypoint:  "/bin/sh",
@@ -182,13 +182,13 @@ module Rum
     ##
     # Get the shared build options for the Manifest.
     def build_options
-      Docker::Options.new(build_arg: @env) unless @env.empty?
+      {build_arg: @env}
     end
 
     ##
     # Get the shared run options for the Manifest.
     def run_options
-      Docker::Options.new(env: @env) unless @env.empty?
+      {env: @env}
     end
 
     ##
@@ -211,7 +211,7 @@ module Rum
       iidfile = File.join(@home, *image)
       file iidfile do |t|
         tsfile = "#{t.name}@#{Time.now.utc.to_i}"
-        build  = Docker::Build.new(options: build_options, path: @path)
+        build = Docker::Build.new(@path, build_options)
         build.with_defaults(iidfile: tsfile, tag: tag || :latest)
         sh build.to_s
         cp tsfile, iidfile
@@ -231,13 +231,10 @@ module Rum
     def stage_file(stage_name, arg_names, &block)
       file iidfile(stage_name) => iidpath do |f,args|
         tsfile = "#{f.name}@#{Time.now.utc.to_i}"
-        build = Docker::Build.new(options: build_options, path: @path)
+        build = Docker::Build.new(@path, build_options)
+        tag = "#{@image}-#{stage_name}"
         build.instance_exec(Rake::Task[stage_name], args, &block) if block_given?
-        build.with_defaults(
-          iidfile: tsfile,
-          tag:     "#{@image}-#{stage_name}",
-          target:  stage_name,
-        )
+        build.with_defaults(iidfile: tsfile, tag: tag, target: stage_name)
         sh build.to_s
         cp tsfile, f.name
       end
@@ -267,9 +264,10 @@ module Rum
     # Install file task for artifact
     def artifact_file(name, deps, iidfile, &block)
       desc "Build `#{name}`"
-      file name => deps do
+      file name => deps do |f,args|
         digest = File.read(iidfile)
-        run = Docker::Run.new(options: run_options, image: digest, cmd: [name], &block)
+        run = Docker::Run.new(digest, [name], run_options)
+        run.instance_exec(f, args, &block) if block_given?
         run.with_defaults(rm: true, entrypoint: "cat")
         sh "#{run} > #{name}"
       end

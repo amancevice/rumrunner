@@ -52,6 +52,8 @@ RSpec.describe Rum::Docker::Options do
 end
 
 RSpec.describe Rum::Docker::Build do
+  subject { Rum::Docker::Build.new "." }
+
   describe "#each" do
     it "converts to an Array of Docker build command words" do
       expect(subject.to_a).to eq %w[docker build .]
@@ -74,10 +76,16 @@ RSpec.describe Rum::Docker::Build do
   end
 
   describe "#with_defaults" do
-    subject { Rum::Docker::Build.new.tag(:fizz).target(:buzz).with_defaults(tag: "foo", target: "bar", :jazz => :fuzz) }
+    subject do
+      Rum::Docker::Build.new(".").tag("fizz").target("buzz").with_defaults(
+        tag:    "foo",
+        target: "bar",
+        jazz:   "fuzz",
+      )
+      end
 
     it "applies defaults if not provided in initialization" do
-      expect(subject.options.to_h).to include tag: [:fizz], target: [:buzz], jazz: [:fuzz]
+      expect(subject.options.to_h).to include tag: ["fizz"], target: ["buzz"], jazz: ["fuzz"]
     end
   end
 
@@ -89,7 +97,7 @@ RSpec.describe Rum::Docker::Build do
 end
 
 RSpec.describe Rum::Docker::Run do
-  subject { Rum::Docker::Run.new image: "fizz" }
+  subject { Rum::Docker::Run.new "fizz" }
 
   describe "#each" do
     it "converts to an Array of Docker run command words" do

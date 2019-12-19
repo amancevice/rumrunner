@@ -171,13 +171,13 @@ RSpec.describe Rum::Manifest do
 
   describe "#build_options" do
     it "returns the default options" do
-      expect(subject.send(:build_options).to_a).to eq ["--build-arg", "FIZZ=buzz"]
+      expect(subject.send :build_options).to eq(build_arg: [{FIZZ: "buzz"}])
     end
   end
 
   describe "#run_options" do
     it "returns the default options" do
-      expect(subject.send(:run_options).to_a).to eq ["--env", "FIZZ=buzz"]
+      expect(subject.send :run_options).to eq(env: [{FIZZ: "buzz"}])
     end
   end
 
