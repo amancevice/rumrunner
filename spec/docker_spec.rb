@@ -128,7 +128,7 @@ RSpec.describe Rum::Docker::Image do
   let(:registry_5000_username_image)     { "registry:5000/username/image" }
   let(:registry_5000_username_image_tag) { "registry:5000/username/image:tag" }
 
-  subject { Rum::Docker::Image.new name: "fizz", registry: "registry", username: "user" }
+  subject { Rum::Docker::Image.new "fizz", registry: "registry", username: "user" }
 
   describe "::parse" do
     subject { Rum::Docker::Image }

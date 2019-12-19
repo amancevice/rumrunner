@@ -244,7 +244,7 @@ module Rum
       ##
       # Initialize image by reference component.
       # Evaluates <tt>&block</tt> if given.
-      def initialize(name:, registry:nil, username:nil, tag:nil, &block)
+      def initialize(name, registry:nil, username:nil, tag:nil, &block)
         @registry = registry
         @username = username
         @name     = name
@@ -297,19 +297,19 @@ module Rum
           # image[:tag]
           if slash_count.zero?
             name, tag = string.split(/:/)
-            new name: name, tag: tag
+            new name, tag: tag
 
           # username/image[:tag]
           elsif slash_count == 1
             username, name_tag = string.split(/\//)
             name, tag          = name_tag.split(/:/)
-            new name: name, username: username, tag: tag
+            new name, username: username, tag: tag
 
           # registry/username/image[:tag]
           else
             registry, username, name_tag = string.split(/\//)
             name, tag                    = name_tag.split(/:/)
-            new name: name, registry: registry, username: username, tag: tag
+            new name, registry: registry, username: username, tag: tag
           end
         end
       end
