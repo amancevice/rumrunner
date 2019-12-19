@@ -20,8 +20,8 @@ module Rum
     #     # ...
     #   end
     #
-    def rum(image, options = {}, &block)
-      Manifest.new(image, options = {}).install(&block)
+    def rum(image, **options, &block)
+      Manifest.install_tasks(image, options, &block)
     end
   end
 end

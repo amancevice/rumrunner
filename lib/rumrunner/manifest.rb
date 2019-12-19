@@ -14,14 +14,20 @@ module Rum
     attr_reader :image, :home, :path
 
     def_delegator :@env, :<<, :env
-    def_delegators :@image, :registry, :username, :name, :tag, :to_s
+    def_delegators :@image, :registry, :username, :name, :tag
+
+    class << self
+      def install_tasks(image, **options, &block)
+        new(image, options).install(&block)
+      end
+    end
 
     ##
     # Initialize new manifest with name, build path, and home path for caching
     # build digests. Evaluates <tt>&block</tt> if given.
     #
     # Example:
-    #   Manifest.new(name: "my_image", path: ".", home: ".docker")
+    #   Manifest.new("my_image", path: ".", home: ".docker")
     #
     def initialize(name, path:nil, home:nil, env:nil)
       @image = Docker::Image.parse(name)
@@ -30,10 +36,14 @@ module Rum
       @env   = env  || []
     end
 
+    ##
+    # Get iidpath for storing iidfiles
     def iidpath
       File.join(@home, @image.family)
     end
 
+    ##
+    # Get iidfile path for given stage
     def iidfile(stage)
       File.join(iidpath, "#{@image.tag}-#{stage}")
     end
