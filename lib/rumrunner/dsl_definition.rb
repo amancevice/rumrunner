@@ -20,10 +20,8 @@ module Rum
     #     # ...
     #   end
     #
-    def rum(*args, &block)
-      name, _, deps = Rake.application.resolve_args(args)
-      path, home = deps
-      Manifest.new(name: name, path: path, home: home).install(&block)
+    def rum(image, options = {}, &block)
+      Manifest.new(image, options = {}).install(&block)
     end
   end
 end

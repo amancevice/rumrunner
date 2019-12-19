@@ -23,7 +23,7 @@ module Rum
     # Example:
     #   Manifest.new(name: "my_image", path: ".", home: ".docker")
     #
-    def initialize(name:, path:nil, home:nil, env:nil)
+    def initialize(name, path:nil, home:nil, env:nil)
       @image = Docker::Image.parse(name)
       @home  = home || ENV["RUM_HOME"] || ".docker"
       @path  = path || ENV["RUM_PATH"] || "."

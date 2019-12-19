@@ -8,7 +8,7 @@ RSpec.describe Rum::Manifest do
   after  { Rake.application.clear }
 
   subject do
-    Rum::Manifest.new(name: "registry:5000/username/name").install do
+    Rum::Manifest.new("registry:5000/username/name").install do
       tag      "1.2.3"
       env      :FIZZ => "buzz"
       stage    :build
@@ -158,7 +158,7 @@ RSpec.describe Rum::Manifest do
   describe "#install_default" do
     let(:path) { File.join(subject.home, *subject.image) }
 
-    subject { Rum::Manifest.new(name: "registry:5000/username/name").install }
+    subject { Rum::Manifest.new("registry:5000/username/name").install }
 
     it "should install the default task" do
       subject.application[:default].invoke
