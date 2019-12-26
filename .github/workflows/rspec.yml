@@ -5,7 +5,7 @@ on:
     - master
   pull_request:
   schedule:
-  - cron: "0/15 * * * *"
+  - cron: "11 21 * * *"
 jobs:
   build:
     runs-on: ubuntu-latest
