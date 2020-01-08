@@ -56,6 +56,12 @@ RSpec.describe Rum::Manifest do
     end
   end
 
+  describe "#inspect" do
+    it "returns the manifest handle" do
+      expect(subject.inspect).to eq "#<Rum::Manifest[registry:5000/username/name:1.2.3]>"
+    end
+  end
+
   describe "#run" do
     it "runs a Docker run command" do
       subject.application[:jazz].invoke

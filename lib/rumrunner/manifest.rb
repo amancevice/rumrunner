@@ -49,6 +49,13 @@ module Rum
     end
 
     ##
+    # Manifest display name
+    def inspect # :nodoc:
+      handle = @image.tag.nil? || @image.tag.to_sym == :latest ? @image.family : @image.to_s
+      "#<#{self.class}[#{handle}]>"
+    end
+
+    ##
     # Get application
     def application
       Rake.application
