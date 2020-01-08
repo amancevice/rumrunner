@@ -21,7 +21,7 @@ module Rum
     #   end
     #
     def rum(image, **options, &block)
-      Manifest.install_tasks(image, options, &block)
+      Manifest.install_tasks(image, **options, &block)
     end
   end
 end

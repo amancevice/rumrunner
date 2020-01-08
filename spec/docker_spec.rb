@@ -22,7 +22,7 @@ end
 RSpec.describe Rum::Docker::Options do
   let(:options) { {:flag => [:value, {:key => :value}]} }
 
-  subject { Rum::Docker::Options.new options }
+  subject { Rum::Docker::Options.new(**options) }
 
   describe "#each" do
     it "converts to an Array of words" do

@@ -55,7 +55,7 @@ module Rum
       # <tt>&block</tt> if given.
       def initialize(*args, **options, &block)
         @args = args
-        @options = Options.new(options)
+        @options = Options.new(**options)
         instance_eval(&block) if block_given?
       end
 
@@ -195,7 +195,7 @@ module Rum
       # Initialize Docker build command with +OPTIONS+ and +PATH+.
       # Evaluates the <tt>&block</tt> if given.
       def initialize(path, **options, &block)
-        super(options, &block)
+        super(**options, &block)
         @path = path
       end
 
@@ -220,7 +220,7 @@ module Rum
       # Initialize Docker run command with +OPTIONS+, +IMAGE+, and +CMD+.
       # Evaluates the <tt>&block</tt> if given.
       def initialize(image, cmd = nil, **options, &block)
-        super(options, &block)
+        super(**options, &block)
         @image = image
         @cmd   = cmd
       end
