@@ -14,7 +14,6 @@ module Rum
     attr_reader :image, :home, :path
 
     def_delegator :@env, :<<, :env
-    def_delegators :@image, :registry, :username, :name, :tag
 
     class << self
       def install_tasks(image, **options, &block)
@@ -226,10 +225,11 @@ module Rum
     # Install :default task that builds the image
     def install_default
       iidfile = File.join(@home, *image)
-      file iidfile do |t|
+      iidpath = File.split(iidfile).first
+      file iidfile => iidpath do |t|
         tsfile = "#{t.name}@#{Time.now.utc.to_i}"
         build = Docker::Build.new(@path, **build_options)
-        build.with_defaults(iidfile: tsfile, tag: tag || :latest)
+        build.with_defaults(iidfile: tsfile, tag: @image.to_s || :latest)
         sh build.to_s
         cp tsfile, iidfile
       end

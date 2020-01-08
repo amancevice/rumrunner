@@ -2,9 +2,7 @@
 gem = Gem::Specification::load("rumrunner.gemspec")
 pkg = "pkg/#{gem.full_name}.gem"
 
-rum gem.name do
-  tag gem.version.to_s
-
+rum "#{gem.name}:#{gem.version}" do
   env :RUBY_VERSION => ENV["RUBY_VERSION"] || "latest"
 
   stage :install

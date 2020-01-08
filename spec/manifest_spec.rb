@@ -8,8 +8,7 @@ RSpec.describe Rum::Manifest do
   after  { Rake.application.clear }
 
   subject do
-    Rum::Manifest.new("registry:5000/username/name").install do
-      tag      "1.2.3"
+    Rum::Manifest.new("registry:5000/username/name:1.2.3").install do
       env      :FIZZ => "buzz"
       stage    :build
       stage    :test => :build
@@ -169,7 +168,10 @@ RSpec.describe Rum::Manifest do
     it "should install the default task" do
       subject.application[:default].invoke
       expect(subject).to have_received(:sh).with <<~EOS.strip
-        docker build --iidfile .docker/registry:5000/username/name/latest@1234567890 --tag latest .
+        docker build \
+        --iidfile .docker/registry:5000/username/name/latest@1234567890 \
+        --tag registry:5000/username/name:latest \
+        .
       EOS
       expect(subject).to have_received(:cp).with("#{path}@1234567890", path)
     end
