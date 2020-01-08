@@ -3,9 +3,10 @@ ARG RUBY_VERSION=latest
 FROM ruby:${RUBY_VERSION} AS install
 WORKDIR /var/task/
 COPY . .
-ARG BUNDLE_SILENCE_ROOT_WARNING=1
-RUN gem install bundler -v 2.0.2
-RUN bundle install --path vendor/bundle/
+RUN bundle config --local path vendor/bundle/
+RUN bundle config --local silence_root_warning 1
+RUN gem install bundler -v 2.1.4
+RUN bundle install
 
 FROM ruby:${RUBY_VERSION} AS test
 WORKDIR /var/task/
