@@ -1,9 +1,13 @@
 name: Rum
 on:
-- push
-- pull_request
+  pull_request:
+  push:
+    branches:
+    - master
+  schedule:
+  - cron: "11 21 * * *"
 jobs:
-  build:
+  Rum:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -12,18 +16,13 @@ jobs:
         - 2.5.x
         - 2.6.x
     steps:
-
-    - name: Checkout
-      uses: actions/checkout@v1
-
-    - name: Setup Ruby
-      uses: actions/setup-ruby@v1
+    - uses: actions/checkout@v1
+    - uses: actions/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-
-    - name: Rum
+    - name: Set up rum runner
       run: |
-        gem install bundler -v 2.0.2
+        gem install bundler -v 2.1.4
         bundle install --jobs 4 --retry 3
         bundle exec rake gem:install
-        rum
+    - run: rum
