@@ -38,7 +38,7 @@ module Rum
     def parse_stages(dockerfile)
       stages = File.read(dockerfile).scan(/^FROM .*? AS (.*?)$/).flatten
       deps   = [nil] + stages[0..-2]
-      lines  = stages.zip(deps).map do |stage, dep|
+      stages.zip(deps).map do |stage, dep|
         dep.nil? ? %{  stage :"#{stage}"\n} : %{  stage :"#{stage}" => :"#{dep}"\n}
       end.join
     end
