@@ -7,5 +7,6 @@ group :test do
 end
 
 group :development do
-  gem "rumrunner", "~> 0.2"
+  gem "dotenv",    "~> 2.7"
+  gem "rumrunner", "~> 0.5"
 end

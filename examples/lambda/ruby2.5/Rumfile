@@ -1,12 +1,14 @@
 #!/usr/bin/env ruby
+require "dotenv/load"
+
 rum :"rumrunner/ruby2.5" do
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
-  env :TERRAFORM_VERSION => "0.12.6"
+  env :TERRAFORM => "latest"
 
   stage :build
-  stage :test
-  stage :plan do
+  stage :test => :build
+  stage :plan => :test do
     build_arg :AWS_ACCESS_KEY_ID
     build_arg :AWS_SECRET_ACCESS_KEY
     build_arg :AWS_DEFAULT_REGION => "us-east-1"
@@ -15,5 +17,5 @@ rum :"rumrunner/ruby2.5" do
   artifact "Gemfile.lock" => :build
   artifact "lambda.zip"   => :build
 
-  default ["Gemfile.lock", "lambda.zip"]
+  default %w[Gemfile.lock lambda.zip plan]
 end

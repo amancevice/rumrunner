@@ -7,7 +7,8 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
     concurrent-ruby (1.1.5)
-    i18n (1.7.1)
+    dotenv (2.7.5)
+    i18n (1.8.1)
       concurrent-ruby (~> 1.0)
     minitest (5.13.0)
     rake (13.0.1)
@@ -22,8 +23,9 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport (~> 5.2)
+  dotenv (~> 2.7)
   rake (~> 13.0)
-  rumrunner (~> 0.2)
+  rumrunner (~> 0.5)
 
 BUNDLED WITH
    2.1.4

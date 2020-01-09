@@ -1,19 +1,21 @@
 #!/usr/bin/env ruby
-rum :"rumrunner/nodejs10.x" do
+require "dotenv/load"
+
+rum :"rumrunner/nodejs12.x" do
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
-  env :TERRAFORM_VERSION => "0.12.6"
+  env :TERRAFORM => "latest"
 
   stage :build
-  stage :test
-  stage :plan do
+  stage :test => :build
+  stage :plan => :test do
     build_arg :AWS_ACCESS_KEY_ID
     build_arg :AWS_SECRET_ACCESS_KEY
     build_arg :AWS_DEFAULT_REGION => "us-east-1"
   end
 
-  artifact "package-lock.json" => :build
   artifact "lambda.zip"        => :build
+  artifact "package-lock.json" => :build
 
-  default ["package-lock.json", "lambda.zip"]
+  default %w[package-lock.json lambda.zip plan]
 end

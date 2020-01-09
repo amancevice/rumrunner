@@ -1,4 +1,5 @@
 *
-!package*.json
 !lambda.js
+!lambda.zip
+!package*.json
 !terraform.tf
