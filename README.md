@@ -1,6 +1,6 @@
 [![Rum Runner](https://github.com/amancevice/rumrunner/blob/master/rum-runner.png?raw=true)](https://github.com/amancevice/rumrunner)
-[![Build Status](https://travis-ci.com/amancevice/rumrunner.svg?branch=master)](https://travis-ci.com/amancevice/rumrunner)
 [![Gem Version](https://badge.fury.io/rb/rumrunner.svg)](https://badge.fury.io/rb/rumrunner)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Famancevice%2Frumrunner%2Fbadge&style=flat)](https://actions-badge.atrox.dev/amancevice/rumrunner/goto)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/4b56853acc5cbb254125/test_coverage)](https://codeclimate.com/github/amancevice/rumrunner/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/4b56853acc5cbb254125/maintainability)](https://codeclimate.com/github/amancevice/rumrunner/maintainability)
 
