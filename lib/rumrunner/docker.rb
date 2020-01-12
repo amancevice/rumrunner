@@ -8,6 +8,37 @@ module Rum
   module Docker
 
     ##
+    # Dockerfile object
+    class Dockerfile
+      def initialize(path = nil, file = nil, target = nil)
+        @path   = path
+        @file   = file
+        @target = target
+      end
+
+      def build(**options)
+        options.update(file: @file, target: @target).compact!
+        Build.new(path, **options)
+      end
+
+      def file
+        @file || "Dockerfile"
+      end
+
+      def path
+        @path || "."
+      end
+
+      def targets
+        dockerfile = File.join(path, file)
+        from_lines = File.read(dockerfile).scan(/^FROM .*?$/).flatten
+        from_lines.each_with_index.map do |line, i|
+          line[/ AS (.*?)$/i, 1] || i.to_s
+        end
+      end
+    end
+
+    ##
     # Mixin to enable adding instance methods to a class that
     # gets or sets-and-returns the given  attr of the instance.
     module AttrCallable
@@ -240,12 +271,11 @@ module Rum
       ##
       # Initialize image by reference component.
       # Evaluates <tt>&block</tt> if given.
-      def initialize(name, registry:nil, username:nil, tag:nil, &block)
+      def initialize(name, registry:nil, username:nil, tag:nil)
         @registry = registry
         @username = username
-        @name     = name
-        @tag      = tag
-        instance_eval(&block) if block_given?
+        @name = name
+        @tag = tag
       end
 
       ##

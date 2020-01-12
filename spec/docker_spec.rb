@@ -19,6 +19,56 @@ RSpec.describe Rum::Docker::AttrCallable do
   end
 end
 
+RSpec.describe Rum::Docker::Dockerfile do
+  before do
+    allow(File).to receive(:read).and_return <<~EOS
+      FROM ruby AS stage1
+      FROM ruby AS stage2
+      FROM ruby AS stage3
+    EOS
+  end
+
+  describe "#build" do
+    it "should return a bare build command" do
+      expect(subject.build.to_s).to eq "docker build ."
+    end
+
+    it "should return a stage build command" do
+      expect(subject.stage(:stage3).build.to_s).to eq "docker build --target stage3 ."
+    end
+  end
+
+  describe "#file" do
+    it "should return the default value" do
+      expect(subject.file).to eq "Dockerfile"
+    end
+  end
+
+  describe "#path" do
+    it "should return the default path" do
+      expect(subject.path).to eq "."
+    end
+  end
+
+  describe "#stage_names" do
+    it "should parse the stage names from the Dockerfile" do
+      expect(subject.stage_names).to eq %w[stage1 stage2 stage3]
+    end
+  end
+
+  describe "#stages" do
+    it "should return stages of the Dockerfile" do
+      expect(subject.stages.map(&:target)).to eq %w[stage1 stage2 stage3]
+    end
+  end
+
+  describe "#stage" do
+    it "should return a given stage of the Dockerfile" do
+      expect(subject.stage(:stage3).target).to eq "stage3"
+    end
+  end
+end
+
 RSpec.describe Rum::Docker::Options do
   let(:options) { {:flag => [:value, {:key => :value}]} }
 
