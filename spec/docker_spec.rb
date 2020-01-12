@@ -71,7 +71,12 @@ RSpec.describe Rum::Docker::Build do
     it "converts to a Docker build command string" do
       subject.build_arg :FIZZ => "buzz"
       subject.build_arg :BUZZ
-      expect(subject.to_s).to eq "docker build --build-arg FIZZ=buzz --build-arg BUZZ ."
+      expect(subject.to_s).to eq <<~EOS.strip.gsub(/\n/,' ')
+        docker build
+        --build-arg BUZZ
+        --build-arg FIZZ=buzz
+        .
+      EOS
     end
   end
 

@@ -96,9 +96,9 @@ RSpec.describe Rum::Manifest do
     it "extracts the artifact" do
       cmd = <<~EOS.strip.gsub(/\n/,' ')
         docker run
+        --entrypoint cat
         --env FIZZ=buzz
         --rm=true
-        --entrypoint cat
         <digest>
         pkg/fizz.zip > pkg/fizz.zip
       EOS
@@ -125,8 +125,8 @@ RSpec.describe Rum::Manifest do
     it "shells into the `build` stage" do
       cmd = <<~EOS.strip.gsub(/\n/,' ')
         docker run
-        --env FIZZ=buzz
         --entrypoint /bin/sh
+        --env FIZZ=buzz
         --interactive=true
         --rm=true
         --tty=true
@@ -140,8 +140,8 @@ RSpec.describe Rum::Manifest do
     it "shells into the `test` stage" do
       cmd = <<~EOS.strip.gsub(/\n/,' ')
         docker run
-        --env FIZZ=buzz
         --entrypoint /bin/sh
+        --env FIZZ=buzz
         --interactive=true
         --rm=true
         --tty=true

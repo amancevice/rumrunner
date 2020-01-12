@@ -138,9 +138,9 @@ module Rum
       #   # => ["--fizz", "buzz"]
       #
       def each
-        @data.each do |name, values|
+        @data.sort.each do |name, values|
           option = flagify name
-          values.each do |value|
+          values.sort_by(&:to_s).each do |value|
             if value.is_a?(Hash)
               value.map{|kv| kv.join("=") }.each do |val|
                 yield option
