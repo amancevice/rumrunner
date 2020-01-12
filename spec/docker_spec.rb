@@ -88,12 +88,6 @@ RSpec.describe Rum::Docker::Build do
       expect(subject.options.to_h).to include tag: ["fizz"], target: ["buzz"], jazz: ["fuzz"]
     end
   end
-
-  describe "#clear_options" do
-    it "clears the command @options" do
-      expect(subject.clear_options.options.to_h.empty?).to be true
-    end
-  end
 end
 
 RSpec.describe Rum::Docker::Run do
@@ -118,12 +112,6 @@ RSpec.describe Rum::Docker::Run do
 
     it "applies defaults if not provided in initialization" do
       expect(subject_with_defaults.options.to_h).to include rm: [false]
-    end
-  end
-
-  describe "#clear_options" do
-    it "clears the command @options" do
-      expect(subject.clear_options.options.to_h.empty?).to be true
     end
   end
 end

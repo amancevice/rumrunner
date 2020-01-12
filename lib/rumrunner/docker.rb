@@ -78,13 +78,6 @@ module Rum
       end
 
       ##
-      # Clear all @options
-      def clear_options
-        @options = Options.new
-        self
-      end
-
-      ##
       # Convert Docker command to string.
       def to_s
         to_a.join(" ")
