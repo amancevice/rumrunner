@@ -48,13 +48,12 @@ module Rum
 
       ##
       # The +OPTIONS+ portion of a Docker command.
-      attr_reader :args, :options
+      attr_reader :options
 
       ##
       # Initialize Docker command with +OPTIONS+ and evaluate the
       # <tt>&block</tt> if given.
-      def initialize(*args, **options, &block)
-        @args = args
+      def initialize(**options, &block)
         @options = Options.new(**options)
         instance_eval(&block) if block_given?
       end
@@ -63,14 +62,18 @@ module Rum
       # Yield Docker command word by word.
       def each
         self.class.name.split(/::/)[1..-1].each{|x| yield x.downcase }
-        @options.each{|x| yield x }
-        @args.each{|x| yield x }
+        options.each{|x| yield x }
+        args.each{|x| yield x }
       end
+
+      ##
+      # Command +ARGS+
+      def args; end
 
       ##
       # Interpret missing methods as +OPTION+.
       def method_missing(m, *args, &block)
-        @options.send(m, *args, &block)
+        options.send(m, *args, &block)
         args.empty? ? @options[m] : self
       end
 
@@ -95,8 +98,8 @@ module Rum
       #
       # Unless the <tt>&block</tt> contains a directive to set a value for +user+,
       # it will be set to "fizz".
-      def with_defaults(**options)
-        options.reject{|k,v| @options.include? k }.each{|k,v| @options[k] << v }
+      def with_defaults(**defaults)
+        defaults.reject{|k,v| @options.include? k }.each{|k,v| @options[k] << v }
         self
       end
     end
@@ -200,10 +203,9 @@ module Rum
       end
 
       ##
-      # Yield the Docker build commmand word-by-word.
-      def each
-        super{|x| yield x }
-        yield @path || "."
+      # Build  +ARGS+
+      def args
+        [@path]
       end
     end
 
@@ -222,15 +224,13 @@ module Rum
       def initialize(image, cmd = nil, **options, &block)
         super(**options, &block)
         @image = image
-        @cmd   = cmd
+        @cmd = cmd
       end
 
       ##
-      # Yield the Docker run commmand word-by-word.
-      def each
-        super {|x| yield x }
-        yield @image
-        [@cmd].flatten.each{|x| yield x } unless @cmd.nil?
+      # Run +ARGS+
+      def args
+        [@image, @cmd].compact
       end
     end
 
