@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 require "rake"
 
+require "rumrunner/manifest"
+
 module Rum
 
   ##
@@ -23,6 +25,18 @@ module Rum
       super
       @name = "rum"
       @rakefiles = DEFAULT_RAKEFILES.dup
+    end
+
+    def in_manifest(image = nil, **options)
+      @manifest = Manifest.new(image, **options)
+      yield(@manifest)
+      @manifest
+    ensure
+      @manifest = nil
+    end
+
+    def current_manifest
+      @manifest ||= Manifest.new
     end
 
     ##
