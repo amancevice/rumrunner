@@ -1,20 +1,22 @@
 #!/usr/bin/env ruby
-gem = Gem::Specification::load("rumrunner.gemspec")
+gem = Gem::Specification::load "rumrunner.gemspec"
 pkg = "pkg/#{gem.full_name}.gem"
 
-rum "#{gem.name}:#{gem.version}" do
+rum "rumrunner:#{gem.version}" do
   env :RUBY_VERSION => ENV["RUBY_VERSION"] || "latest"
 
   stage :install
-  stage :test  => :install
+  stage :test => :install
   stage :build => :test
 
   artifact pkg => :build
 
-  desc "Push `#{pkg}` to rubygems.org"
-  task :push => pkg do
-    sh "gem", "push", pkg
-  end
-
-  default pkg
+  export "Gemfile.lock" => :install
 end
+
+desc "Push `#{pkg}` to rubygems.org"
+task :push => pkg do
+  sh "gem", "push", pkg
+end
+
+task default: %W[#{pkg} Gemfile.lock]

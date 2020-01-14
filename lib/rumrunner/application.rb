@@ -30,7 +30,7 @@ module Rum
     def in_manifest(image = nil, **options)
       @manifest = Manifest.new(image, **options)
       yield(@manifest)
-      @manifest
+      @manifest.install
     ensure
       @manifest = nil
     end
