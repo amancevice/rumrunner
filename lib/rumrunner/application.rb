@@ -27,16 +27,16 @@ module Rum
       @rakefiles = DEFAULT_RAKEFILES.dup
     end
 
+    def current_manifest
+      @manifest ||= Manifest.new
+    end
+
     def in_manifest(image = nil, **options)
       @manifest = Manifest.new(image, **options)
       yield(@manifest)
       @manifest.install
     ensure
       @manifest = nil
-    end
-
-    def current_manifest
-      @manifest ||= Manifest.new
     end
 
     ##
