@@ -83,7 +83,8 @@ module Rum
 
     def install_clobber
       task :clobber do
-        sh "docker image rm --force #{sha256}"
+        # TODO
+        puts "TODO"
       end
     end
   end
