@@ -47,15 +47,21 @@ module Rum
     end
 
     def install
-      install_build
-      install_default
-      install_clean
-      install_clobber
-
+      install_default_shells
+      # install_build
+      # install_default
+      # install_clean
+      # install_clobber
       self
     end
 
     private
+
+    def install_default_shells
+      Rum.application.tasks.select{|t| t.is_a? Rum::StageTask }.map do |t|
+        t.install_default_shell
+      end
+    end
 
     def install_build
       iids = iidfiles.append(iidfile).reverse

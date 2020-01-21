@@ -26,11 +26,11 @@ module Rum
     end
 
     def artifact(*args, &block)
-      ArtifactTask.define_task(*args).install(&block)
+      ArtifactTask.define_task(*args, &block)
     end
 
     def build(*args, &block)
-      BuildTask.define_task(*args).install(&block)
+      BuildTask.define_task(*args, &block)
     end
 
     def env(*args)
@@ -38,19 +38,19 @@ module Rum
     end
 
     def export(*args, &block)
-      ExportTask.define_task(*args).install(&block)
+      ExportTask.define_task(*args, &block)
     end
 
     def run(*args, &block)
-      RunTask.define_task(*args).install(&block)
+      RunTask.define_task(*args, &block)
     end
 
     def shell(*args, &block)
-      ShellTask.define_task(*args).install(&block)
+      ShellTask.define_task(*args, &block)
     end
 
     def stage(*args, &block)
-      StageTask.define_task(*args).install(&block)
+      StageTask.define_task(*args, &block)
     end
   end
 end
