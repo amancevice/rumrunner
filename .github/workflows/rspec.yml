@@ -22,8 +22,9 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
     - name: Set up code climate
       uses: amancevice/code-climate-action@v0
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       with:
-        cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
         command: before-build
     - name: Set up RSpec
       run: |
@@ -33,6 +34,7 @@ jobs:
       run: bundle exec rake
     - name: Send coverage report
       uses: amancevice/code-climate-action@v0
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       with:
-        cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
         command: after-build -t simplecov
