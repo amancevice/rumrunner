@@ -4,6 +4,7 @@ require "rumrunner/manifest"
 require "rumrunner/dsl_definition"
 require "rumrunner/application"
 require "rumrunner/init"
+require "rumrunner/tasks"
 
 ##
 # Rum Runner namespace.

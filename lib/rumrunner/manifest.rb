@@ -31,7 +31,7 @@ module Rum
     def iidfile(target = nil)
       iidhome  = @home || ENV["RUM_HOME"] || ".docker"
       iidpath  = image.family
-      iidfile  = image.tag || "latest"
+      iidfile  = image.tag
       iidfile += "-#{target}" unless target.nil?
       File.join(iidhome, iidpath, iidfile)
     end
@@ -47,7 +47,7 @@ module Rum
     end
 
     def install
-      install_default_shells
+      # install_default_shells
       # install_build
       # install_default
       # install_clean

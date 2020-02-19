@@ -2,21 +2,27 @@
 gem = Gem::Specification::load "rumrunner.gemspec"
 pkg = "pkg/#{gem.full_name}.gem"
 
-rum "rumrunner:#{gem.version}" do
+rum :"rumrunner:#{gem.version}" do
   env :RUBY_VERSION => ENV["RUBY_VERSION"] || "latest"
 
+  # docker build --build-arg RUBY_VERSION=latest --iidfile {iidfile} --target install --tag rumrunner:{tag}-install .
   stage :install
+
+  # docker build --build-arg RUBY_VERSION=latest --iidfile {iidfile} --target test --tag rumrunner:{tag}-test .
   stage :test => :install
+
+  # docker build --build-arg RUBY_VERSION=latest --iidfile {iidfile} --target build --tag rumrunner:{tag}-build .
   stage :build => :test
 
-  artifact pkg => :build
+  # docker build --build-arg RUBY_VERSION=latest --iidfile {iidfile} --tag rumrunner:{tag} .
+  build :latest => :build
 
   export "Gemfile.lock" => :install
+
+  artifact pkg => :build
 end
+
+task :default => %W[Gemfile.lock #{pkg}]
 
 desc "Push `#{pkg}` to rubygems.org"
-task :push => pkg do
-  sh "gem", "push", pkg
-end
-
-task default: %W[#{pkg} Gemfile.lock]
+task(:push => pkg) { sh "gem push #{pkg}" }

@@ -33,8 +33,8 @@ module Rum
       BuildTask.define_task(*args, &block)
     end
 
-    def env(*args)
-      args.map{|env| Rum.application.current_manifest.env << env }
+    def env(env_var)
+      Rum.application.current_manifest.env << env_var
     end
 
     def export(*args, &block)
@@ -51,6 +51,10 @@ module Rum
 
     def stage(*args, &block)
       StageTask.define_task(*args, &block)
+    end
+
+    def tag(tag_name)
+      Rum.application.current_manifest.image.tag(tag_name)
     end
   end
 end

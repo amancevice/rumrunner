@@ -6,4 +6,8 @@ task :default => :spec
 
 namespace :gem do
   require "bundler/gem_tasks"
+
+  task :push do
+    sh "gem push pkg/#{Bundler::GemHelper.gemspec.full_name}.gem"
+  end
 end

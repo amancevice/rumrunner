@@ -1,7 +1,10 @@
 require "rake"
 
 module Rum
+=begin
   class Task < Rake::Task
+    include Rake::DSL
+
     attr_reader :manifest
 
     class << self
@@ -65,7 +68,14 @@ module Rum
   end
 
   class BuildTask < Task
+    class << self
+      def define_task(*args, &block)
+        Rum.application.define_task(self, *args).install(&block)
+      end
+    end
+
     def install(&block)
+      install_build(&block)
     end
 
     private
@@ -80,6 +90,11 @@ module Rum
   end
 
   class RunTask < Task
+    class << self
+      def define_task(*args, &block)
+        Rum.application.define_task(self, *args).install(&block)
+      end
+    end
 
     def install(&block)
       install_run(&block)
@@ -101,13 +116,11 @@ module Rum
   end
 
   class ExportTask < RunTask
-    include Rake::DSL
-
     class << self
       def define_task(*args, &block)
-        task_name, arg_names, deps = Rum.application.resolve_args(args)
+        task_name, _, deps = Rum.application.resolve_args(args.dup)
         Rum.application.last_description ||= "Export `#{task_name}` from `#{deps.first}` stage"
-        super(task_name, arg_names => deps){}.install(&block)
+        Rum.application.define_task(self, *args).install(&block)
       end
     end
 
@@ -289,6 +302,85 @@ module Rum
 
     def tsfile
       @tsfile ||= "#{iidfile}@#{Time.now.to_i}"
+    end
+  end
+=end
+
+  module TaskInstaller
+    def define_task(*args, &block)
+      rum_task = Rum.application.define_task(self, *args)
+      rum_task.install(&block)
+      rum_task
+    end
+  end
+
+  module Iidfile
+    attr_reader :manifest
+
+    def digest
+      @digest ||= File.read(iidfile)
+    end
+
+    def iidfile
+      @iidfile ||= manifest.iidfile(stage_name)
+    end
+
+    def iidpath
+      @iidpath ||= File.dirname(iidfile)
+    end
+
+    def stage
+      @stage ||= application[stage_name]
+    end
+
+    def stage_name
+      @stage_name ||= name
+    end
+  end
+
+  class BuildTask < Rake::FileTask
+    # extend TaskInstaller
+    # include Rake::DSL
+
+    class << self
+      def define_task(*args, &block)
+        task_name, arg_names, deps = Rum.application.resolve_args(args.dup)
+        binding.irb
+        Rum.application.last_description ||= "Build `#{task_name}` image"
+        Rum.application.define_task(self, *args){}.install(&block)
+      end
+    end
+
+    def initialize(task_name, app)
+      @manifest = app.current_manifest
+      super
+    end
+
+    def build
+      @build ||= Docker::Build.new(manifest.path, build_arg: manifest.env)
+    end
+
+    def install(&block)
+      enhance do |*args|
+        build.instance_exec(*args, &block) if block_given?
+        build.with_defaults(**default_build_options)
+        puts build.to_s
+        touch name
+      end
+    end
+
+    def path
+      File.dirname(name).sub(%r{\A\./?}, "")
+    end
+
+    private
+
+    def default_build_options
+      @build_options ||= {
+        iidfile: name,
+        file:    manifest.file,
+        tag:     manifest.image,
+      }
     end
   end
 end
