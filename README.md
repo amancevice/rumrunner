@@ -1,8 +1,8 @@
 [![Rum Runner](https://github.com/amancevice/rumrunner/blob/master/rum-runner.png?raw=true)](https://github.com/amancevice/rumrunner)
-[![Gem Version](https://badge.fury.io/rb/rumrunner.svg)](https://badge.fury.io/rb/rumrunner)
-[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Famancevice%2Frumrunner%2Fbadge&style=flat)](https://actions-badge.atrox.dev/amancevice/rumrunner/goto)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/4b56853acc5cbb254125/test_coverage)](https://codeclimate.com/github/amancevice/rumrunner/test_coverage)
-[![Maintainability](https://api.codeclimate.com/v1/badges/4b56853acc5cbb254125/maintainability)](https://codeclimate.com/github/amancevice/rumrunner/maintainability)
+![rubygems](https://img.shields.io/gem/v/rumrunner?logo=rubygems&logoColor=eee&style=flat-square)
+[![rspec](https://img.shields.io/github/workflow/status/amancevice/rumrunner/RSpec?logo=github&style=flat-square)](https://github.com/amancevice/rumrunner/actions)
+[![coverage](https://img.shields.io/codeclimate/coverage/amancevice/rumrunner?logo=code-climate&style=flat-square)](https://codeclimate.com/github/amancevice/rumrunner/test_coverage)
+[![maintainability](https://img.shields.io/codeclimate/maintainability/amancevice/rumrunner?logo=code-climate&style=flat-square)](https://codeclimate.com/github/amancevice/rumrunner/maintainability)
 
 <sub>logo by [seenamavaddat.com](http://seenamavaddat.com/)</sub>
 
