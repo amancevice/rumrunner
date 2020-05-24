@@ -3,18 +3,16 @@ gem = Gem::Specification::load "rumrunner.gemspec"
 pkg = "pkg/#{gem.full_name}.gem"
 
 rum :"rumrunner:#{gem.version}" do
-  env :RUBY_VERSION => ENV["RUBY_VERSION"] || "latest"
+  env :RUBY => ENV["RUBY"] || "latest"
 
-  # docker build --build-arg RUBY_VERSION=latest --iidfile {iidfile} --target install --tag rumrunner:{tag}-install .
+  # docker build --build-arg RUBY=latest --iidfile {iidfile} --target install --tag rumrunner:{tag}-install .
+  # docker build --build-arg RUBY=latest --iidfile {iidfile} --target test    --tag rumrunner:{tag}-test    .
+  # docker build --build-arg RUBY=latest --iidfile {iidfile} --target build   --tag rumrunner:{tag}-build   .
+  # docker build --build-arg RUBY=latest --iidfile {iidfile}                  --tag rumrunner:{tag}         .
+
   stage :install
-
-  # docker build --build-arg RUBY_VERSION=latest --iidfile {iidfile} --target test --tag rumrunner:{tag}-test .
   stage :test => :install
-
-  # docker build --build-arg RUBY_VERSION=latest --iidfile {iidfile} --target build --tag rumrunner:{tag}-build .
   stage :build => :test
-
-  # docker build --build-arg RUBY_VERSION=latest --iidfile {iidfile} --tag rumrunner:{tag} .
   build :latest => :build
 
   export "Gemfile.lock" => :install
