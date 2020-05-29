@@ -1,4 +1,4 @@
-ARG RUNTIME=ruby2.5
+ARG RUNTIME=ruby2.7
 ARG TERRAFORM_VERSION=latest
 
 FROM lambci/lambda:build-${RUNTIME} AS build

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require "dotenv/load"
 
-rum :"rumrunner/ruby2.5" do
+rum :"rumrunner/ruby2.7" do
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
   env :TERRAFORM => "latest"

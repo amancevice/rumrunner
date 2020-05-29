@@ -8,6 +8,6 @@ resource "aws_lambda_function" "lambda" {
   function_name    = "rumrunner-example"
   handler          = "lambda.handler"
   role             = "rumrunner"
-  runtime          = "ruby2.5"
+  runtime          = "ruby2.7"
   source_code_hash = filebase64sha256("lambda.zip")
 }
