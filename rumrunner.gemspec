@@ -34,9 +34,5 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0".freeze)
 
-  spec.add_runtime_dependency "rake", "~> 13.0"
-
-  spec.add_development_dependency "bundler",   "~> 2.0"
-  spec.add_development_dependency "rspec",     "~> 3.0"
-  spec.add_development_dependency "simplecov", "~> 0.16"
+  spec.add_dependency "rake", "~> 13.0"
 end
