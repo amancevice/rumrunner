@@ -1,19 +1,22 @@
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
+*.bak
+*.rbc
+*.swp
+*~
+.#*
+.DS_Store
+.idea
+.rbx
+/.rdoc
+/TAGS
+/coverage
+/html
+/pkg
+Gemfile.lock
 
-# rspec failure tracking
-.rspec_status
-
-**/.docker/
+/.bundle
+/.docker
 *.env
 *.gem
+*.rspec_status
 *.ruby-version
 *.zip
-
-!example/**
