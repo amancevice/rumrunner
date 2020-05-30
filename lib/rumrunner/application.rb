@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 require "rake"
 
+require "rumrunner/version"
+require "rumrunner/context"
+require "rumrunner/init"
+
 module Rum
 
   ##
   # Rum main application object. When invoking +rum+ from the
   # command line, a Rum::Application object is created and run.
   class Application < Rake::Application
+    include ContextManager
 
     ##
     # Default names for Rum Runner manifests.
@@ -26,9 +31,20 @@ module Rum
     end
 
     ##
+    # Open Docker context
+    def in_context(**options)
+      head = Context::Partial.new(**options)
+      @context = Context.new(head, @context)
+      yield(@context)
+      @context
+    ensure
+      @context = @context.tail
+    end
+
+    ##
     # Initialize the command line parameters and app name.
     def init(app_name="rum", argv = ARGV)
-      super "rum", argv
+      super
     end
 
     ##
