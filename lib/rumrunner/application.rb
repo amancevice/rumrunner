@@ -32,9 +32,8 @@ module Rum
 
     ##
     # Open Docker context
-    def in_context(**options)
-      head = Context::Partial.new(**options)
-      @context = Context.new(head, @context)
+    def in_context(**context)
+      @context = ContextList.new(context, @context)
       yield(@context)
       @context
     ensure

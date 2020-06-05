@@ -23,7 +23,7 @@ module Rum
       name = name.to_s if name.kind_of?(Symbol)
       name = name.to_str if name.respond_to?(:to_str)
       if name.nil?
-        Rum.application.in_context(options, &block)
+        Rum.application.in_context(**options, &block)
       elsif name.kind_of?(String)
         Rum.application.in_namespace(name) do
           Rum.application.in_context(**options, &block)
@@ -36,7 +36,55 @@ module Rum
     ##
     # Enhance current context ENV
     def env(*args)
-      Rum.application.current_context.env.concat(args)
+      args.each do |arg|
+        Rum.application.current_context.env << arg
+      end
+    end
+
+    ##
+    # Docker stage
+    def stage(*args)
+      app = Rum.application
+      target, task_args, deps, * = app.resolve_args(args)
+
+      app.in_context(target: target.to_s, tag: target.to_s) do |context|
+
+        namespace :build do
+          iidpath = File.dirname(context.iidfile)
+          directory iidpath
+          file context.iidfile, task_args => deps, order_only: iidpath do |f,args|
+            puts "docker build #{f.name}"
+          end
+          task target => context.iidfile
+        end
+        task :build => %I[build:#{target}]
+
+        namespace :clean do
+          task target do
+            rm_rf context.iidfile
+          end
+        end
+        task(:clean).prereqs.unshift :"clean:#{target}"
+
+        namespace :clobber do
+          task target => %I[clean:#{target}] do
+            sh "docker image rm --force #{context.tag}"
+          end
+        end
+        task(:clobber).prereqs.unshift :"clobber:#{target}"
+
+        namespace :run do
+          task target, [:cmd] => context.iidfile do
+            puts "docker run $(cat #{context.iidfile})"
+          end
+        end
+
+        namespace :shell do
+          task target, [:sh] => context.iidfile do
+            puts "docker run $(cat #{context.iidfile})"
+          end
+        end
+      end
     end
 
     ##

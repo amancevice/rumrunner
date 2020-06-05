@@ -6,127 +6,18 @@ repo :rum, name: "docker.io/amancevice/rumrunner", tag: "1.0", iidpath: ".docker
   env :RUBY => "2.7"
 
   stage :lock
-
-=begin
-  # namespace :build do
-  #   file .docker/docker.io/amancevice/rumrunner:1.0-lock {&block}
-  #   task :lock => .docker/docker.io/amancevice/rumrunner:1.0-lock
-  # end
-  # task :build => :build:lock
-
-  # namespace :clean do
-  #   task :lock {}
-  # end
-  # task :clean => :clean:lock
-
-  # namespace :clobber do
-  #   task :lock => :clean:lock {}
-  # end
-  # task :clobber => :clobber:lock
-
-  # namespace :run do
-  #   task :test[cmd] => .docker/docker.io/amancevice/rumrunner:1.0-lock {}
-  # end
-
-  # namespace :shell do
-  #   task :test[sh] => .docker/docker.io/amancevice/rumrunner:1.0-lock {}
-  # end
-
   stage :test => :lock
-
-  # namespace :build do
-  #   file .docker/docker.io/amancevice/rumrunner:test => :lock {&block}
-  #   task :test => .docker/docker.io/amancevice/rumrunner:test
-  # end
-  # task :build => :build:test
-
-  # namespace :clean do
-  #   task :test {}
-  #   task :lock => :test
-  # end
-  # task :clean => :clean:test
-
-  # namespace :clobber do
-  #   task :test => :clean:test {}
-  #   task :lock => :test
-  # end
-  # task :clobber => :clobber:test
-
-  # namespace :run do
-  #   task :test[cmd] => .docker/docker.io/amancevice/rumrunner:test {}
-  # end
-
-  # namespace :shell do
-  #   task :test[sh] => .docker/docker.io/amancevice/rumrunner:test {}
-  # end
-
   stage :gem => :test
 
-  # namespace :build do
-  #   file .docker/docker.io/amancevice/rumrunner:gem => :lock {&block}
-  #   task :gem => .docker/docker.io/amancevice/rumrunner:gem
-  # end
-  # task :build => :build:gem
-
-  # namespace :clean do
-  #   task :gem {}
-  #   task :test => :lock
-  # end
-  # task :clean => :clean:gem
-
-  # namespace :clobber do
-  #   task :gem => :clean:gem {}
-  #   task :test => :gem
-  # end
-  # task :clobber => :clobber:gem
-
-  # namespace :run do
-  #   task :gem[cmd] => .docker/docker.io/amancevice/rumrunner:gem {}
-  # end
-
-  # namespace :shell do
-  #   task :gem[sh] => .docker/docker.io/amancevice/rumrunner:gem {}
-  # end
-
-  export "Gemfile.lock" => :lock
-
-  # namespace :export do
-  #   file Gemfile.lock => .docker/docker.io/amancevice/rumrunner:lock {&block}
-  #   task :lock => Gemfile.lock
-  # end
-  # task :export => :export:lock
-
-  export pkg => :build
-
-  # namespace :export do
-  #   file pkg => .docker/docker.io/amancevice/rumrunner:build {&block}
-  #   task :build => pkg
-  # end
-  # task :export => :export:build
+  # export "Gemfile.lock" => :lock
+  # export pkg => :build
 end
-# namespace :ns do
-#   file .docker/docker.io/amancevice/rumrunner:1.0 {}
-#   task :build => .docker/docker.io/amancevice/rumrunner:1.0
-#   task :clean {}
-#   task :clobber => :clean
-#   task :run[cmd] => .docker/docker.io/amancevice/rumrunner:1.0 {}
-#   task :shell[sh] => .docker/docker.io/amancevice/rumrunner:1.0 {}
-# end
-# task :ns => :ns:build
 
-# namespace :ns do
-#   file .docker/docker.io/amancevice/rumrunner:1.0 {}
-#   task :build => .docker/docker.io/amancevice/rumrunner:1.0
-#   task :clean {}
-#   task :clobber => :clean
-#   task :run[cmd] => .docker/docker.io/amancevice/rumrunner:1.0 {}
-#   task :shell[sh] => .docker/docker.io/amancevice/rumrunner:1.0 {}
-# end
+task :gem => pkg
 
-task :default => :ns
-
-desc "Push `#{pkg}` to rubygems.org"
-task :push => pkg do
-  sh "gem push #{pkg}"
-=end
+namespace :gem do
+  desc "Push `#{pkg}` to rubygems.org"
+  task :push => pkg do
+    sh "gem push #{pkg}"
+  end
 end

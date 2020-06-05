@@ -1,6 +1,6 @@
 ARG RUBY_VERSION=latest
 
-FROM ruby:${RUBY_VERSION} AS install
+FROM ruby:${RUBY_VERSION} AS lock
 WORKDIR /var/task/
 COPY . .
 RUN bundle config --local path vendor/bundle/
@@ -14,7 +14,7 @@ COPY --from=install /usr/local/bundle/ /usr/local/bundle/
 COPY --from=install /var/task/ .
 RUN bundle exec rake
 
-FROM ruby:${RUBY_VERSION} AS build
+FROM ruby:${RUBY_VERSION} AS dev
 WORKDIR /var/task/
 COPY --from=install /usr/local/bundle/ /usr/local/bundle/
 COPY --from=install /var/task/ .

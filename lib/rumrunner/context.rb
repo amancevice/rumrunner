@@ -1,12 +1,18 @@
 require "rake"
 
+require "rumrunner/docker"
+
 module Rum
   module ContextManager
     include Rake::TaskManager
 
     def initialize # :nodoc:
       super
-      @context = Context.make
+      @context = ContextList.new(
+        name: File.basename(Dir.pwd),
+        iidpath: ".docker",
+        path: ".",
+      )
     end
 
     def current_context
@@ -14,12 +20,46 @@ module Rum
     end
   end
 
-  class Context < Rake::LinkedList
+  class Context < OpenStruct
+    # attr_reader :env
 
-    EMPTY = Context.new(OpenStruct.new(iidpath: ".iidpath", path: ".", tag: "latest"))
+    # def initialize(hash=nil, env=nil)
+    #   @env = env || []
+    #   super(hash)
+    # end
+  end
 
-    def env
-      @head.env ||= []
+  class ContextList < Rake::LinkedList
+    def initialize(head, tail=EMPTY)
+      head = Context.new(head)
+      super
+    end
+
+    def build
+      opts = {
+        build_arg: env,
+        iidfile: [iidfile],
+        tag: [tag],
+        target: [target].compact
+      }
+      args = [path]
+      [opts, args]
+    end
+
+    def run(cmd=nil)
+      opts = {
+        env: env,
+      }
+      args = [cmd]
+      [opts, args]
+    end
+
+    def env(*args)
+      if args.any?
+        @head.env ||= []
+        @head.env.concat(args)
+      end
+      map(&:env).compact.flatten
     end
 
     def iidpath
@@ -27,7 +67,7 @@ module Rum
     end
 
     def iidfile
-      File.join(iidpath, name, tag)
+      File.join(iidpath, name, @head.tag)
     end
 
     def name
@@ -39,11 +79,21 @@ module Rum
     end
 
     def tag
-      @head.tag || @tail.tag
+      "#{name}:#{@head.tag || @tail.tag}"
     end
 
     def target
       @head.target || @tail.target
     end
+
+    class DefaultContextList < Rake::LinkedList::EmptyLinkedList
+      @parent = ContextList
+
+      def target
+        nil
+      end
+    end
+
+    EMPTY = DefaultContextList.new
   end
 end
