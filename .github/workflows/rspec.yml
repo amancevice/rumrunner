@@ -2,40 +2,28 @@ name: RSpec
 on:
   pull_request:
   push:
-    branches:
-    - master
   schedule:
-  - cron: "11 21 * * *"
+    - cron: '11 21 * * *'
 jobs:
   RSpec:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         ruby:
-        - 2.4.x
-        - 2.5.x
-        - 2.6.x
-        - 2.7.x
+          - 2.4
+          - 2.5
+          - 2.6
+          - 2.7
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-    - name: Set up code climate
-      uses: amancevice/code-climate-action@v0
-      env:
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-      with:
-        command: before-build
-    - name: Set up RSpec
-      run: |
-        gem install bundler -v 2.1.4
-        bundle install --jobs 4 --retry 3
-    - name: Run RSpec
-      run: bundle exec rake
-    - name: Send coverage report
-      uses: amancevice/code-climate-action@v0
-      env:
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-      with:
-        command: after-build -t simplecov
+      - uses: actions/checkout@v1
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - uses: amancevice/setup-code-climate@v0
+        with:
+          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
+      - run: cc-test-reporter before-build
+      - run: gem install bundler -v 2.1.4
+      - run: bundle install --jobs 4 --retry 3
+      - run: bundle exec rake
+      - run: cc-test-reporter after-build

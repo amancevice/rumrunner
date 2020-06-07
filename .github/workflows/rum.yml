@@ -2,28 +2,24 @@ name: Rum
 on:
   pull_request:
   push:
-    branches:
-    - master
   schedule:
-  - cron: "11 21 * * *"
+    - cron: '11 21 * * *'
 jobs:
   Rum:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         ruby:
-        - 2.4.x
-        - 2.5.x
-        - 2.6.x
-        - 2.7.x
+          - 2.4
+          - 2.5
+          - 2.6
+          - 2.7
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-    - name: Set up rum runner
-      run: |
-        gem install bundler -v 2.1.4
-        bundle install --jobs 4 --retry 3
-        bundle exec rake gem:install
-    - run: rum
+      - uses: actions/checkout@v1
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - run: gem install bundler -v 2.1.4
+      - run: bundle install --jobs 4 --retry 3
+      - run: bundle exec rake gem:install
+      - run: rum
