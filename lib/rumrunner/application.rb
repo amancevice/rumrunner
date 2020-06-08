@@ -2,6 +2,7 @@
 require "rake"
 
 require "rumrunner/version"
+require "rumrunner/context_manager"
 require "rumrunner/context"
 require "rumrunner/init"
 
@@ -33,7 +34,7 @@ module Rum
     ##
     # Open Docker context
     def in_context(**context)
-      @context = ContextList.new(context, @context)
+      @context = Context.new(context, @context)
       yield(@context)
       @context
     ensure

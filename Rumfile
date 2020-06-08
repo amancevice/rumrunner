@@ -2,18 +2,20 @@
 gem = Gem::Specification::load("rumrunner.gemspec")
 pkg = "pkg/#{gem.full_name}.gem"
 
-repo :rum, name: "docker.io/amancevice/rumrunner", tag: "1.0", iidpath: ".docker" do |c|
+namespace :rum do
+  dockerfile "Dockerfile"
+  context "."
+  repo "docker.io/amancevice/rumrunner"
+
   env :RUBY => "2.7"
 
   stage :lock
   stage :test => :lock
   stage :gem => :test
 
-  # export "Gemfile.lock" => :lock
-  # export pkg => :build
+  export :lock => "Gemfile.lock"
+  export :build => pkg
 end
-
-task :gem => pkg
 
 namespace :gem do
   desc "Push `#{pkg}` to rubygems.org"
@@ -21,3 +23,5 @@ namespace :gem do
     sh "gem push #{pkg}"
   end
 end
+
+task :gem => pkg

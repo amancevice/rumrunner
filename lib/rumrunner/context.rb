@@ -3,35 +3,12 @@ require "rake"
 require "rumrunner/docker"
 
 module Rum
-  module ContextManager
-    include Rake::TaskManager
-
-    def initialize # :nodoc:
-      super
-      @context = ContextList.new(
-        name: File.basename(Dir.pwd),
-        iidpath: ".docker",
-        path: ".",
-      )
-    end
-
-    def current_context
-      @context
-    end
+  class ContextLayer < OpenStruct
   end
 
-  class Context < OpenStruct
-    # attr_reader :env
-
-    # def initialize(hash=nil, env=nil)
-    #   @env = env || []
-    #   super(hash)
-    # end
-  end
-
-  class ContextList < Rake::LinkedList
+  class Context < Rake::LinkedList
     def initialize(head, tail=EMPTY)
-      head = Context.new(head)
+      head = ContextLayer.new(**head)
       super
     end
 
@@ -52,6 +29,10 @@ module Rum
       }
       args = [cmd]
       [opts, args]
+    end
+
+    def digest
+      File.read(iidfile)
     end
 
     def env(*args)
@@ -86,14 +67,10 @@ module Rum
       @head.target || @tail.target
     end
 
-    class DefaultContextList < Rake::LinkedList::EmptyLinkedList
-      @parent = ContextList
-
-      def target
-        nil
-      end
+    class DefaultContext < Rake::LinkedList::EmptyLinkedList
+      @parent = Context
     end
 
-    EMPTY = DefaultContextList.new
+    EMPTY = DefaultContext.new
   end
 end
