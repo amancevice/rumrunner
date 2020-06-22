@@ -1,4 +1,4 @@
-[![Rum Runner](https://github.com/amancevice/rumrunner/blob/master/rum-runner.png?raw=true)](https://github.com/amancevice/rumrunner)
+[![Rum Runner](https://github.com/amancevice/rumrunner/blob/main/rum-runner.png?raw=true)](https://github.com/amancevice/rumrunner)
 ![rubygems](https://img.shields.io/gem/v/rumrunner?logo=rubygems&logoColor=eee&style=flat-square)
 [![rspec](https://img.shields.io/github/workflow/status/amancevice/rumrunner/RSpec?logo=github&style=flat-square)](https://github.com/amancevice/rumrunner/actions)
 [![coverage](https://img.shields.io/codeclimate/coverage/amancevice/rumrunner?logo=code-climate&style=flat-square)](https://codeclimate.com/github/amancevice/rumrunner/test_coverage)
