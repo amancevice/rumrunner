@@ -109,27 +109,18 @@ module Rum
     # -- methods that enhance the current context
 
     def context(path)
-      puts "CONTEXT    #{args}"
       Rum.application.current_context.context = path
     end
 
     def dockerfile(name)
-      puts "DOCKERFILE #{args}"
       Rum.application.current_context.dockerfile = name
     end
 
     def env(value)
-      puts "ENV        #{args}"
       Rum.application.current_context.env << value
     end
 
-    def image(image)
-      puts "IMAGE      #{args}"
-      Rum.application.current_context.image = image
-    end
-
     def repo(repo)
-      puts "REPO       #{args}"
       Rum.application.current_context.repo = repo
     end
 

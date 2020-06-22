@@ -3,72 +3,48 @@ require "rake"
 require "rumrunner/docker"
 
 module Rum
-  class ContextLayer < OpenStruct
-  end
+  module ContextLayer
+    attr_accessor :context,
+                  :dockerfile,
+                  :env,
+                  :iidroot,
+                  :repo
 
-  class Context < Rake::LinkedList
-    def initialize(head, tail=EMPTY)
-      head = ContextLayer.new(**head)
-      super
-    end
-
-    def build
-      opts = {
-        build_arg: env,
-        iidfile: [iidfile],
-        tag: [tag],
-        target: [target].compact
-      }
-      args = [path]
-      [opts, args]
-    end
-
-    def run(cmd=nil)
-      opts = {
-        env: env,
-      }
-      args = [cmd]
-      [opts, args]
-    end
-
-    def digest
-      File.read(iidfile)
-    end
-
-    def env(*args)
-      if args.any?
-        @head.env ||= []
-        @head.env.concat(args)
-      end
-      map(&:env).compact.flatten
-    end
-
-    def iidpath
-      @head.iidpath || @tail.iidpath
+    def env
+      @env ||= []
     end
 
     def iidfile
-      File.join(iidpath, name, @head.tag)
+      File.join(iidpath, @head)
     end
 
-    def name
-      @head.name || @tail.name
+    def iidpath
+      File.join(iidroot, repo)
     end
 
-    def path
-      @head.path || @tail.path
+    def iidroot
+      @iidroot || @tail.iidroot
     end
 
-    def tag
-      "#{name}:#{@head.tag || @tail.tag}"
+    def repo
+      @repo || @tail.repo
     end
+  end
 
-    def target
-      @head.target || @tail.target
-    end
+  class Context < Rake::LinkedList
+    include ContextLayer
 
     class DefaultContext < Rake::LinkedList::EmptyLinkedList
+      include ContextLayer
       @parent = Context
+
+      def iidroot
+        @iidroot ||= ".docker"
+      end
+
+      def repo
+        @repo ||= File.basename(Dir.pwd)
+      end
     end
 
     EMPTY = DefaultContext.new

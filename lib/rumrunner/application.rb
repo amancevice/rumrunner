@@ -33,10 +33,20 @@ module Rum
 
     ##
     # Open Docker context
-    def in_context(**context)
-      @context = Context.new(context, @context)
-      yield(@context)
-      @context
+    def in_context(name)
+      # Copied from Rake::DSL#namespace
+      name = name.to_s if name.kind_of?(Symbol)
+      name = name.to_str if name.respond_to?(:to_str)
+      unless name.kind_of?(String) || name.nil?
+        raise ArgumentError, "Expected a String or Symbol for a context name"
+      end
+
+      # Open namespace
+      in_namespace(name) do
+        @context = Context.new(name, @context)
+        yield(@context)
+        @context
+      end
     ensure
       @context = @context.tail
     end

@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-gem = Gem::Specification::load("rumrunner.gemspec")
+gem = Gem::Specification::load "rumrunner.gemspec"
 pkg = "pkg/#{gem.full_name}.gem"
 
 namespace :rum do
