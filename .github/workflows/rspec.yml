@@ -27,3 +27,4 @@ jobs:
       - run: bundle install --jobs 4 --retry 3
       - run: bundle exec rake
       - run: cc-test-reporter after-build
+        if: ${{ github.event_name != 'pull_request' }}
