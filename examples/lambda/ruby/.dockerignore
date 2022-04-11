@@ -2,5 +2,5 @@
 !*.tf
 !Gemfile
 !Rakefile
-!lambda.rb
+!index.rb
 !lambda.zip

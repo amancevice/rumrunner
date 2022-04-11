@@ -1,4 +1,4 @@
-load "lambda.rb"
+load "index.rb"
 
 task :default do
   event = {hello: "world"}

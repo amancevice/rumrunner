@@ -3,8 +3,8 @@ source "https://rubygems.org"
 gemspec
 
 group :development do
-  gem "bundler",   "~> 2.0"
+  gem "dotenv",    "~> 2.7"
   gem "pry",       "~> 0.13"
   gem "rspec",     "~> 3.0"
-  gem "simplecov", "~> 0.17.1"
+  gem "simplecov", "~> 0.21"
 end

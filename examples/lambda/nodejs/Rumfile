@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require "dotenv/load"
 
-rum :"rumrunner/ruby2.7" do
+rum :"rumrunner/nodejs14.x" do
   tag Time.now.utc.strftime("%Y.%-m.%-d")
 
   env :TERRAFORM => "latest"
@@ -14,8 +14,8 @@ rum :"rumrunner/ruby2.7" do
     build_arg :AWS_DEFAULT_REGION => "us-east-1"
   end
 
-  artifact "Gemfile.lock" => :build
-  artifact "lambda.zip"   => :build
+  artifact "package.zip"       => :build
+  artifact "package-lock.json" => :build
 
-  default %w[Gemfile.lock lambda.zip plan]
+  default %w[package-lock.json package.zip plan]
 end

@@ -6,11 +6,11 @@
   },
   "description": "Rumfile NodeJS example",
   "license": "MIT",
-  "main": "lambda.js",
+  "main": "index.js",
   "name": "rumrunner-example",
   "private": true,
   "scripts": {
-    "test": "node lambda.js"
+    "test": "node index.js"
   },
   "version": "1.0.0"
 }
