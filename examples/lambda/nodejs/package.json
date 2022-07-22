@@ -1,7 +1,7 @@
 {
   "author": "rumrunner",
   "dependencies": {
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.26"
   },
   "description": "Rumfile NodeJS example",
