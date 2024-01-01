@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir["README*", "LICENSE*", "lib/**/*"]
   spec.executables   = ["rum"]
 
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0".freeze)
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0".freeze)
 
   spec.add_dependency "rake", "~> 13.0"
 end
