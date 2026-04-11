@@ -8,30 +8,26 @@ jobs:
     strategy:
       matrix:
         ruby:
-          - "3.2"
           - "3.3"
+          - "3.4"
+          - "4.0"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
+          bundler-cache: true
           ruby-version: ${{ matrix.ruby }}
-      - uses: amancevice/setup-code-climate@v2
-        with:
-          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
-      - run: cc-test-reporter before-build
-      - run: bundle install
       - run: bundle exec rake
-      - run: cc-test-reporter after-build
-        if: ${{ github.event_name != 'pull_request' }}
   Rum:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         ruby:
-          - "3.2"
           - "3.3"
+          - "3.4"
+          - "4.0"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
