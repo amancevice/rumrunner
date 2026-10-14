@@ -17,6 +17,6 @@ resource "aws_lambda_function" "lambda" {
   function_name    = "rumrunner-example"
   handler          = "index.handler"
   role             = "rumrunner"
-  runtime          = "nodejs10.x"
+  runtime          = "nodejs24.x"
   source_code_hash = filebase64sha256("package.zip")
 }
